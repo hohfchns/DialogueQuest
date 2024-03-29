@@ -1,0 +1,36 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[application]
+
+config/name="DialogueQuest"
+run/main_scene="res://examples/basic/prefabs/entry.tscn"
+config/features=PackedStringArray("4.2", "Forward Plus")
+config/icon="res://icon.png"
+
+[autoload]
+
+DialogueQuest="*res://addons/dialogue_quest/scripts/dialogue_quest_interface.gd"
+
+[category]
+
+property_name=0
+
+[dialogue_quest]
+
+data_directory="res://dialogue_quest/"
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/dialogue_quest/plugin.cfg")
+
+[gui]
+
+theme/default_font_multichannel_signed_distance_field=true

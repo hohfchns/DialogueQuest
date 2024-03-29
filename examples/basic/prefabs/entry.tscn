@@ -1,0 +1,31 @@
+[gd_scene load_steps=5 format=3 uid="uid://b7ul1vxhrf6pu"]
+
+[ext_resource type="Script" path="res://examples/basic/scripts/entry.gd" id="1_ib1bb"]
+[ext_resource type="PackedScene" uid="uid://ttdif58g3l3i" path="res://addons/dialogue_quest/prefabs/ui/dialogue/components/dialogue_box/dialogue_box.tscn" id="2_x58pj"]
+[ext_resource type="Script" path="res://addons/dialogue_quest/scripts/ui/dialogue/components/dialogue_player.gd" id="3_uir4a"]
+[ext_resource type="Resource" uid="uid://br1srvonmm4ok" path="res://addons/dialogue_quest/resources/components/settings/default_dialogue_player_settings.tres" id="4_m83dr"]
+
+[node name="Entry" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_ib1bb")
+
+[node name="DialogueBox" parent="." instance=ExtResource("2_x58pj")]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = -550.0
+offset_top = -208.0
+offset_right = 552.0
+offset_bottom = -20.0
+text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Fringilla ut morbi tincidunt augue interdum. Sed viverra ipsum nunc aliquet bibendum enim facilisis. Sem fringilla ut morbi tincidunt augue interdum velit. Ut enim blandit volutpat maecenas volutpat blandit. Vel pharetra vel turpis nunc eget lorem dolor sed viverra. Nunc pulvinar sapien et ligula ullamcorper. Cursus vitae congue mauris q"
+
+[node name="DialoguePlayer" type="Node" parent="." node_paths=PackedStringArray("dialogue_box")]
+script = ExtResource("3_uir4a")
+settings = ExtResource("4_m83dr")
+dialogue_box = NodePath("../DialogueBox")

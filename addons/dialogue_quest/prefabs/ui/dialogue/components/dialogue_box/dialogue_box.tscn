@@ -1,0 +1,80 @@
+[gd_scene load_steps=5 format=3 uid="uid://ttdif58g3l3i"]
+
+[ext_resource type="Script" path="res://addons/dialogue_quest/scripts/ui/dialogue/components/dialogue_box.gd" id="1_6hcde"]
+[ext_resource type="Theme" uid="uid://b43o8w87vgskk" path="res://addons/dialogue_quest/resources/themes/default/default_theme.tres" id="1_j5uw8"]
+[ext_resource type="Resource" uid="uid://jh8lun0hq76i" path="res://addons/dialogue_quest/resources/components/settings/default_dialogue_box.tres" id="2_lis4o"]
+[ext_resource type="Texture2D" uid="uid://dnudgc08jcbif" path="res://addons/dialogue_quest/art/placeholders/portraits/shahar_portrait.png" id="2_nl5qw"]
+
+[node name="DialogueBox" type="PanelContainer"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -469.0
+offset_top = -242.0
+offset_right = 469.0
+offset_bottom = 198.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("1_j5uw8")
+script = ExtResource("1_6hcde")
+settings = ExtResource("2_lis4o")
+text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Fringilla ut morbi tincidunt augue interdum. Sed viverra ipsum nunc aliquet bibendum enim facilisis. Sem fringilla ut morbi tincidunt augue interdum velit. Ut enim blandit volutpat maecenas volutpat blandit. Vel pharetra vel turpis nunc eget lorem dolor sed viverra. Nunc pulvinar sapien et ligula ullamcorper. Cursus vitae congue mauris rhoncus aenean vel elit scelerisque mauris. Lorem mollis aliquam ut porttitor leo a diam. Non tellus orci ac auctor augue. Nullam non nisi est sit amet facilisis magna etiam.
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Fringilla ut morbi tincidunt augue interdum. Sed viverra ipsum nunc aliquet bibendum enim facilisis. Sem fringilla ut morbi tincidunt augue interdum velit. Ut enim blandi"
+name_text = "This is a man with a very long name"
+portrait_image = ExtResource("2_nl5qw")
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="Rows" type="VBoxContainer" parent="Margin"]
+layout_direction = 3
+layout_mode = 2
+
+[node name="RowTop" type="HBoxContainer" parent="Margin/Rows"]
+layout_mode = 2
+
+[node name="NameMargin" type="MarginContainer" parent="Margin/Rows/RowTop"]
+layout_mode = 2
+theme_override_constants/margin_right = 10
+
+[node name="Name" type="Label" parent="Margin/Rows/RowTop/NameMargin"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.439216, 0.00392157, 0.737255, 1)
+text = "This is a man with a very long name"
+
+[node name="RowMiddle" type="HBoxContainer" parent="Margin/Rows"]
+layout_mode = 2
+
+[node name="PortraitBackground" type="PanelContainer" parent="Margin/Rows/RowMiddle"]
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 0
+theme_type_variation = &"PanelContainerForeground"
+
+[node name="Portrait" type="TextureRect" parent="Margin/Rows/RowMiddle/PortraitBackground"]
+unique_name_in_owner = true
+texture_filter = 1
+custom_minimum_size = Vector2(128, 128)
+layout_mode = 2
+texture = ExtResource("2_nl5qw")
+expand_mode = 1
+stretch_mode = 4
+
+[node name="DialogueText" type="RichTextLabel" parent="Margin/Rows/RowMiddle"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+bbcode_enabled = true
+text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Fringilla ut morbi tincidunt augue interdum. Sed viverra ipsum nunc aliquet bibendum enim facilisis. Sem fringilla ut morbi tincidunt augue interdum velit. Ut enim blandit volutpat maecenas volutpat blandit. Vel pharetra vel turpis nunc eget lorem dolor sed viverra. Nunc pulvinar sapien et ligula ullamcorper. Cursus vitae congue mauris rhoncus aenean vel elit scelerisque mauris. Lorem mollis aliquam ut porttitor leo a diam. Non tellus orci ac auctor augue. Nullam non nisi est sit amet facilisis magna etiam.
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Fringilla ut morbi tincidunt augue interdum. Sed viverra ipsum nunc aliquet bibendum enim facilisis. Sem fringilla ut morbi tincidunt augue interdum velit. Ut enim blandi"
+fit_content = true
+visible_characters_behavior = 1
