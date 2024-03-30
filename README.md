@@ -42,7 +42,7 @@ A few notes:
 - The signal statement raises a global signal with arguments that are parsed into GDScript variables
 - The call statement runs raw GDScript code
 - The [b][/b] and [i][/i] are `bbcode` formatting. You can read about it [on the Godot documentation](https://docs.godotengine.org/en/stable/tutorials/ui/bbcode_in_richtextlabel.html).
-- Comments are supported! Any line starting with // will not be parsed.
+- Comments are supported! Any line starting with `//` will not be parsed. This is useful when you want to temporarily disable a section without deleting it, or perhaps leave a note for a coder to fix your signal/call statement.
 
 ## How do I use it?
 
