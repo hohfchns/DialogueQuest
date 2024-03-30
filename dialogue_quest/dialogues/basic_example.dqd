@@ -4,8 +4,10 @@ signal | "whatsup" | 5
 say | shahar | All's good in da hood
 call | print("DialogueQuest is awesome!")
 say | Hell yeah :D
-flag | raise | hell_yeah
+flag | inc | hell_yeah
 say | Give me a high five man!
+
+say | We got ${hell_yeah} hell_yeah's so far!
 
 choice | High Five him | Don't
 branch | choice | High Five him
@@ -39,3 +41,4 @@ branch | choice | Right
 branch | end
 
 say | shahar | Now what?
+

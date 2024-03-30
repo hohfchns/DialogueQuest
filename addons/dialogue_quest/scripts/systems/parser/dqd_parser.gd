@@ -16,12 +16,31 @@ class DqdError:
 ## Defines a section of the parsed text
 ## This class is just a base class, meant to be inherited
 class DqdSection:
+	## Handler for the ${flag} syntax, should be implemented by the section
+	## See 
+	func solve_flags() -> void:
+		pass
+	
 	class SectionSay extends DqdSection:
 		var character: DQCharacter
 		var text: String
+		
+		func solve_flags() -> void:
+			text = DQDqdParser.solve_flags(text)
 	
 	class SectionRaiseDQSignal extends DqdSection:
 		var params: Array
+		
+		func solve_flags() -> void:
+			var new_params: Array
+			for p in params:
+				if p is String:
+					new_params.append(DQDqdParser.solve_flags(p))
+				elif p is StringName:
+					new_params.append(StringName(DQDqdParser.solve_flags(p)))
+				else:
+					new_params.append(p)
+			params = new_params
 	
 	class SectionEvaluateCall extends DqdSection:
 		var expression_string: String
@@ -29,6 +48,12 @@ class DqdSection:
 		
 		func run_as_script() -> Variant:
 			return DQScriptingHelper.run_pure_gdscript(expression_string)
+		
+		func solve_flags() -> void:
+			var solved := DQDqdParser.solve_flags(expression_string)
+			if solved != expression_string:
+				expression_string = solved
+				expression.parse(expression_string)
 	
 	class SectionFlag extends DqdSection:
 		enum Type {
@@ -64,6 +89,12 @@ class DqdSection:
 	
 	class SectionChoice extends DqdSection:
 		var choices: PackedStringArray
+		
+		func solve_flags() -> void:
+			var new_choices: Array
+			for c in choices:
+				new_choices.append(DQDqdParser.solve_flags(c))
+			choices = new_choices
 	
 	class SectionBranch extends DqdSection:
 		enum Type {
@@ -75,6 +106,9 @@ class DqdSection:
 		
 		var type: Type = Type.END
 		var expression: String = ""
+		
+		func solve_flags() -> void:
+			expression = DQDqdParser.solve_flags(expression)
 
 static func parse_from_file(filepath: String) -> Array[DqdSection]:
 	if not FileAccess.file_exists(filepath):
@@ -128,12 +162,23 @@ static func parse_from_text(text: String) -> Array[DqdSection]:
 	
 	return ret
 
+static func solve_flags(in_string: String) -> String:
+	var regex := RegEx.create_from_string(r"\${(.*?)}")
+	var found := regex.search_all(in_string)
+	if found.size():
+		var flag_syntax := found[0].strings[0]
+		var flag_name := found[0].strings[1]
+		var flag_value := DialogueQuest.Flags.get_flag(flag_name)
+		assert(flag_value != null, "DialogQuest | Dqd | Parser | Could not find flag %s" % flag_syntax)
+		return in_string.replace(flag_syntax, str(flag_value))
+	else:
+		return in_string
+
 ## The parser for say statements.
 ## 
 ## On success, return [Array(DqdSection.SectionSay)].
 ## On failure will return [DqdError].
 static func _parse_say(pipeline: PackedStringArray):
-	
 	if pipeline.size() <= 1:
 		return DqdError.new("DialogQuest | Dqd | Parser | Parse error at line {line} | Cannot parse say statement | Wrong number of arguments (correct -> 1/2, found 0)")
 	elif pipeline.size() >= 4:

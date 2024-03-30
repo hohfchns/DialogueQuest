@@ -26,6 +26,8 @@ func play(dialogue_path: String) -> void:
 	
 	var correct_branch: bool = true
 	for p in parsed:
+		p.solve_flags()
+		
 		if p as DQDqdParser.DqdSection.SectionBranch != null:
 			p = p as DQDqdParser.DqdSection.SectionBranch
 			match p.type:
