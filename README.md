@@ -34,6 +34,7 @@ call | print("Well joe, you can use <i>[i]GDScript[/i]</i> from DialogueQuest qu
  
 say | joe | Oh wow, that's great!
  
+// Tell the world that joe is happy
 signal | "joe_is" | "happy" | true
 </pre>
 
@@ -41,6 +42,7 @@ A few notes:
 - The signal statement raises a global signal with arguments that are parsed into GDScript variables
 - The call statement runs raw GDScript code
 - The [b][/b] and [i][/i] are `bbcode` formatting. You can read about it [on the Godot documentation](https://docs.godotengine.org/en/stable/tutorials/ui/bbcode_in_richtextlabel.html).
+- Comments are supported! Any line starting with // will not be parsed.
 
 ## How do I use it?
 
