@@ -44,6 +44,38 @@ A few notes:
 - The [b][/b] and [i][/i] are `bbcode` formatting. You can read about it [on the Godot documentation](https://docs.godotengine.org/en/stable/tutorials/ui/bbcode_in_richtextlabel.html).
 - Comments are supported! Any line starting with `//` will not be parsed. This is useful when you want to temporarily disable a section without deleting it, or perhaps leave a note for a coder to fix your signal/call statement.
 
+```
+choice | Say Hello | Don't Say Hello
+
+branch | choice | Say Hello
+    say | Hello!
+    flag | raise | said_hello
+branch | choice | Don't Say Hello
+    say | Rather rude.
+branch | end
+
+branch | flag | said_hello
+    say | Hey there!
+branch | end
+
+branch | evaluate | 10 > 0
+    say | It's basic math...
+branch | end
+```
+
+- The `choice` statement will bring up a choice menu with the desired options.
+- The `branch` statement has a few modes:
+    - `choice` - Will run it's section if the provided choice was chosen.
+    - `flag` - Will run it's section if the provided flag has been raised.
+    - `evaluate` - Will run it's section if the provided expression evaluates to true.
+    - `end` - Marks the end of the branch.
+- The `flag` statement also has a few modes:
+    - `raise` - Will raise the flag as a simple boolean, and can be checked if it was raised.
+    - `set` - Will set the flag as the GDScript variable that is provided.
+    - `inc` - Will set the flag as an integer (if it doesn't exist), and increment it, by either 1 or the provided argument.
+    - `dec` - Will set the flag as an integer (if it doesn't exist), and decrement it, by either 1 or the provided argument.
+    - `delete` - Will delete the flag.
+
 ## How do I use it?
 
 ### Install the addon
