@@ -169,7 +169,8 @@ static func solve_flags(in_string: String) -> String:
 		var flag_syntax := found[0].strings[0]
 		var flag_name := found[0].strings[1]
 		var flag_value := DialogueQuest.Flags.get_flag(flag_name)
-		assert(flag_value != null, "DialogQuest | Dqd | Parser | Could not find flag %s" % flag_syntax)
+		if flag_value == null:
+			flag_value = 0
 		return in_string.replace(flag_syntax, str(flag_value))
 	else:
 		return in_string
