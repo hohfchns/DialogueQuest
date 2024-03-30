@@ -9,6 +9,9 @@ class DqdError:
 		if "line" in text:
 			t = text.format({"line": line})
 		return t
+	
+	func _init(from_text: String) -> void:
+		text = from_text
 
 ## Defines a section of the parsed text
 ## This class is just a base class, meant to be inherited
@@ -31,6 +34,38 @@ class DqdSection:
 			var ref = RefCounted.new()
 			ref.set_script(script)
 			return ref.eval()
+	
+	class SectionFlag extends DqdSection:
+		enum Type {
+			RAISE,
+			INCREMENT,
+			DECREMENT,
+			SET,
+			DELETE
+		}
+		
+		var type: Type
+		var flag: String
+		var value: Variant = null
+		
+		func raise() -> void:
+			match type:
+				Type.RAISE:
+					DialogueQuest.Flags.raise_flag(flag)
+				Type.INCREMENT:
+					if value:
+						DialogueQuest.Flags.increment_flag(flag, value)
+					else:
+						DialogueQuest.Flags.increment_flag(flag)
+				Type.DECREMENT:
+					if value:
+						DialogueQuest.Flags.decrement_flag(flag, value)
+					else:
+						DialogueQuest.Flags.decrement_flag(flag)
+				Type.SET:
+					DialogueQuest.Flags.set_flag(flag, value)
+				Type.DELETE:
+					DialogueQuest.Flags.delete_flag(flag)
 
 static func _remove_whitespace(from: String) -> String:
 	return from.replace(" ", "").replace("\n", "").replace("\r", "").replace("	", "")
@@ -65,25 +100,21 @@ static func parse_from_text(text: String) -> Array[DqdSection]:
 		var pipeline: PackedStringArray = line.split("|")
 		assert(pipeline.size() and "|" in no_whitespace, "DialogQuest | Dqd | Parser | Parse error at line %d | No statements" % line_num)
 		for pipe in pipeline:
+			var parsed = null
 			match _remove_whitespace(pipe):
 				"say":
-					var parsed = _parse_say(pipeline)
-					if not parsed is DqdSection.SectionSay:
-						assert(false, parsed.formatted(line_num))
-					
-					ret.append(parsed)
+					parsed = _parse_say(pipeline)
 				"signal":
-					var parsed = _parse_signal(pipeline)
-					if not parsed is DqdSection.SectionRaiseDQSignal:
-						assert(false, parsed.formatted(line_num))
-					
-					ret.append(parsed)
+					parsed = _parse_signal(pipeline)
 				"call":
-					var parsed = _parse_call(pipeline)
-					if not parsed is DqdSection.SectionEvaluateCall:
-						assert(false, parsed.formatted(line_num))
-					
-					ret.append(parsed)
+					parsed = _parse_call(pipeline)
+				"flag":
+					parsed = _parse_flag(pipeline)
+			
+			if parsed is DqdError:
+				assert(false, parsed.formatted(line_num))
+			else:
+				ret.append(parsed)
 	
 	return ret
 
@@ -94,13 +125,9 @@ static func parse_from_text(text: String) -> Array[DqdSection]:
 static func _parse_say(pipeline: PackedStringArray):
 	
 	if pipeline.size() <= 1:
-		var err := DqdError.new()
-		err.text = "DialogQuest | Dqd | Parser | Parse error at line {line} | Cannot parse say statement | Wrong number of arguments (correct -> 1/2, found 0)"
-		return err
+		return DqdError.new("DialogQuest | Dqd | Parser | Parse error at line {line} | Cannot parse say statement | Wrong number of arguments (correct -> 1/2, found 0)")
 	elif pipeline.size() >= 4:
-		var err := DqdError.new()
-		err.text = "DialogQuest | Dqd | Parser | Parse error at line {line} | Cannot parse say statement | Wrong number of arguments (correct -> 1/2, found > 2)"
-		return err
+		return DqdError.new("DialogQuest | Dqd | Parser | Parse error at line {line} | Cannot parse say statement | Wrong number of arguments (correct -> 1/2, found > 2)")
 	
 	var say := DqdSection.SectionSay.new()
 	say.character = null
@@ -115,16 +142,12 @@ static func _parse_say(pipeline: PackedStringArray):
 		say.character = DQCharacter.find_by_id(_remove_whitespace(character_id))
 		
 		if say.character == null:
-			var err := DqdError.new()
-			err.text = "DialogQuest | Dqd | Parser | Parse error at line {line} | Cannot parse say statement | Character `{character}` not found".format({"character": character_id})
-			return err
+			return DqdError.new("DialogQuest | Dqd | Parser | Parse error at line {line} | Cannot parse say statement | Character `{character}` not found".format({"character": character_id}))
 		
 		say.text = pipeline[2].trim_prefix(" ")
 		return say
 	
-	var err := DqdError.new()
-	err.text = "DialogQuest | Dqd | Parser | Parse error at line {line} | Cannot parse say statement | Unknown Error"
-	return err
+	return DqdError.new("DialogQuest | Dqd | Parser | Parse error at line {line} | Cannot parse say statement | Unknown Error")
 
 ## The parser for signal statements.
 ## 
@@ -132,17 +155,13 @@ static func _parse_say(pipeline: PackedStringArray):
 ## On failure will return [DqdError].
 static func _parse_signal(pipeline: PackedStringArray):
 	if pipeline.size() <= 1:
-		var err := DqdError.new()
-		err.text = "DialogQuest | Dqd | Parser | Parse error at line {line} | Cannot parse signal statement | Wrong number of arguments (correct -> 1+, found 0)"
-		return err
+		return DqdError.new("DialogQuest | Dqd | Parser | Parse error at line {line} | Cannot parse signal statement | Wrong number of arguments (correct -> 1+, found 0)")
 	
 	var args: Array = []
 	for p in pipeline.slice(1):
 		var as_var := str_to_var(_remove_whitespace(p))
 		if as_var == null:
-			var err := DqdError.new()
-			err.text = "DialogQuest | Dqd | Parser | Parse error at line {line} | Cannot parse signal statement | String `%s` could not be parsed into a GDScript variable." % p
-			return err
+			return DqdError.new("DialogQuest | Dqd | Parser | Parse error at line {line} | Cannot parse signal statement | String `%s` could not be parsed into a GDScript variable." % p)
 		args.append(as_var)
 	
 	var sec := DqdSection.SectionRaiseDQSignal.new()
@@ -155,23 +174,68 @@ static func _parse_signal(pipeline: PackedStringArray):
 ## On failure will return [DqdError].
 static func _parse_call(pipeline: PackedStringArray):
 	if pipeline.size() <= 1:
-		var err := DqdError.new()
-		err.text = "DialogQuest | Dqd | Parser | Parse error at line {line} | Cannot parse call statement | Wrong number of arguments (correct -> 1, found 0)"
-		return err
+		return DqdError.new("DialogQuest | Dqd | Parser | Parse error at line {line} | Cannot parse call statement | Wrong number of arguments (correct -> 1, found 0)")
 	elif pipeline.size() >= 3:
-		var err := DqdError.new()
-		err.text = "DialogQuest | Dqd | Parser | Parse error at line {line} | Cannot parse call statement | Wrong number of arguments (correct -> 1, found > 1)"
-		return err
+		return DqdError.new("DialogQuest | Dqd | Parser | Parse error at line {line} | Cannot parse call statement | Wrong number of arguments (correct -> 1, found > 1)")
 	
 	var expression_str := pipeline[1]
 	var expression := Expression.new()
 	var exp_err := expression.parse(expression_str)
 	if exp_err != OK:
-		var err := DqdError.new()
-		err.text = "DialogQuest | Dqd | Parser | Parse error at line {line} | Cannot parse call statement | Call expression `%s` failed to parse" % expression_str
-		return err
+		return DqdError.new("DialogQuest | Dqd | Parser | Parse error at line {line} | Cannot parse call statement | Call expression `%s` failed to parse" % expression_str)
 	
 	var ret := DqdSection.SectionEvaluateCall.new()
 	ret.expression_string = expression_str
 	ret.expression = expression
 	return ret
+
+## The parser for call statements.
+## 
+## On success, return [Array(DqdSection.SectionFlag)].
+## On failure will return [DqdError].
+static func _parse_flag(pipeline: PackedStringArray):
+	if pipeline.size() <= 2:
+		return DqdError.new("DialogQuest | Dqd | Parser | Parse error at line {line} | Cannot parse flag statement | Wrong number of arguments (correct -> 2+, found 0)")
+	
+	var section := DqdSection.SectionFlag.new()
+	match _remove_whitespace(pipeline[1]):
+		"raise":
+			section.type = DqdSection.SectionFlag.Type.RAISE
+			section.flag = _remove_whitespace(pipeline[2])
+			section.value = true
+		"inc":
+			if pipeline.size() <= 3:
+				section.value = null
+				section.flag = _remove_whitespace(pipeline[2])
+			else:
+				var num_str := _remove_whitespace(pipeline[2])
+				if not num_str.is_valid_int():
+					return DqdError.new("DialogQuest | Dqd | Parser | Parse error at line {line} | Cannot parse flag inc statement | Argument `%s` is not a valid integer numer" % num_str)
+				section.value = int(num_str)
+				section.flag = _remove_whitespace(pipeline[3])
+			section.type = DqdSection.SectionFlag.Type.INCREMENT
+		"dec":
+			if pipeline.size() <= 3:
+				section.value = null
+				section.flag = _remove_whitespace(pipeline[2])
+			else:
+				var num_str := _remove_whitespace(pipeline[2])
+				if not num_str.is_valid_int():
+					return DqdError.new("DialogQuest | Dqd | Parser | Parse error at line {line} | Cannot parse flag dec statement | Argument `%s` is not a valid integer numer" % num_str)
+				section.value = int(num_str)
+				section.flag = _remove_whitespace(pipeline[3])
+			section.type = DqdSection.SectionFlag.Type.DECREMENT
+		"set":
+			if pipeline.size() <= 3:
+				return DqdError.new("DialogQuest | Dqd | Parser | Parse error at line {line} | Cannot parse flag set statement | Wrong number of arguments (correct -> 3, found %d)" % (pipeline.size() - 1))
+			section.type = DqdSection.SectionFlag.Type.SET
+			var var_str := _remove_whitespace(pipeline[2])
+			section.value = str_to_var(var_str)
+			if section.value == null:
+				return DqdError.new("DialogQuest | Dqd | Parser | Parse error at line {line} | Cannot parse flag set statement | Argument `%s` is not a valid GDScript value" % var_str) 
+			section.flag = _remove_whitespace(pipeline[3])
+		"delete":
+			section.type = DqdSection.SectionFlag.Type.DELETE
+			section.flag = _remove_whitespace(pipeline[2])
+	
+	return section

@@ -57,6 +57,9 @@ func play(dialogue_path: String) -> void:
 			if p.expression.has_execute_failed() and settings.run_expressions_as_script:
 				printerr("Executing expression failed, running as script...")
 				p.run_as_script()
+		elif p as DQDqdParser.DqdSection.SectionFlag != null:
+			p = p as DQDqdParser.DqdSection.SectionFlag
+			p.raise()
 	
 	dialogue_box.hide()
 	DialogueQuest.Signals.dialogue_ended.emit()

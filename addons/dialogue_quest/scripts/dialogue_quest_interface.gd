@@ -2,6 +2,7 @@ extends Node
 class_name DQInterface
 
 var _signals := DQSignals.new()
+var _flags := DQFlags.new()
 var _inputs := DQInputs.new()
 var _settings := DQMainSettings.new()
 var _character_db := DQCharacterDB.new()
@@ -11,6 +12,12 @@ var Signals: DQSignals :
 		pass
 	get:
 		return _signals
+
+var Flags: DQFlags:
+	set(value):
+		pass
+	get:
+		return _flags
 
 var Settings: DQMainSettings :
 	set(value):
@@ -32,6 +39,7 @@ var Inputs : DQInputs:
 
 func _ready() -> void:
 	add_child(_signals)
+	add_child(_flags)
 	add_child(_inputs)
 	add_child(_settings)
 	add_child(_character_db)
