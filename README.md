@@ -48,18 +48,20 @@ A few notes:
 choice | Say Hello | Don't Say Hello
 
 branch | choice | Say Hello
-    say | Hello!
-    flag | raise | said_hello
+	say | Hello!
+	flag | raise | said_hello
+	flag | inc | number_of_hellos
 branch | choice | Don't Say Hello
-    say | Rather rude.
+	say | Rather rude.
 branch | end
 
 branch | flag | said_hello
-    say | Hey there!
+	say | Hey there!
+	flag | inc | number_of_hellos
 branch | end
 
-branch | evaluate | 10 > 0
-    say | It's basic math...
+branch | evaluate | ${number_of_hellos} > 0
+	say | Wow! We got ${number_of_hellos} hellos!
 branch | end
 ```
 
