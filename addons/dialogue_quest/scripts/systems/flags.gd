@@ -8,13 +8,12 @@ var _choice_stack: Array[String] = []
 
 func get_flag(flag: String) -> Variant:
 	if flag in flag_registry:
-		return flag
+		return flag_registry[flag]
 	
 	return null
 
 func set_flag(flag: String, value: Variant) -> void:
 	flag_registry[flag] = value
-	pass
 
 func get_bool(flag: String) -> bool:
 	var f := get_flag(flag) as bool
@@ -32,23 +31,19 @@ func is_raised(flag: String) -> bool:
 
 func raise_flag(flag: String) -> void:
 	flag_registry[flag] = true
-	pass
 
 func increment_flag(flag: String, by := 1) -> void:
 	if not flag in flag_registry:
 		flag_registry[flag] = 0
 	flag_registry[flag] += by
-	pass
 
 func decrement_flag(flag: String, by := 1) -> void:
 	if not flag in flag_registry:
 		flag_registry[flag] = 0
 	flag_registry[flag] -= by
-	pass
 
 func delete_flag(flag: String) -> void:
 	flag_registry.erase(flag)
-	pass
 
 func make_choice(choice: String) -> void:
 	_choice_stack.push_back(choice)
