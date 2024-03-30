@@ -4,6 +4,8 @@ class_name DQFlags
 ## [Dictionary] of the format: flag([String]) : value([Variant]) }
 var flag_registry: Dictionary = {}
 
+var _choice_stack: Array[String] = []
+
 func get_flag(flag: String) -> Variant:
 	if flag in flag_registry:
 		return flag
@@ -48,6 +50,11 @@ func delete_flag(flag: String) -> void:
 	flag_registry.erase(flag)
 	pass
 
+func make_choice(choice: String) -> void:
+	_choice_stack.push_back(choice)
 
-func _input(event: InputEvent) -> void:
-	pass
+func choice_made(choice: String) -> bool:
+	return choice in _choice_stack
+
+func confirm_choice(choice: String) -> void:
+	_choice_stack.erase(choice)

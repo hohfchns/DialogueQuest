@@ -1,0 +1,40 @@
+[gd_scene load_steps=3 format=3 uid="uid://dye384gy0fmiu"]
+
+[ext_resource type="Theme" uid="uid://b43o8w87vgskk" path="res://addons/dialogue_quest/resources/themes/default/default_theme.tres" id="1_ov2ao"]
+[ext_resource type="Script" path="res://addons/dialogue_quest/scripts/ui/dialogue/components/choice_menu/choice_menu.gd" id="2_7pwjb"]
+
+[node name="ChoiceMenu" type="PanelContainer"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -39.5
+offset_top = -16.0
+offset_right = 39.5
+offset_bottom = 16.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 6
+size_flags_vertical = 6
+theme = ExtResource("1_ov2ao")
+script = ExtResource("2_7pwjb")
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="ButtonsContainer" type="VBoxContainer" parent="Margin"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Button" type="Button" parent="Margin/ButtonsContainer"]
+layout_mode = 2
+text = "Go Up"
+
+[node name="Button2" type="Button" parent="Margin/ButtonsContainer"]
+layout_mode = 2
+text = "Go Down"

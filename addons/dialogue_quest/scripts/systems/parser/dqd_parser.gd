@@ -27,13 +27,8 @@ class DqdSection:
 		var expression_string: String
 		var expression: Expression
 		
-		func run_as_script():
-			var script = GDScript.new()
-			script.set_source_code("func eval():" + expression_string)
-			script.reload()
-			var ref = RefCounted.new()
-			ref.set_script(script)
-			return ref.eval()
+		func run_as_script() -> Variant:
+			return DQScriptingHelper.run_pure_gdscript(expression_string)
 	
 	class SectionFlag extends DqdSection:
 		enum Type {
@@ -66,9 +61,20 @@ class DqdSection:
 					DialogueQuest.Flags.set_flag(flag, value)
 				Type.DELETE:
 					DialogueQuest.Flags.delete_flag(flag)
-
-static func _remove_whitespace(from: String) -> String:
-	return from.replace(" ", "").replace("\n", "").replace("\r", "").replace("	", "")
+	
+	class SectionChoice extends DqdSection:
+		var choices: PackedStringArray
+	
+	class SectionBranch extends DqdSection:
+		enum Type {
+			CHOICE,
+			EVALUATE,
+			FLAG,
+			END
+		}
+		
+		var type: Type = Type.END
+		var expression: String = ""
 
 static func parse_from_file(filepath: String) -> Array[DqdSection]:
 	if not FileAccess.file_exists(filepath):
@@ -94,27 +100,31 @@ static func parse_from_text(text: String) -> Array[DqdSection]:
 	var line_num: int = 0
 	for line in text.split("\n"):
 		line_num += 1
-		var no_whitespace := _remove_whitespace(line)
-		if no_whitespace.is_empty() or no_whitespace.begins_with("// "):
+		var no_whitespace := DQScriptingHelper.remove_whitespace(line)
+		if no_whitespace.is_empty() or no_whitespace.begins_with("//"):
 			continue
 		var pipeline: PackedStringArray = line.split("|")
 		assert(pipeline.size() and "|" in no_whitespace, "DialogQuest | Dqd | Parser | Parse error at line %d | No statements" % line_num)
-		for pipe in pipeline:
-			var parsed = null
-			match _remove_whitespace(pipe):
-				"say":
-					parsed = _parse_say(pipeline)
-				"signal":
-					parsed = _parse_signal(pipeline)
-				"call":
-					parsed = _parse_call(pipeline)
-				"flag":
-					parsed = _parse_flag(pipeline)
-			
-			if parsed is DqdError:
-				assert(false, parsed.formatted(line_num))
-			else:
-				ret.append(parsed)
+		
+		var parsed = null
+		match DQScriptingHelper.remove_whitespace(pipeline[0]):
+			"say":
+				parsed = _parse_say(pipeline)
+			"signal":
+				parsed = _parse_signal(pipeline)
+			"call":
+				parsed = _parse_call(pipeline)
+			"flag":
+				parsed = _parse_flag(pipeline)
+			"choice":
+				parsed = _parse_choice(pipeline)
+			"branch":
+				parsed = _parse_branch(pipeline)
+		
+		if parsed is DqdError:
+			assert(false, parsed.formatted(line_num))
+		else:
+			ret.append(parsed)
 	
 	return ret
 
@@ -139,7 +149,7 @@ static func _parse_say(pipeline: PackedStringArray):
 	
 	if pipeline.size() == 3:
 		var character_id: String = pipeline[1]
-		say.character = DQCharacter.find_by_id(_remove_whitespace(character_id))
+		say.character = DQCharacter.find_by_id(DQScriptingHelper.remove_whitespace(character_id))
 		
 		if say.character == null:
 			return DqdError.new("DialogQuest | Dqd | Parser | Parse error at line {line} | Cannot parse say statement | Character `{character}` not found".format({"character": character_id}))
@@ -159,7 +169,7 @@ static func _parse_signal(pipeline: PackedStringArray):
 	
 	var args: Array = []
 	for p in pipeline.slice(1):
-		var as_var := str_to_var(_remove_whitespace(p))
+		var as_var := str_to_var(DQScriptingHelper.remove_whitespace(p))
 		if as_var == null:
 			return DqdError.new("DialogQuest | Dqd | Parser | Parse error at line {line} | Cannot parse signal statement | String `%s` could not be parsed into a GDScript variable." % p)
 		args.append(as_var)
@@ -198,44 +208,82 @@ static func _parse_flag(pipeline: PackedStringArray):
 		return DqdError.new("DialogQuest | Dqd | Parser | Parse error at line {line} | Cannot parse flag statement | Wrong number of arguments (correct -> 2+, found 0)")
 	
 	var section := DqdSection.SectionFlag.new()
-	match _remove_whitespace(pipeline[1]):
+	match DQScriptingHelper.remove_whitespace(pipeline[1]):
 		"raise":
 			section.type = DqdSection.SectionFlag.Type.RAISE
-			section.flag = _remove_whitespace(pipeline[2])
+			section.flag = DQScriptingHelper.remove_whitespace(pipeline[2])
 			section.value = true
 		"inc":
 			if pipeline.size() <= 3:
 				section.value = null
-				section.flag = _remove_whitespace(pipeline[2])
+				section.flag = DQScriptingHelper.remove_whitespace(pipeline[2])
 			else:
-				var num_str := _remove_whitespace(pipeline[2])
+				var num_str := DQScriptingHelper.remove_whitespace(pipeline[2])
 				if not num_str.is_valid_int():
 					return DqdError.new("DialogQuest | Dqd | Parser | Parse error at line {line} | Cannot parse flag inc statement | Argument `%s` is not a valid integer numer" % num_str)
 				section.value = int(num_str)
-				section.flag = _remove_whitespace(pipeline[3])
+				section.flag = DQScriptingHelper.remove_whitespace(pipeline[3])
 			section.type = DqdSection.SectionFlag.Type.INCREMENT
 		"dec":
 			if pipeline.size() <= 3:
 				section.value = null
-				section.flag = _remove_whitespace(pipeline[2])
+				section.flag = DQScriptingHelper.remove_whitespace(pipeline[2])
 			else:
-				var num_str := _remove_whitespace(pipeline[2])
+				var num_str := DQScriptingHelper.remove_whitespace(pipeline[2])
 				if not num_str.is_valid_int():
 					return DqdError.new("DialogQuest | Dqd | Parser | Parse error at line {line} | Cannot parse flag dec statement | Argument `%s` is not a valid integer numer" % num_str)
 				section.value = int(num_str)
-				section.flag = _remove_whitespace(pipeline[3])
+				section.flag = DQScriptingHelper.remove_whitespace(pipeline[3])
 			section.type = DqdSection.SectionFlag.Type.DECREMENT
 		"set":
 			if pipeline.size() <= 3:
 				return DqdError.new("DialogQuest | Dqd | Parser | Parse error at line {line} | Cannot parse flag set statement | Wrong number of arguments (correct -> 3, found %d)" % (pipeline.size() - 1))
 			section.type = DqdSection.SectionFlag.Type.SET
-			var var_str := _remove_whitespace(pipeline[2])
+			var var_str := DQScriptingHelper.remove_whitespace(pipeline[2])
 			section.value = str_to_var(var_str)
 			if section.value == null:
 				return DqdError.new("DialogQuest | Dqd | Parser | Parse error at line {line} | Cannot parse flag set statement | Argument `%s` is not a valid GDScript value" % var_str) 
-			section.flag = _remove_whitespace(pipeline[3])
+			section.flag = DQScriptingHelper.remove_whitespace(pipeline[3])
 		"delete":
 			section.type = DqdSection.SectionFlag.Type.DELETE
-			section.flag = _remove_whitespace(pipeline[2])
+			section.flag = DQScriptingHelper.remove_whitespace(pipeline[2])
+	
+	return section
+
+## On success, return [Array(DqdSection.SectionChoice)].
+## On failure will return [DqdError].
+static func _parse_choice(pipeline: PackedStringArray):
+	if pipeline.size() <= 2:
+		return DqdError.new("DialogQuest | Dqd | Parser | Parse error at line {line} | Cannot parse choice statement | Wrong number of arguments (correct -> 2+, found 0)")
+	
+	var section := DqdSection.SectionChoice.new()
+	var choices: PackedStringArray = []
+	for c in pipeline.slice(1):
+		choices.append(DQScriptingHelper.trim_whitespace(c))
+	section.choices = choices
+	return section
+
+## On success, return [Array(DqdSection.SectionBranch)].
+## On failure will return [DqdError].
+static func _parse_branch(pipeline: PackedStringArray):
+	var section := DqdSection.SectionBranch.new()
+	if pipeline.size() <= 1:
+		return DqdError.new("DialogQuest | Dqd | Parser | Parse error at line {line} | Cannot parse branch statement | Wrong number of arguments (correct -> 1/2, found 0)")
+	
+	if pipeline.size() >= 4:
+		return DqdError.new("DialogQuest | Dqd | Parser | Parse error at line {line} | Cannot parse branch statement | Wrong number of arguments (correct -> 2, found 3+)")
+	
+	match DQScriptingHelper.remove_whitespace(pipeline[1]):
+		"end":
+			section.type = DqdSection.SectionBranch.Type.END
+		"choice":
+			section.type = DqdSection.SectionBranch.Type.CHOICE
+			section.expression = DQScriptingHelper.trim_whitespace(pipeline[2])
+		"flag":
+			section.type = DqdSection.SectionBranch.Type.FLAG
+			section.expression = DQScriptingHelper.remove_whitespace(pipeline[2])
+		"evaluate":
+			section.type = DqdSection.SectionBranch.Type.EVALUATE
+			section.expression = DQScriptingHelper.trim_whitespace(pipeline[2])
 	
 	return section

@@ -69,12 +69,13 @@ To start a new dialogue, you should set up your scene as follows:
 ```
 ...
 CanvasLayer
+    DQDialoguePlayer
     DQDialogueBox
-        DQDialoguePlayer
+    DQChoiceMenu
 ...
 ```
 
-Click on the `DQDialoguePlayer` and provide it with the `DQDialogueBox` through the inspector (also possible through code)
+Click on the `DQDialoguePlayer` and provide it with the `DQDialogueBox`, as well as `DQChoiceMenu`, through the inspector (also possible through code)
 
 In order to start the dialogue, simply use the following code:
 
@@ -95,7 +96,7 @@ dialogue_player.play("my_dialogue_name")
 
 Customizing is relatively easy, it is done with Godot native features.
 
-The `DQDialogueBox` node has a `Theme` that you can replace with your own.
+The `DQDialogueBox` node has a `Theme` that you can replace with your own. The same goes for `DQChoiceMenu`, and most UI components in DialogueQuest.
 
 Each character can also override the theme for their name text or their speech text.
 

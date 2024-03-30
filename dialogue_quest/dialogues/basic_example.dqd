@@ -5,3 +5,37 @@ say | shahar | All's good in da hood
 call | print("DialogueQuest is awesome!")
 say | Hell yeah :D
 flag | raise | hell_yeah
+say | Give me a high five man!
+
+choice | High Five him | Don't
+branch | choice | High Five him
+	flag | raise | high_five
+branch | end
+
+say | shahar | [i](Which way should we go?)[/i]
+
+// Left flag is set
+choice | Left | Right
+
+// Check if the choice Left has been made
+branch | choice | Left
+	say | shahar | I'm going left 
+	say | Okay, good luck
+	say | shahar | I think this is a maze. What do I do...
+	choice | Go Forward | Head Back
+	branch | choice | Go Forward
+		say | shahar | A dead end. I guess this is my end.
+		branch | flag | high_five
+			say | Hey man I got you, I made us a map!
+			say | shahar | Oh that is great. We can make it back now.
+		branch | end
+	branch | choice | Head Back
+		say | shahar | Okay, back to safety.
+	branch | end
+branch | choice | Right
+	say | shahar | I'm going right
+	say | You made the right choice!
+// End the branch
+branch | end
+
+say | shahar | Now what?
