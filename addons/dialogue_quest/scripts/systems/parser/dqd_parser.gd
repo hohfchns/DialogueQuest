@@ -112,7 +112,7 @@ class DqdSection:
 
 static func parse_from_file(filepath: String) -> Array[DqdSection]:
 	if not FileAccess.file_exists(filepath):
-		var dq_dir := DQProjectSettings.get_data_dir()
+		var dq_dir := DialogueQuest.Settings.data_directory
 		var all_dqd := DQFilesystemHelper.get_all_files(dq_dir, "dqd")
 		for f in all_dqd:
 			var req_name := filepath.get_basename().get_file()

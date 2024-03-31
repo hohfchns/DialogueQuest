@@ -8,10 +8,10 @@ var _character_registry: Dictionary = {}
 var character_registry: Dictionary = _character_registry : get = get_character_registry
 
 func _ready() -> void:
-	_find_characters_in_project()
+	DialogueQuest.Settings.data_directory_changed.connect(_on_data_directory_changed)
 
 func _find_characters_in_project() -> void:
-	var dq_dir := DQProjectSettings.get_data_dir()
+	var dq_dir := DialogueQuest.Settings.data_directory
 	var resources := DQFilesystemHelper.get_all_files(dq_dir, "tres")
 	for res in resources:
 		var character := load(res) as DQCharacter
@@ -30,3 +30,5 @@ func get_character_from_id(character_id: String) -> DQCharacter:
 func get_character_registry() -> Dictionary:
 	return _character_registry.duplicate()
 
+func _on_data_directory_changed(_new_directory: String) -> void:
+	_find_characters_in_project()

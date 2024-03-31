@@ -15,3 +15,5 @@ data_*/
 mono_crash.*.json
 
 *.import
+
+.dialogue_quest_settings.conf
