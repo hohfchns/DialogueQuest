@@ -136,3 +136,7 @@ Each character can also override the theme for their name text or their speech t
 
 It is also possible to create a subclass of `DQDialogueBox` or `DQDialoguePlayer` to customize behaviour even further.
 
+## DialogueQuest for non-coders
+
+DialogueQuest features a standalone program called [DialogueQuestTester](https://github.com/hohfchns/DialogueQuestTester) that allows running dialogues without a Godot environment.
+
