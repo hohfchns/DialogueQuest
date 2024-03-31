@@ -4,9 +4,13 @@ class_name DQDialogueBox
 
 signal all_text_shown
 signal proceed
+signal settings_changed(new_settings: DQDialogueBoxSettings)
 
 @export
-var settings: DQDialogueBoxSettings
+var settings: DQDialogueBoxSettings :
+	set(value):
+		settings = value
+		settings_changed.emit(value)
 
 @export_multiline
 var text: String : set = set_text, get = get_text
@@ -27,6 +31,9 @@ var _letters_time_debt: float = 0.0
 func _ready() -> void:
 	if portrait_image:
 		_portrait.texture = portrait_image
+	
+	settings_changed.connect(_on_settings_changed)
+	_on_settings_changed(settings)
 
 func _process(delta: float) -> void:
 	if _text.visible_characters == -1:
@@ -115,3 +122,10 @@ func set_text_color(value: Color) -> void:
 
 func set_name_color(value: Color) -> void:
 	_name.add_theme_color_override("font_color", value)
+
+func _on_settings_changed(new_settings: DQDialogueBoxSettings) -> void:
+	layout_direction = new_settings.layout_direction_box
+	_name.layout_direction = new_settings.layout_direction_name
+	_name.text_direction = new_settings.text_direction_name
+	_text.layout_direction = new_settings.layout_direction_text
+	_text.text_direction = new_settings.text_direction_text

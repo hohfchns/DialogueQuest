@@ -34,7 +34,6 @@ theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 10
 
 [node name="Rows" type="VBoxContainer" parent="Margin"]
-layout_direction = 3
 layout_mode = 2
 
 [node name="RowTop" type="HBoxContainer" parent="Margin/Rows"]
@@ -42,16 +41,29 @@ layout_mode = 2
 
 [node name="NameMargin" type="MarginContainer" parent="Margin/Rows/RowTop"]
 layout_mode = 2
+size_flags_horizontal = 3
 theme_override_constants/margin_right = 10
 
 [node name="Name" type="Label" parent="Margin/Rows/RowTop/NameMargin"]
 unique_name_in_owner = true
+layout_direction = 3
 layout_mode = 2
 theme_override_colors/font_color = Color(0.439216, 0.00392157, 0.737255, 1)
 text = "This is a man with a very long name"
 
 [node name="RowMiddle" type="HBoxContainer" parent="Margin/Rows"]
 layout_mode = 2
+
+[node name="DialogueText" type="RichTextLabel" parent="Margin/Rows/RowMiddle"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+bbcode_enabled = true
+text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Fringilla ut morbi tincidunt augue interdum. Sed viverra ipsum nunc aliquet bibendum enim facilisis. Sem fringilla ut morbi tincidunt augue interdum velit. Ut enim blandit volutpat maecenas volutpat blandit. Vel pharetra vel turpis nunc eget lorem dolor sed viverra. Nunc pulvinar sapien et ligula ullamcorper. Cursus vitae congue mauris rhoncus aenean vel elit scelerisque mauris. Lorem mollis aliquam ut porttitor leo a diam. Non tellus orci ac auctor augue. Nullam non nisi est sit amet facilisis magna etiam.
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Fringilla ut morbi tincidunt augue interdum. Sed viverra ipsum nunc aliquet bibendum enim facilisis. Sem fringilla ut morbi tincidunt augue interdum velit. Ut enim blandi"
+fit_content = true
+visible_characters_behavior = 1
 
 [node name="PortraitBackground" type="PanelContainer" parent="Margin/Rows/RowMiddle"]
 layout_mode = 2
@@ -67,14 +79,3 @@ layout_mode = 2
 texture = ExtResource("2_nl5qw")
 expand_mode = 1
 stretch_mode = 4
-
-[node name="DialogueText" type="RichTextLabel" parent="Margin/Rows/RowMiddle"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-bbcode_enabled = true
-text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Fringilla ut morbi tincidunt augue interdum. Sed viverra ipsum nunc aliquet bibendum enim facilisis. Sem fringilla ut morbi tincidunt augue interdum velit. Ut enim blandit volutpat maecenas volutpat blandit. Vel pharetra vel turpis nunc eget lorem dolor sed viverra. Nunc pulvinar sapien et ligula ullamcorper. Cursus vitae congue mauris rhoncus aenean vel elit scelerisque mauris. Lorem mollis aliquam ut porttitor leo a diam. Non tellus orci ac auctor augue. Nullam non nisi est sit amet facilisis magna etiam.
-
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Fringilla ut morbi tincidunt augue interdum. Sed viverra ipsum nunc aliquet bibendum enim facilisis. Sem fringilla ut morbi tincidunt augue interdum velit. Ut enim blandi"
-fit_content = true
-visible_characters_behavior = 1
