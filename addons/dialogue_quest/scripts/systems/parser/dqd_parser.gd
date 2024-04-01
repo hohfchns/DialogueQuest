@@ -124,7 +124,9 @@ static func parse_from_file(filepath: String) -> Array[DqdSection]:
 	var f := FileAccess.open(filepath, FileAccess.READ)
 	if f == null:
 		var err := FileAccess.get_open_error()
-		assert(false, "DialogueQuest | Dqd | File at path `%s` was not found or could not be opened | Error code %d" % [filepath, err])
+		var s := "DialogueQuest | Dqd | File at path `%s` was not found or could not be opened | Error code %d" % [filepath, err]
+		DialogueQuest.error.emit(s)
+		assert(false, s)
 
 	return parse_from_text(f.get_as_text(true))
 
@@ -138,7 +140,12 @@ static func parse_from_text(text: String) -> Array[DqdSection]:
 		if no_whitespace.is_empty() or no_whitespace.begins_with("//"):
 			continue
 		var pipeline: PackedStringArray = line.split("|")
-		assert(pipeline.size() and "|" in no_whitespace, "DialogQuest | Dqd | Parser | Parse error at line %d | No statements" % line_num)
+		
+		var has_statements := pipeline.size() and "|" in no_whitespace
+		if not has_statements:
+			var s := "DialogQuest | Dqd | Parser | Parse error at line %d | No statements" % line_num
+			DialogueQuest.error.emit(s)
+			assert(false, s)
 		
 		var parsed = null
 		match DQScriptingHelper.remove_whitespace(pipeline[0]):
@@ -156,7 +163,9 @@ static func parse_from_text(text: String) -> Array[DqdSection]:
 				parsed = _parse_branch(pipeline)
 		
 		if parsed is DqdError:
-			assert(false, parsed.formatted(line_num))
+			var s: String = parsed.formatted(line_num)
+			DialogueQuest.error.emit(s)
+			assert(false, s)
 		else:
 			ret.append(parsed)
 	

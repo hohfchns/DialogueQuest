@@ -36,12 +36,19 @@ func _prepare() -> void:
 			settings_f = ConfigFile.new()
 		settings_f.set_value("files", "data_dir", DQProjectSettings.get_data_dir())
 		var err := settings_f.save(settings_path)
-		assert(err == OK, "DialogueQuest | Settings | Failed to save configuration file")
+		
+		if err != OK:
+			var s := "DialogueQuest | Settings | Failed to save configuration file"
+			DialogueQuest.error.emit(s)
+			assert(false, s)
 		data_directory = DQProjectSettings.get_data_dir()
 
 func get_settings() -> ConfigFile:
 	var settings_f := ConfigFile.new()
 	var err := settings_f.load(SETTINGS_FILE_DIR.path_join(SETTINGS_FILE_NAME))
-	assert(err == OK, "DialogueQuest | Settings | Failed to save configuration file")
+	if err != OK:
+		var s := "DialogueQuest | Settings | Failed to save configuration file"
+		DialogueQuest.error.emit(s)
+		assert(false, s)
 	return settings_f
 

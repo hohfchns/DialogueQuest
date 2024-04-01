@@ -9,6 +9,7 @@ var character_registry: Dictionary = _character_registry : get = get_character_r
 
 func _ready() -> void:
 	DialogueQuest.Settings.data_directory_changed.connect(_on_data_directory_changed)
+	_find_characters_in_project()
 
 func _find_characters_in_project() -> void:
 	var dq_dir := DialogueQuest.Settings.data_directory
