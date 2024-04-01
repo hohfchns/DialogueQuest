@@ -11,12 +11,25 @@ var choice_menu: DQChoiceMenu : set = set_choice_menu, get = get_choice_menu
 
 var autoplaying: bool = false
 
+var _lock: bool = false
+
 func _ready() -> void:
 	DialogueQuest.Inputs.accept_released.connect(accept)
 	if settings.autoplay_enabled and settings.autoplay_on_start:
 		autoplaying = true
 
 func play(dialogue_path: String) -> void:
+	if _lock:
+		var s := "DialogueQuest | Player | Cannot run multiple dialogue instances per player."
+		DialogueQuest.error.emit(s)
+		assert(false, s)
+		return
+	
+	_lock = true
+	await _play(dialogue_path)
+	_lock = false
+
+func _play(dialogue_path: String) -> void:
 	var parsed := DQDqdParser.parse_from_file(dialogue_path)
 	if not parsed.size():
 		return
