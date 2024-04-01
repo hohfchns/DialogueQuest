@@ -12,6 +12,7 @@ var choice_menu: DQChoiceMenu : set = set_choice_menu, get = get_choice_menu
 var autoplaying: bool = false
 
 var _lock: bool = false
+var _stop_requested: bool = false
 
 func _ready() -> void:
 	DialogueQuest.Inputs.accept_released.connect(accept)
@@ -26,8 +27,13 @@ func play(dialogue_path: String) -> void:
 		return
 	
 	_lock = true
+	_stop_requested = false
 	await _play(dialogue_path)
 	_lock = false
+
+func stop() -> void:
+	if _lock:
+		_stop_requested = true
 
 func _play(dialogue_path: String) -> void:
 	var parsed := DQDqdParser.parse_from_file(dialogue_path)
@@ -39,6 +45,9 @@ func _play(dialogue_path: String) -> void:
 	
 	var correct_branch: bool = true
 	for p in parsed:
+		if _stop_requested:
+			return
+		
 		p.solve_flags()
 		
 		if p as DQDqdParser.DqdSection.SectionBranch != null:
