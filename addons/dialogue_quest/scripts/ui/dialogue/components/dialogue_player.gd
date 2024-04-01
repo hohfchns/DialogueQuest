@@ -40,10 +40,9 @@ func play(dialogue_path: String) -> void:
 					else:
 						correct_branch = false
 				DQDqdParser.DqdSection.SectionBranch.Type.FLAG:
-					if DialogueQuest.Flags.is_raised(p.expression):
-						correct_branch = true
-					else:
-						correct_branch = false
+					correct_branch = DialogueQuest.Flags.is_raised(p.expression)
+				DQDqdParser.DqdSection.SectionBranch.Type.NO_FLAG:
+					correct_branch = not DialogueQuest.Flags.is_raised(p.expression)
 				DQDqdParser.DqdSection.SectionBranch.Type.EVALUATE:
 					var res: Variant = DQScriptingHelper.evaluate_expression(p.expression, DialogueQuest)
 					correct_branch = false

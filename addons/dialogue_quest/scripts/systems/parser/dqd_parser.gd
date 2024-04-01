@@ -101,6 +101,7 @@ class DqdSection:
 			CHOICE,
 			EVALUATE,
 			FLAG,
+			NO_FLAG,
 			END
 		}
 		
@@ -336,6 +337,9 @@ static func _parse_branch(pipeline: PackedStringArray):
 			section.expression = DQScriptingHelper.trim_whitespace(pipeline[2])
 		"flag":
 			section.type = DqdSection.SectionBranch.Type.FLAG
+			section.expression = DQScriptingHelper.remove_whitespace(pipeline[2])
+		"no_flag":
+			section.type = DqdSection.SectionBranch.Type.NO_FLAG
 			section.expression = DQScriptingHelper.remove_whitespace(pipeline[2])
 		"evaluate":
 			section.type = DqdSection.SectionBranch.Type.EVALUATE
