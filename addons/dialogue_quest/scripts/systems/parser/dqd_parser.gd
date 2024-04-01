@@ -179,7 +179,7 @@ static func solve_flags(in_string: String) -> String:
 		var flag_name := found[0].strings[1]
 		var flag_value := DialogueQuest.Flags.get_flag(flag_name)
 		if flag_value == null:
-			flag_value = 0
+			flag_value = "null"
 		return in_string.replace(flag_syntax, str(flag_value))
 	else:
 		return in_string
