@@ -14,10 +14,9 @@ class DqdError:
 		text = from_text
 
 ## Defines a section of the parsed text
-## This class is just a base class, meant to be inherited
-class DqdSection:
+## This class is an abstract class, and is to be inherited
+class DqdSection extends Resource:
 	## Handler for the ${flag} syntax, should be implemented by the section
-	## See 
 	func solve_flags() -> void:
 		pass
 	
@@ -112,6 +111,27 @@ class DqdSection:
 		func solve_flags() -> void:
 			expression = DQDqdParser.solve_flags(expression)
 
+## Defines a keyword that can be parsed in a dqd.
+class Statement:
+	var section_type: StringName :
+		set(value):
+			assert(ClassDB.is_parent_class(value, "DqdSection"), "Statemnt section_type must be a subclass of DqdSection.")
+			section_type = value
+	var keyword: StringName
+	var parse_function: Callable
+	func _init(keyword_: String, _parse_function: Callable, _section_type: StringName):
+		keyword = keyword_
+		parse_function = _parse_function
+
+static var statements: Array[Statement] = [
+	Statement.new("say", DQDqdParser._parse_say, "DqdParser.DqdSection.SectionSay"),
+	Statement.new("signal", DQDqdParser._parse_signal, "DqdParser.DqdSection.SectionRaiseDQSignal"),
+	Statement.new("call", DQDqdParser._parse_call, "DqdParser.DqdSection.SectionEvaluateCall"),
+	Statement.new("flag", DQDqdParser._parse_flag, "DqdParser.DqdSection.SectionFlag"),
+	Statement.new("choice", DQDqdParser._parse_choice, "DqdParser.DqdSection.SectionChoice"),
+	Statement.new("branch", DQDqdParser._parse_branch, "DqdParser.DqdSection.SectionBranch")
+]
+
 static func parse_from_file(filepath: String) -> Array[DqdSection]:
 	if not FileAccess.file_exists(filepath):
 		var dq_dir := DialogueQuest.Settings.data_directory
@@ -150,25 +170,16 @@ static func parse_from_text(text: String) -> Array[DqdSection]:
 			assert(false, s)
 		
 		var parsed = null
-		match DQScriptingHelper.remove_whitespace(pipeline[0]):
-			"say":
-				parsed = _parse_say(pipeline)
-			"signal":
-				parsed = _parse_signal(pipeline)
-			"call":
-				parsed = _parse_call(pipeline)
-			"flag":
-				parsed = _parse_flag(pipeline)
-			"choice":
-				parsed = _parse_choice(pipeline)
-			"branch":
-				parsed = _parse_branch(pipeline)
-		
+
+		for statement in statements:
+			if statement.keyword == DQScriptingHelper.remove_whitespace(pipeline[0]):
+				parsed = statement.parse_function.call(pipeline)
+					
 		if parsed is DqdError:
 			var s: String = parsed.formatted(line_num)
 			DialogueQuest.error.emit(s)
 			assert(false, s)
-		else:
+		elif parsed != null:
 			ret.append(parsed)
 	
 	return ret
@@ -186,9 +197,7 @@ static func solve_flags(in_string: String) -> String:
 	else:
 		return in_string
 
-## The parser for say statements.
-## 
-## On success, return [Array(DqdSection.SectionSay)].
+## On success will return [DqdSection.SectionSay].
 ## kOn failure will return [DqdError].
 static func _parse_say(pipeline: PackedStringArray):
 	if pipeline.size() <= 1:
@@ -217,9 +226,7 @@ static func _parse_say(pipeline: PackedStringArray):
 	
 	return DqdError.new("DialogQuest | Dqd | Parser | Parse error at line {line} | Cannot parse say statement | Unknown Error")
 
-## The parser for signal statements.
-## 
-## On success, return [Array(DqdSection.SectionRaiseDQSignal)].
+## On success will return [DqdSection.SectionRaiseDQSignal].
 ## On failure will return [DqdError].
 static func _parse_signal(pipeline: PackedStringArray):
 	if pipeline.size() <= 1:
@@ -236,9 +243,7 @@ static func _parse_signal(pipeline: PackedStringArray):
 	sec.params = args
 	return sec
 
-## The parser for call statements.
-## 
-## On success, return [Array(DqdSection.SectionEvaluateCall)].
+## On success will return [DqdSection.SectionEvaluateCall].
 ## On failure will return [DqdError].
 static func _parse_call(pipeline: PackedStringArray):
 	if pipeline.size() <= 1:
@@ -257,9 +262,7 @@ static func _parse_call(pipeline: PackedStringArray):
 	ret.expression = expression
 	return ret
 
-## The parser for call statements.
-## 
-## On success, return [Array(DqdSection.SectionFlag)].
+## On success will return [DqdSection.SectionFlag].
 ## On failure will return [DqdError].
 static func _parse_flag(pipeline: PackedStringArray):
 	if pipeline.size() <= 2:
@@ -308,7 +311,7 @@ static func _parse_flag(pipeline: PackedStringArray):
 	
 	return section
 
-## On success, return [Array(DqdSection.SectionChoice)].
+## On success will return [DqdSection.SectionChoice].
 ## On failure will return [DqdError].
 static func _parse_choice(pipeline: PackedStringArray):
 	if pipeline.size() <= 2:
@@ -321,7 +324,7 @@ static func _parse_choice(pipeline: PackedStringArray):
 	section.choices = choices
 	return section
 
-## On success, return [Array(DqdSection.SectionBranch)].
+## On success will return [DqdSection.SectionBranch].
 ## On failure will return [DqdError].
 static func _parse_branch(pipeline: PackedStringArray):
 	var section := DqdSection.SectionBranch.new()
