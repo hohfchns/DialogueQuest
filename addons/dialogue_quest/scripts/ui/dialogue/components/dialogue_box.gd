@@ -38,7 +38,7 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	if _text.visible_characters == -1:
 		return
-	if _text.visible_characters == _text.text.length():
+	if _text.visible_characters >= _text.text.length():
 		finish()
 		return
 	
@@ -59,8 +59,8 @@ func finish() -> void:
 	_letters_time_debt = 0
 	all_text_shown.emit()
 
-func start_progressing() -> void:
-	set_visible_characters(0)
+func start_progressing(from_character: int = 0) -> void:
+	set_visible_characters(from_character)
 
 func set_text(value: String) -> void:
 	text = value

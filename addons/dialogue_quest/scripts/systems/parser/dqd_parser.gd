@@ -23,10 +23,11 @@ class DqdSection:
 	
 	class SectionSay extends DqdSection:
 		var character: DQCharacter
-		var text: String
+		var texts: PackedStringArray
 		
 		func solve_flags() -> void:
-			text = DQDqdParser.solve_flags(text)
+			for i in texts.size():
+				texts[i] = DQDqdParser.solve_flags(texts[i])
 	
 	class SectionRaiseDQSignal extends DqdSection:
 		var params: Array
@@ -188,30 +189,31 @@ static func solve_flags(in_string: String) -> String:
 ## The parser for say statements.
 ## 
 ## On success, return [Array(DqdSection.SectionSay)].
-## On failure will return [DqdError].
+## kOn failure will return [DqdError].
 static func _parse_say(pipeline: PackedStringArray):
 	if pipeline.size() <= 1:
 		return DqdError.new("DialogQuest | Dqd | Parser | Parse error at line {line} | Cannot parse say statement | Wrong number of arguments (correct -> 1/2, found 0)")
-	elif pipeline.size() >= 4:
-		return DqdError.new("DialogQuest | Dqd | Parser | Parse error at line {line} | Cannot parse say statement | Wrong number of arguments (correct -> 1/2, found > 2)")
+	# elif pipeline.size() >= 4:
+	# 	return DqdError.new("DialogQuest | Dqd | Parser | Parse error at line {line} | Cannot parse say statement | Wrong number of arguments (correct -> 1/2, found > 2)")
 	
 	var say := DqdSection.SectionSay.new()
 	say.character = null
-	say.text = ""
+	say.texts = []
 	
 	if pipeline.size() == 2:
-		say.text = pipeline[1]
+		say.texts.append(DQScriptingHelper.trim_whitespace_prefix(pipeline[1]))
 		return say
 	
-	if pipeline.size() == 3:
-		var character_id: String = pipeline[1]
+	var character_id: String = pipeline[1]
+	if not DQScriptingHelper.remove_whitespace(character_id).is_empty():
 		say.character = DQCharacter.find_by_id(DQScriptingHelper.remove_whitespace(character_id))
-		
 		if say.character == null:
 			return DqdError.new("DialogQuest | Dqd | Parser | Parse error at line {line} | Cannot parse say statement | Character `{character}` not found".format({"character": character_id}))
-		
-		say.text = pipeline[2].trim_prefix(" ")
-		return say
+	
+	for p in pipeline.slice(2):
+		say.texts.append(DQScriptingHelper.trim_whitespace_prefix(p))
+
+	return say
 	
 	return DqdError.new("DialogQuest | Dqd | Parser | Parse error at line {line} | Cannot parse say statement | Unknown Error")
 

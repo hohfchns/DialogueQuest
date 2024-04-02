@@ -35,6 +35,15 @@ func stop() -> void:
 	if _lock:
 		_stop_requested = true
 
+func _wait_for_input() -> void:
+	if settings.autoplay_enabled and autoplaying:
+		await dialogue_box.all_text_shown
+		get_tree().create_timer(settings.autoplay_delay_sec).timeout.connect(accept)
+		
+	await dialogue_box.proceed
+
+
+
 func _play(dialogue_path: String) -> void:
 	var parsed := DQDqdParser.parse_from_file(dialogue_path)
 	if not parsed.size():
@@ -81,29 +90,45 @@ func _play(dialogue_path: String) -> void:
 		
 		if p as DQDqdParser.DqdSection.SectionSay != null:
 			p = p as DQDqdParser.DqdSection.SectionSay
+
+			if not p.texts.size():
+				continue
 			
 			var chara: DQCharacter = p.character
 			if chara:
 				dialogue_box.set_name_text(chara.character_name)
-				dialogue_box.set_text(p.text)
 				dialogue_box.set_name_color(chara.color)
 				dialogue_box.set_portrait_image(chara.portrait)
 				dialogue_box.set_text_theme(chara.custom_theme_text)
 				dialogue_box.set_name_theme(chara.custom_theme_name)
-				dialogue_box.start_progressing()
 			else:
 				dialogue_box.set_name_text("")
-				dialogue_box.set_text(p.text)
 				dialogue_box.set_portrait_image(null)
 				dialogue_box.set_text_theme(null)
 				dialogue_box.set_name_theme(null)
 				dialogue_box.start_progressing()
-			
-			if settings.autoplay_enabled and autoplaying:
-				await dialogue_box.all_text_shown
-				get_tree().create_timer(settings.autoplay_delay_sec).timeout.connect(accept)
-			
-			await dialogue_box.proceed
+
+			dialogue_box.set_text(p.texts[0])
+			dialogue_box.start_progressing()
+			var texts := PackedStringArray(p.texts.slice(1))
+			if texts.size() == 1:
+				if DQScriptingHelper.remove_whitespace(texts[0]).is_empty():
+					await dialogue_box.all_text_shown
+					continue
+			await _wait_for_input()
+			if not texts.size():
+				continue
+			for i in texts.size():
+				var text: String = texts[i]
+				var prev_len = dialogue_box.text.length()
+				dialogue_box.text += text
+				dialogue_box.start_progressing(prev_len)
+				if i == texts.size() - 2 or (texts.size() - 2) < 0:
+					if DQScriptingHelper.remove_whitespace(texts[texts.size() - 1]).is_empty():
+						await dialogue_box.all_text_shown
+						break
+				await _wait_for_input()
+
 		elif p as DQDqdParser.DqdSection.SectionRaiseDQSignal != null:
 			p = p as DQDqdParser.DqdSection.SectionRaiseDQSignal
 			DialogueQuest.Signals.dialogue_signal.emit(p.params)

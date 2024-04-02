@@ -5,13 +5,28 @@ class_name DQScriptingHelper
 class Error:
 	pass
 
+const WHITESPACE_CHARACTERS: PackedStringArray = [" ", "\n", "\r", "	"]
+
 static func remove_whitespace(from: String) -> String:
-	return from.replace(" ", "").replace("\n", "").replace("\r", "").replace("	", "")
+	var s := from
+	for c in WHITESPACE_CHARACTERS:
+		s = s.replace(c, "")
+	return s
 
 static func trim_whitespace(from: String) -> String:
-	return \
-	from.trim_prefix(" ").trim_prefix("\n").trim_prefix("\r").trim_prefix("	")\
-	.trim_suffix(" ").trim_suffix("\n").trim_suffix("\r").trim_suffix("	")
+	return trim_whitespace_suffix(trim_whitespace_prefix(from))
+
+static func trim_whitespace_prefix(from: String) -> String:
+	var s := from
+	for c in WHITESPACE_CHARACTERS:
+		s = s.trim_prefix(c)
+	return s
+
+static func trim_whitespace_suffix(from: String) -> String:
+	var s := from
+	for c in WHITESPACE_CHARACTERS:
+		s = s.trim_suffix(c)
+	return s
 
 static func run_pure_gdscript(code: String) -> Variant:
 	var script = GDScript.new()
