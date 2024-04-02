@@ -1,10 +1,17 @@
-[gd_scene load_steps=6 format=3 uid="uid://b7ul1vxhrf6pu"]
+[gd_scene load_steps=7 format=3 uid="uid://b7ul1vxhrf6pu"]
 
 [ext_resource type="Script" path="res://examples/basic/scripts/entry.gd" id="1_ib1bb"]
 [ext_resource type="PackedScene" uid="uid://ttdif58g3l3i" path="res://addons/dialogue_quest/prefabs/ui/dialogue/components/dialogue_box/dialogue_box.tscn" id="2_x58pj"]
-[ext_resource type="Script" path="res://addons/dialogue_quest/scripts/ui/dialogue/components/dialogue_player.gd" id="3_uir4a"]
-[ext_resource type="Resource" uid="uid://br1srvonmm4ok" path="res://addons/dialogue_quest/resources/components/settings/default_dialogue_player_settings.tres" id="4_m83dr"]
+[ext_resource type="Script" path="res://addons/dialogue_quest/scripts/systems/dqd/dialogue_player.gd" id="4_d3ah8"]
 [ext_resource type="PackedScene" uid="uid://dye384gy0fmiu" path="res://addons/dialogue_quest/prefabs/ui/dialogue/components/choice_menu/choice_menu.tscn" id="5_65g7h"]
+[ext_resource type="Script" path="res://addons/dialogue_quest/scripts/ui/dialogue/components/resources/settings/dialogue_player_settings.gd" id="5_csmbs"]
+
+[sub_resource type="Resource" id="Resource_ejn4r"]
+script = ExtResource("5_csmbs")
+autoplay_enabled = false
+autoplay_delay_sec = 0.5
+autoplay_on_start = true
+run_expressions_as_script = false
 
 [node name="Entry" type="Control"]
 layout_mode = 3
@@ -34,7 +41,7 @@ offset_right = 49.5
 offset_bottom = 43.5
 
 [node name="DialoguePlayer" type="Node" parent="." node_paths=PackedStringArray("dialogue_box", "choice_menu")]
-script = ExtResource("3_uir4a")
-settings = ExtResource("4_m83dr")
+script = ExtResource("4_d3ah8")
+settings = SubResource("Resource_ejn4r")
 dialogue_box = NodePath("../DialogueBox")
 choice_menu = NodePath("../ChoiceMenu")

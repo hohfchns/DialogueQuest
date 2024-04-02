@@ -113,23 +113,19 @@ class DqdSection extends Resource:
 
 ## Defines a keyword that can be parsed in a dqd.
 class Statement:
-	var section_type: StringName :
-		set(value):
-			assert(ClassDB.is_parent_class(value, "DqdSection"), "Statemnt section_type must be a subclass of DqdSection.")
-			section_type = value
 	var keyword: StringName
 	var parse_function: Callable
-	func _init(keyword_: String, _parse_function: Callable, _section_type: StringName):
-		keyword = keyword_
-		parse_function = _parse_function
+	func _init(keyword: String, parse_function):
+		self.keyword = keyword
+		self.parse_function = parse_function
 
 static var statements: Array[Statement] = [
-	Statement.new("say", DQDqdParser._parse_say, "DqdParser.DqdSection.SectionSay"),
-	Statement.new("signal", DQDqdParser._parse_signal, "DqdParser.DqdSection.SectionRaiseDQSignal"),
-	Statement.new("call", DQDqdParser._parse_call, "DqdParser.DqdSection.SectionEvaluateCall"),
-	Statement.new("flag", DQDqdParser._parse_flag, "DqdParser.DqdSection.SectionFlag"),
-	Statement.new("choice", DQDqdParser._parse_choice, "DqdParser.DqdSection.SectionChoice"),
-	Statement.new("branch", DQDqdParser._parse_branch, "DqdParser.DqdSection.SectionBranch")
+	Statement.new("say", DQDqdParser._parse_say),
+	Statement.new("signal", DQDqdParser._parse_signal),
+	Statement.new("call", DQDqdParser._parse_call),
+	Statement.new("flag", DQDqdParser._parse_flag),
+	Statement.new("choice", DQDqdParser._parse_choice),
+	Statement.new("branch", DQDqdParser._parse_branch)
 ]
 
 static func parse_from_file(filepath: String) -> Array[DqdSection]:
