@@ -2,10 +2,10 @@ extends Node
 class_name DQDialoguePlayer
 
 class SectionHandler:
-	var section_class = Object
+	var section_class: GDScript
 	var callback: Callable
-	func _init(section_type, callback: Callable):
-		self.section_class = section_type
+	func _init(section_class: GDScript, callback: Callable):
+		self.section_class = section_class
 		self.callback = callback
 
 var section_handlers: Array[SectionHandler] = [
