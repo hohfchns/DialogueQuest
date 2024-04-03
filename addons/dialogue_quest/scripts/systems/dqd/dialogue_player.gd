@@ -28,7 +28,10 @@ var autoplaying: bool = false
 
 var _lock: bool = false
 var _stop_requested: bool = false
-var _correct_branch: bool = true
+
+var _correct_branch: int = 0
+var _current_branch: int = 0
+var _is_continuous_branch: bool = false
 
 func _ready() -> void:
 	DialogueQuest.Inputs.accept_released.connect(accept)
@@ -63,6 +66,10 @@ func _play(dialogue_path: String) -> void:
 	if not parsed.size():
 		return
 	
+	_correct_branch = 0
+	_current_branch = 0
+	_is_continuous_branch = false
+	
 	dialogue_box.show()
 	DialogueQuest.Signals.dialogue_started.emit()
 	
@@ -74,8 +81,8 @@ func _play(dialogue_path: String) -> void:
 
 		if section is DQDqdParser.DqdSection.SectionBranch:
 			_handle_branch(section)
-					
-		if not _correct_branch:
+		
+		if _correct_branch != _current_branch:
 			continue
 		
 		for handler in section_handlers:
@@ -102,30 +109,46 @@ func accept() -> void:
 		dialogue_box.accept()
 
 func _handle_branch(section: DQDqdParser.DqdSection.SectionBranch) -> void:
+	if section.type == DQDqdParser.DqdSection.SectionBranch.Type.END:
+		_current_branch -= 1
+		_correct_branch = min(_current_branch, _correct_branch)
+		_is_continuous_branch = false
+		return
+	
+	if section.type == DQDqdParser.DqdSection.SectionBranch.Type.CHOICE:
+		_is_continuous_branch = true
+	
+	if _correct_branch != _current_branch:
+		if not _is_continuous_branch:
+			_current_branch += 1
+		return
+	
 	match section.type:
-		DQDqdParser.DqdSection.SectionBranch.Type.END:
-			_correct_branch = true
 		DQDqdParser.DqdSection.SectionBranch.Type.CHOICE:
 			if DialogueQuest.Flags.choice_made(section.expression):
-				_correct_branch = true
+				_correct_branch += 1
 				DialogueQuest.Flags.confirm_choice(section.expression)
-			else:
-				_correct_branch = false
 		DQDqdParser.DqdSection.SectionBranch.Type.FLAG:
-			_correct_branch = DialogueQuest.Flags.is_raised(section.expression)
+			if DialogueQuest.Flags.is_raised(section.expression):
+				_correct_branch += 1
 		DQDqdParser.DqdSection.SectionBranch.Type.NO_FLAG:
-			_correct_branch = not DialogueQuest.Flags.is_raised(section.expression)
+			if not DialogueQuest.Flags.is_raised(section.expression):
+				_correct_branch += 1
 		DQDqdParser.DqdSection.SectionBranch.Type.EVALUATE:
 			var res: Variant = DQScriptingHelper.evaluate_expression(section.expression, DialogueQuest)
-			_correct_branch = false
+			var correct = false
 			if res is DQScriptingHelper.Error:
 				if settings.run_expressions_as_script:
-					if DQScriptingHelper.run_pure_gdscript(section.expression):
-						_correct_branch = true
+					if DQScriptingHelper.evaluate_gdscript(section.expression):
+						correct = true
 			else:
 				if res:
-					_correct_branch = true
-
+					correct = true
+			
+			if correct:
+				_correct_branch += 1
+	
+	_current_branch += 1
 
 func _handle_say(section: DQDqdParser.DqdSection.SectionSay) -> void:
 	if not section.texts.size():

@@ -28,9 +28,15 @@ static func trim_whitespace_suffix(from: String) -> String:
 		s = s.trim_suffix(c)
 	return s
 
-static func run_pure_gdscript(code: String) -> Variant:
+static func evaluate_gdscript(code: String) -> Variant:
+	return run_pure_gdscript(code, true)
+
+static func run_pure_gdscript(code: String, evaluate: bool = false) -> Variant:
 	var script = GDScript.new()
-	script.set_source_code("func eval():" + code)
+	if evaluate:
+		script.set_source_code("func eval():\n    return " + code)
+	else:
+		script.set_source_code("func eval():\n    " + code)
 	script.reload()
 	var ref = RefCounted.new()
 	ref.set_script(script)
