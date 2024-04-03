@@ -11,5 +11,6 @@ Some nodes such as `DQDialogueBox` have `settings` objects, for example `DQDialo
 ## See Also
 
 [Theme](https://docs.godotengine.org/en/stable/classes/class_theme.html)
+
 [Using the theme editor](https://docs.godotengine.org/en/stable/tutorials/ui/gui_using_theme_editor.html)
 

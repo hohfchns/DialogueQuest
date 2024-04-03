@@ -9,9 +9,9 @@ else
 fi
 
 pandoc \
-  -o user_manual.pdf \
+  -o ${USER_DIR}/../user_manual.pdf \
   \
-  --listings -H pandoc_setup.tex \
+  --listings -H ${USER_DIR}/../pandoc_setup.tex \
   --toc \
   \
   ${USER_DIR}/index.md \
@@ -32,18 +32,26 @@ pandoc \
   -V toccolor=gray \
 
 pandoc \
-  -o developer_manual.pdf \
+  -o ${DEV_DIR}/../developer_manual.pdf \
   \
-  --listings -H pandoc_setup.tex \
+  --listings -H ${DEV_DIR}/../pandoc_setup.tex \
   --toc \
   \
   ${DEV_DIR}/index.md \
   ${DEV_DIR}/../dialogue_quest_tester.md \
-  ${DEV_DIR}/examples.md \
-  ${DEV_DIR}/writing_dialogue.md \
-  ${DEV_DIR}/creating_characters.md \
-  ${DEV_DIR}/creating_dialogues.md \
-  ${DEV_DIR}/extending_dialogue_quest.md \
+  ${DEV_DIR}/setup.md \
+  ${DEV_DIR}/basics/examples.md \
+  ${DEV_DIR}/basics/writing_dialogue.md \
+  ${DEV_DIR}/basics/creating_characters.md \
+  ${DEV_DIR}/basics/creating_dialogue.md \
+  ${DEV_DIR}/basics/playing_dialogue.md \
+  ${DEV_DIR}/basics/settings.md \
+  ${DEV_DIR}/extending/extending_dialogue_quest.md \
+  ${DEV_DIR}/extending/theming.md \
+  ${DEV_DIR}/extending/custom_statements.md \
+  ${DEV_DIR}/extending/custom_logic.md \
+  ${DEV_DIR}/systems/flags.md \
+  ${DEV_DIR}/systems/signals.md \
   \
   -V 'fontfamily:dejavu'\
   -V colorlinks=true \
