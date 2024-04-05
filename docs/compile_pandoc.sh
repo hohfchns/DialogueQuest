@@ -24,6 +24,7 @@ pandoc \
   ${USER_DIR}/statements/branch.md  \
   ${USER_DIR}/statements/signal.md  \
   ${USER_DIR}/statements/call.md  \
+  ${USER_DIR}/statements/exit.md  \
   \
   -V 'fontfamily:dejavu'\
   -V colorlinks=true \
