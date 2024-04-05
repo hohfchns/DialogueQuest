@@ -110,6 +110,9 @@ class DqdSection extends Resource:
 		
 		func solve_flags() -> void:
 			expression = DQDqdParser.solve_flags(expression)
+	
+	class SectionExit extends DqdSection:
+		pass
 
 ## Defines a keyword that can be parsed in a dqd.
 class Statement:
@@ -125,7 +128,8 @@ static var statements: Array[Statement] = [
 	Statement.new("call", DQDqdParser._parse_call),
 	Statement.new("flag", DQDqdParser._parse_flag),
 	Statement.new("choice", DQDqdParser._parse_choice),
-	Statement.new("branch", DQDqdParser._parse_branch)
+	Statement.new("branch", DQDqdParser._parse_branch),
+	Statement.new("exit", DQDqdParser._parse_exit)
 ]
 
 static func parse_from_file(filepath: String) -> Array[DqdSection]:
@@ -347,3 +351,6 @@ static func _parse_branch(pipeline: PackedStringArray):
 			section.expression = DQScriptingHelper.trim_whitespace(pipeline[2])
 	
 	return section
+
+static func _parse_exit(pipeline: PackedStringArray) -> DqdSection.SectionExit:
+	return DqdSection.SectionExit.new()

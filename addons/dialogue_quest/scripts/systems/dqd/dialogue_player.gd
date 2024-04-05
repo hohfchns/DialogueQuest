@@ -13,7 +13,8 @@ var section_handlers: Array[SectionHandler] = [
 	SectionHandler.new(DQDqdParser.DqdSection.SectionRaiseDQSignal, _handle_signal),
 	SectionHandler.new(DQDqdParser.DqdSection.SectionEvaluateCall, _handle_call),
 	SectionHandler.new(DQDqdParser.DqdSection.SectionFlag, _handle_flag),
-	SectionHandler.new(DQDqdParser.DqdSection.SectionChoice, _handle_choice)
+	SectionHandler.new(DQDqdParser.DqdSection.SectionChoice, _handle_choice),
+	SectionHandler.new(DQDqdParser.DqdSection.SectionExit, _handle_exit)
 ]
 
 @export
@@ -75,7 +76,7 @@ func _play(dialogue_path: String) -> void:
 	
 	for section in parsed:
 		if _stop_requested:
-			return
+			break
 		
 		section.solve_flags()
 
@@ -88,7 +89,7 @@ func _play(dialogue_path: String) -> void:
 		for handler in section_handlers:
 			if is_instance_of(section, handler.section_class):
 				await handler.callback.call(section)
-		
+	
 	dialogue_box.hide()
 	DialogueQuest.Signals.dialogue_ended.emit()
 
@@ -207,3 +208,6 @@ func _handle_choice(section: DQDqdParser.DqdSection.SectionChoice) -> void:
 	var choice_made: String = await choice_menu.choice_made
 	choice_menu.hide()
 	DialogueQuest.Flags.make_choice(choice_made)
+
+func _handle_exit(section: DQDqdParser.DqdSection.SectionExit) -> void:
+	stop()
