@@ -32,7 +32,6 @@ var _stop_requested: bool = false
 
 var _correct_branch: int = 0
 var _current_branch: int = 0
-var _is_continuous_branch: bool = false
 
 func _ready() -> void:
 	DialogueQuest.Inputs.accept_released.connect(accept)
@@ -68,8 +67,6 @@ func _play(dialogue_path: String) -> void:
 		return
 	
 	_correct_branch = 0
-	_current_branch = 0
-	_is_continuous_branch = false
 	
 	dialogue_box.show()
 	DialogueQuest.Signals.dialogue_started.emit()
@@ -113,15 +110,10 @@ func _handle_branch(section: DQDqdParser.DqdSection.SectionBranch) -> void:
 	if section.type == DQDqdParser.DqdSection.SectionBranch.Type.END:
 		_current_branch -= 1
 		_correct_branch = min(_current_branch, _correct_branch)
-		_is_continuous_branch = false
 		return
 	
-	if section.type == DQDqdParser.DqdSection.SectionBranch.Type.CHOICE:
-		_is_continuous_branch = true
-	
 	if _correct_branch != _current_branch:
-		if not _is_continuous_branch:
-			_current_branch += 1
+		_current_branch += 1
 		return
 	
 	match section.type:

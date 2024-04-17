@@ -43,12 +43,11 @@ choice | a | b
 
 branch | choice | a
     say | We picked A
+branch | end
 branch | choice | b
     say | We picked B
 branch | end
 ```
-
-Take note that with `branch | choice` we only put `branch | end` **after all choice branches**.
 
 We do not have to provide a branch for every choice.
 

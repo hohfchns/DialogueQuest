@@ -18,8 +18,10 @@ choice | Apples | Oranges | You can't compare
 
 branch | choice | Apples
     say | Doctors hate you
+branch | end
 branch | choice | Oranges
     say | Juicy!
+branch | end
 branch | choice | You can't compare
     say | You're just so smart, aren't you?
 branch | end
