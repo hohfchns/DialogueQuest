@@ -39,6 +39,13 @@ func _ready() -> void:
 		autoplaying = true
 
 func play(dialogue_path: String) -> void:
+	var parsed := DQDqdParser.parse_from_file(dialogue_path)
+	if not parsed.size():
+		return
+
+	play_sections(parsed)
+
+func play_sections(sections: Array[DQDqdParser.DqdSection]) -> void:
 	if _lock:
 		var s := "DialogueQuest | Player | Cannot run multiple dialogue instances per player."
 		DialogueQuest.error.emit(s)
@@ -47,7 +54,7 @@ func play(dialogue_path: String) -> void:
 	
 	_lock = true
 	_stop_requested = false
-	await _play(dialogue_path)
+	await _play(sections)
 	_lock = false
 
 func stop() -> void:
@@ -61,17 +68,13 @@ func _wait_for_input() -> void:
 		
 	await dialogue_box.proceed
 
-func _play(dialogue_path: String) -> void:
-	var parsed := DQDqdParser.parse_from_file(dialogue_path)
-	if not parsed.size():
-		return
-	
+func _play(sections: Array[DQDqdParser.DqdSection]) -> void:
 	_correct_branch = 0
 	
 	dialogue_box.show()
 	DialogueQuest.Signals.dialogue_started.emit()
 	
-	for section in parsed:
+	for section in sections:
 		if _stop_requested:
 			break
 		
