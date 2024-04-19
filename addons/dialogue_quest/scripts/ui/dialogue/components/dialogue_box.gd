@@ -2,7 +2,10 @@
 extends Control
 class_name DQDialogueBox
 
+## Emitted when all characters are visible
 signal all_text_shown
+## Emitted when the visible characters is changed
+signal text_shown(characters: int)
 signal proceed
 signal settings_changed(new_settings: DQDialogueBoxSettings)
 
@@ -47,6 +50,7 @@ func _process(delta: float) -> void:
 	while _letters_time_debt >= 1.0 / settings.letters_per_second:
 		_text.visible_characters = min(_text.visible_characters + 1, _text.text.length())
 		_letters_time_debt -= (1.0 / settings.letters_per_second)
+		text_shown.emit(_text.visible_characters)
 
 func accept() -> void:
 	if _text.visible_characters == -1:

@@ -33,6 +33,10 @@ var _stop_requested: bool = false
 var _correct_branch: int = 0
 var _current_branch: int = 0
 
+var _dialogue_box_default_speed: int
+
+var _current_speed_bbcodes: Array[Dictionary] = []
+
 func _ready() -> void:
 	DialogueQuest.Inputs.accept_released.connect(accept)
 	if settings.autoplay_enabled and settings.autoplay_on_start:
@@ -94,7 +98,14 @@ func _play(sections: Array[DQDqdParser.DqdSection]) -> void:
 	DialogueQuest.Signals.dialogue_ended.emit()
 
 func set_dialogue_box(value: DQDialogueBox) -> void:
+	if dialogue_box:
+		dialogue_box.text_shown.disconnect(_on_text_shown)
+	
 	dialogue_box = value
+	
+	_dialogue_box_default_speed = dialogue_box.settings.letters_per_second
+	
+	dialogue_box.text_shown.connect(_on_text_shown)
 
 func get_dialogue_box() -> DQDialogueBox:
 	return dialogue_box
@@ -108,6 +119,64 @@ func get_choice_menu() -> DQChoiceMenu:
 func accept() -> void:
 	if dialogue_box.visible:
 		dialogue_box.accept()
+
+## Returns an array consisting of dictionaries with three variables:
+## `value` - The value of the bbcode
+## `content` - The text within the bbcode
+## `final` - `text` with the bbcode removed
+## `start_index` - The index in `final` where `content` begins
+## `end_index` - The index in `final` where `content` ends
+func _extract_bbcode(text: String, tag: String, is_numeral: bool = true) -> Array[Dictionary]:
+	var out: Array[Dictionary] = []
+	var pattern := "\\[%s=(?<%s>\\d+\\.?\\d*)\\](?<content>.*)" % [tag, tag]
+	var regex := RegEx.new()
+	regex.compile(pattern)
+	
+	var t := text
+	var res := regex.search(t)
+	
+	while res != null:
+		var value := res.get_string(tag)
+		if not value:
+			continue
+		
+		var d := {}
+		
+		if is_numeral:
+			if not value.is_valid_float():
+				var s := "DialogueQuest | DialoguePlayer | %s tag provided bad value (non-number)" % tag
+				DialogueQuest.error.emit(s)
+				assert(false, s)
+			d[tag] = value.to_float()
+		else:
+			d[tag] = value
+		
+		var content := res.get_string("content")
+		var end_index = content.find("[/%s]" % tag)
+		if end_index != -1:
+			content = content.substr(0, end_index)
+		
+		d["content"] = content
+		
+		var regex_start_index = res.get_start()
+		var regex_end_index: int
+		
+		if end_index == -1:
+			regex_end_index = res.get_end()
+		else:
+			regex_end_index = res.get_start("content") + end_index + len("[/%s]" % tag)
+		
+		d["final"] = t.substr(0, regex_start_index) + content + t.substr(regex_end_index)
+		var start_length: int = res.get_start("content") - regex_start_index
+		d["start_index"] = res.get_start("content") - start_length
+		d["end_index"] = d["start_index"] + len(content)
+		
+		out.append(d)
+		
+		t = d["final"]
+		res = regex.search(t)
+	
+	return out
 
 func _handle_branch(section: DQDqdParser.DqdSection.SectionBranch) -> void:
 	if section.type == DQDqdParser.DqdSection.SectionBranch.Type.END:
@@ -150,6 +219,8 @@ func _handle_say(section: DQDqdParser.DqdSection.SectionSay) -> void:
 	if not section.texts.size():
 		return
 	
+	_current_speed_bbcodes = []
+	
 	var chara: DQCharacter = section.character
 	if chara:
 		dialogue_box.set_name_text(chara.character_name)
@@ -163,8 +234,16 @@ func _handle_say(section: DQDqdParser.DqdSection.SectionSay) -> void:
 		dialogue_box.set_text_theme(null)
 		dialogue_box.set_name_theme(null)
 		dialogue_box.start_progressing()
-
+	
+	for i in section.texts.size():
+		var t := section.texts[i]
+		var speed_bbcodes := _extract_bbcode(t, "speed")
+		for bb_res in speed_bbcodes:
+			section.texts[i] = bb_res["final"]
+		_current_speed_bbcodes = speed_bbcodes
+	
 	dialogue_box.set_text(section.texts[0])
+	
 	dialogue_box.start_progressing()
 	var texts := PackedStringArray(section.texts.slice(1))
 	if texts.size() == 1:
@@ -206,3 +285,12 @@ func _handle_choice(section: DQDqdParser.DqdSection.SectionChoice) -> void:
 
 func _handle_exit(section: DQDqdParser.DqdSection.SectionExit) -> void:
 	stop()
+
+func _on_text_shown(characters: int) -> void:
+	dialogue_box.settings.letters_per_second = _dialogue_box_default_speed
+	for bbcode in _current_speed_bbcodes:
+		var content_start: int = bbcode["start_index"]
+		var content_end: int = bbcode["end_index"]
+		if content_start <= characters and characters <= content_end:
+			dialogue_box.settings.letters_per_second = bbcode["speed"]
+
