@@ -24,6 +24,8 @@ var settings: DQDialoguePlayerSettings
 var dialogue_box: DQDialogueBox : set = set_dialogue_box, get = get_dialogue_box
 @export
 var choice_menu: DQChoiceMenu : set = set_choice_menu, get = get_choice_menu
+@export
+var custom_bbcodes: Array[String] = ["speed", "pause"]
 
 var autoplaying: bool = false
 
@@ -35,7 +37,8 @@ var _current_branch: int = 0
 
 var _dialogue_box_default_speed: int
 
-var _current_speed_bbcodes: Array[Dictionary] = []
+## Dictionary of bbcode_type([String]): bbcodes([Array]([Dictionary]))
+var _current_bbcodes: Dictionary = {}
 
 func _ready() -> void:
 	DialogueQuest.Inputs.accept_released.connect(accept)
@@ -219,7 +222,7 @@ func _handle_say(section: DQDqdParser.DqdSection.SectionSay) -> void:
 	if not section.texts.size():
 		return
 	
-	_current_speed_bbcodes = []
+	_current_bbcodes = {}
 	
 	var chara: DQCharacter = section.character
 	if chara:
@@ -235,12 +238,13 @@ func _handle_say(section: DQDqdParser.DqdSection.SectionSay) -> void:
 		dialogue_box.set_name_theme(null)
 		dialogue_box.start_progressing()
 	
-	for i in section.texts.size():
-		var t := section.texts[i]
-		var speed_bbcodes := _extract_bbcode(t, "speed")
-		for bb_res in speed_bbcodes:
-			section.texts[i] = bb_res["final"]
-		_current_speed_bbcodes = speed_bbcodes
+	for bbcode_type in custom_bbcodes:
+		var t := section.texts[0]
+		var bbcodes := _extract_bbcode(t, bbcode_type)
+		for bb_res in bbcodes:
+			section.texts[0] = bb_res["final"]
+		
+		_current_bbcodes[bbcode_type] = bbcodes
 	
 	dialogue_box.set_text(section.texts[0])
 	
@@ -254,8 +258,20 @@ func _handle_say(section: DQDqdParser.DqdSection.SectionSay) -> void:
 	if not texts.size():
 		return
 	for i in texts.size():
-		var text: String = texts[i]
 		var prev_len = dialogue_box.text.length()
+		
+		for bbcode_type in custom_bbcodes:
+			var bbcodes := _extract_bbcode(texts[i], bbcode_type)
+			
+			for bb_res in bbcodes:
+				texts[i] = bb_res["final"]
+				bb_res["start_index"] += prev_len
+				bb_res["end_index"] += prev_len
+			
+			_current_bbcodes[bbcode_type] = bbcodes
+		
+		var text: String = texts[i]
+		
 		dialogue_box.text += text
 		dialogue_box.start_progressing(prev_len)
 		if i == texts.size() - 2 or (texts.size() - 2) < 0:
@@ -288,9 +304,18 @@ func _handle_exit(section: DQDqdParser.DqdSection.SectionExit) -> void:
 
 func _on_text_shown(characters: int) -> void:
 	dialogue_box.settings.letters_per_second = _dialogue_box_default_speed
-	for bbcode in _current_speed_bbcodes:
-		var content_start: int = bbcode["start_index"]
-		var content_end: int = bbcode["end_index"]
-		if content_start <= characters and characters <= content_end:
-			dialogue_box.settings.letters_per_second = bbcode["speed"]
+	if "speed" in _current_bbcodes:
+		for bbcode in _current_bbcodes["speed"]:
+			var content_start: int = bbcode["start_index"]
+			var content_end: int = bbcode["end_index"]
+			if content_start <= characters and characters <= content_end:
+				dialogue_box.settings.letters_per_second = bbcode["speed"]
+	
+	if "pause" in _current_bbcodes:
+		for bbcode in _current_bbcodes["pause"]:
+			var index: int = bbcode["start_index"]
+			if characters == index:
+				dialogue_box.pause()
+				await get_tree().create_timer(bbcode["pause"]).timeout
+				dialogue_box.resume()
 

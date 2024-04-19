@@ -22,6 +22,8 @@ var name_text: String : set = set_name_text, get = get_name_text
 @export
 var portrait_image: Texture2D : set = set_portrait_image, get = get_portrait_image
 
+var paused: bool = false
+
 @onready
 var _name: Label = %Name
 @onready
@@ -45,6 +47,9 @@ func _process(delta: float) -> void:
 		finish()
 		return
 	
+	if paused:
+		return
+	
 	_letters_time_debt += delta
 	
 	while _letters_time_debt >= 1.0 / settings.letters_per_second:
@@ -55,6 +60,7 @@ func _process(delta: float) -> void:
 func accept() -> void:
 	if _text.visible_characters == -1:
 		proceed.emit()
+		paused = false
 	else:
 		finish()
 
@@ -65,6 +71,12 @@ func finish() -> void:
 
 func start_progressing(from_character: int = 0) -> void:
 	set_visible_characters(from_character)
+
+func pause() -> void:
+	paused = true
+
+func resume() -> void:
+	paused = false
 
 func set_text(value: String) -> void:
 	text = value
