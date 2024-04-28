@@ -27,7 +27,11 @@ var choice_menu: DQChoiceMenu : set = set_choice_menu, get = get_choice_menu
 @export
 var custom_bbcodes: Array[String] = ["speed", "pause"]
 
-var autoplaying: bool = false
+var autoplaying: bool = false :
+	set(value):
+		autoplaying = value
+		if dialogue_box:
+			dialogue_box.set_auto_button_active(autoplaying)
 
 var _lock: bool = false
 var _stop_requested: bool = false
@@ -42,8 +46,15 @@ var _current_bbcodes: Dictionary = {}
 
 func _ready() -> void:
 	DialogueQuest.Inputs.accept_released.connect(accept)
-	if settings.autoplay_enabled and settings.autoplay_on_start:
-		autoplaying = true
+	
+	if settings.autoplay_enabled:
+		dialogue_box.auto_toggle_requested.connect(_on_auto_toggle_requested)
+		dialogue_box.get_auto_button().show()
+		
+		if settings.autoplay_on_start:
+			autoplaying = true
+	else:
+		dialogue_box.get_auto_button().hide()
 
 func play(dialogue_path: String) -> void:
 	var parsed := DQDqdParser.parse_from_file(dialogue_path)
@@ -69,10 +80,11 @@ func stop() -> void:
 		_stop_requested = true
 
 func _wait_for_input() -> void:
-	if settings.autoplay_enabled and autoplaying:
-		await dialogue_box.all_text_shown
+	if autoplaying:
+		if not dialogue_box.is_finished():
+			await dialogue_box.all_text_shown
 		get_tree().create_timer(settings.autoplay_delay_sec).timeout.connect(accept)
-		
+	
 	await dialogue_box.proceed
 
 func _play(sections: Array[DQDqdParser.DqdSection]) -> void:
@@ -319,3 +331,5 @@ func _on_text_shown(characters: int) -> void:
 				await get_tree().create_timer(bbcode["pause"]).timeout
 				dialogue_box.resume()
 
+func _on_auto_toggle_requested() -> void:
+	autoplaying = !autoplaying

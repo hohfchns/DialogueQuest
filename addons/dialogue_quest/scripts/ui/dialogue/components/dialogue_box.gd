@@ -9,6 +9,8 @@ signal text_shown(characters: int)
 signal proceed
 signal settings_changed(new_settings: DQDialogueBoxSettings)
 
+signal auto_toggle_requested
+
 @export
 var settings: DQDialogueBoxSettings :
 	set(value):
@@ -30,6 +32,8 @@ var _name: Label = %Name
 var _text: RichTextLabel = %DialogueText
 @onready
 var _portrait: TextureRect = %Portrait
+@onready
+var _auto_button: Button = %AutoButton : get = get_auto_button
 
 var _letters_time_debt: float = 0.0
 
@@ -39,6 +43,8 @@ func _ready() -> void:
 	
 	settings_changed.connect(_on_settings_changed)
 	_on_settings_changed(settings)
+	
+	_auto_button.pressed.connect(_on_auto_pressed)
 
 func _process(delta: float) -> void:
 	if _text.visible_characters == -1:
@@ -68,6 +74,9 @@ func finish() -> void:
 	_text.visible_characters = -1
 	_letters_time_debt = 0
 	all_text_shown.emit()
+
+func is_finished() -> bool:
+	return _text.visible_characters == -1
 
 func start_progressing(from_character: int = 0) -> void:
 	set_visible_characters(from_character)
@@ -139,9 +148,21 @@ func set_text_color(value: Color) -> void:
 func set_name_color(value: Color) -> void:
 	_name.add_theme_color_override("font_color", value)
 
+func get_auto_button() -> Button:
+	return _auto_button
+
+func set_auto_button_active(on: bool) -> void:
+	if on:
+		_auto_button.theme_type_variation = ""
+	else:
+		_auto_button.theme_type_variation = "ButtonActivated"
+
 func _on_settings_changed(new_settings: DQDialogueBoxSettings) -> void:
 	layout_direction = new_settings.layout_direction_box
 	_name.layout_direction = new_settings.layout_direction_name
 	_name.text_direction = new_settings.text_direction_name
 	_text.layout_direction = new_settings.layout_direction_text
 	_text.text_direction = new_settings.text_direction_text
+
+func _on_auto_pressed() -> void:
+	auto_toggle_requested.emit()
