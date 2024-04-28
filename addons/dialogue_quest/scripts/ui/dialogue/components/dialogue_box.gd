@@ -174,3 +174,4 @@ func _auto_button_mouse_exited() -> void:
 
 func _on_auto_pressed() -> void:
 	auto_toggle_requested.emit()
+	_auto_button.release_focus()
