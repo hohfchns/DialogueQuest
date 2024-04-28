@@ -44,6 +44,8 @@ func _ready() -> void:
 	settings_changed.connect(_on_settings_changed)
 	_on_settings_changed(settings)
 	
+	_auto_button.mouse_entered.connect(_auto_button_mouse_entered)
+	_auto_button.mouse_exited.connect(_auto_button_mouse_exited)
 	_auto_button.pressed.connect(_on_auto_pressed)
 
 func _process(delta: float) -> void:
@@ -163,6 +165,12 @@ func _on_settings_changed(new_settings: DQDialogueBoxSettings) -> void:
 	_name.text_direction = new_settings.text_direction_name
 	_text.layout_direction = new_settings.layout_direction_text
 	_text.text_direction = new_settings.text_direction_text
+
+func _auto_button_mouse_entered() -> void:
+	DialogueQuest.Inputs.ignore_next_press()
+
+func _auto_button_mouse_exited() -> void:
+	DialogueQuest.Inputs.forget_ignore()
 
 func _on_auto_pressed() -> void:
 	auto_toggle_requested.emit()

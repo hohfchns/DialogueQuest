@@ -32,6 +32,7 @@ var autoplaying: bool = false :
 		autoplaying = value
 		if dialogue_box:
 			dialogue_box.set_auto_button_active(autoplaying)
+			_wait_for_input()
 
 var _lock: bool = false
 var _stop_requested: bool = false
