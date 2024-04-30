@@ -25,6 +25,7 @@ pandoc \
   ${USER_DIR}/statements/signal.md  \
   ${USER_DIR}/statements/call.md  \
   ${USER_DIR}/statements/exit.md  \
+  ${USER_DIR}/statements/dq_bbcodes.md  \
   \
   -V 'fontfamily:dejavu'\
   -V colorlinks=true \
