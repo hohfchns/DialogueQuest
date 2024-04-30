@@ -41,6 +41,7 @@ pandoc \
   ${DEV_DIR}/index.md \
   ${DEV_DIR}/../dialogue_quest_tester.md \
   ${DEV_DIR}/setup.md \
+  ${DEV_DIR}/exporting.md \
   ${DEV_DIR}/basics/examples.md \
   ${DEV_DIR}/basics/writing_dialogue.md \
   ${DEV_DIR}/basics/creating_characters.md \

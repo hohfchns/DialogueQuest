@@ -18,6 +18,8 @@ rm -rf DialogueQuest
 
 Or in one line: `git clone https://github.com/hohfchns/DialogueQuest && mkdir -p addons/ && mv ./DialogueQuest/addons/DialogueQuest ./addons && rm -rf DialogueQuest`
 
+---
+
 On Windows:
 
 In your Godot project:
@@ -39,5 +41,4 @@ This folder is by default set to `res://dialogue_quest/`
 
 This folder is where you will be storing your [characters](#creating-characters) and [dialogues](#creating-dialogue)
 
----
 
