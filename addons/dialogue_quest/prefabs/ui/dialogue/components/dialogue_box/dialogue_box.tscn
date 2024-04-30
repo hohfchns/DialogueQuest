@@ -6,23 +6,21 @@
 [ext_resource type="Texture2D" uid="uid://dnudgc08jcbif" path="res://addons/dialogue_quest/art/placeholders/portraits/shahar_portrait.png" id="2_nl5qw"]
 
 [node name="DialogueBox" type="PanelContainer"]
-anchors_preset = 8
+anchors_preset = 7
 anchor_left = 0.5
-anchor_top = 0.5
+anchor_top = 1.0
 anchor_right = 0.5
-anchor_bottom = 0.5
+anchor_bottom = 1.0
 offset_left = -469.0
-offset_top = -242.0
+offset_top = -304.0
 offset_right = 469.0
-offset_bottom = 198.0
+offset_bottom = -126.0
 grow_horizontal = 2
-grow_vertical = 2
+grow_vertical = 0
 theme = ExtResource("1_j5uw8")
 script = ExtResource("1_6hcde")
 settings = ExtResource("2_lis4o")
-text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Fringilla ut morbi tincidunt augue interdum. Sed viverra ipsum nunc aliquet bibendum enim facilisis. Sem fringilla ut morbi tincidunt augue interdum velit. Ut enim blandit volutpat maecenas volutpat blandit. Vel pharetra vel turpis nunc eget lorem dolor sed viverra. Nunc pulvinar sapien et ligula ullamcorper. Cursus vitae congue mauris rhoncus aenean vel elit scelerisque mauris. Lorem mollis aliquam ut porttitor leo a diam. Non tellus orci ac auctor augue. Nullam non nisi est sit amet facilisis magna etiam.
-
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Fringilla ut morbi tincidunt augue interdum. Sed viverra ipsum nunc aliquet bibendum enim facilisis. Sem fringilla ut morbi tincidunt augue interdum velit. Ut enim blandi"
+text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Fringilla ut morbi tincidunt augue interdum. Sed viverra ipsum nunc aliquet bibendum enim facilisis.q"
 name_text = "This is a man with a very long name"
 portrait_image = ExtResource("2_nl5qw")
 
@@ -38,6 +36,12 @@ layout_mode = 2
 
 [node name="RowTop" type="HBoxContainer" parent="Margin/Rows"]
 layout_mode = 2
+
+[node name="AutoButton" type="Button" parent="Margin/Rows/RowTop"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"ButtonActivated"
+text = "Auto"
 
 [node name="NameMargin" type="MarginContainer" parent="Margin/Rows/RowTop"]
 layout_mode = 2
@@ -59,9 +63,7 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 bbcode_enabled = true
-text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Fringilla ut morbi tincidunt augue interdum. Sed viverra ipsum nunc aliquet bibendum enim facilisis. Sem fringilla ut morbi tincidunt augue interdum velit. Ut enim blandit volutpat maecenas volutpat blandit. Vel pharetra vel turpis nunc eget lorem dolor sed viverra. Nunc pulvinar sapien et ligula ullamcorper. Cursus vitae congue mauris rhoncus aenean vel elit scelerisque mauris. Lorem mollis aliquam ut porttitor leo a diam. Non tellus orci ac auctor augue. Nullam non nisi est sit amet facilisis magna etiam.
-
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Fringilla ut morbi tincidunt augue interdum. Sed viverra ipsum nunc aliquet bibendum enim facilisis. Sem fringilla ut morbi tincidunt augue interdum velit. Ut enim blandi"
+text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Fringilla ut morbi tincidunt augue interdum. Sed viverra ipsum nunc aliquet bibendum enim facilisis.q"
 fit_content = true
 visible_characters_behavior = 1
 

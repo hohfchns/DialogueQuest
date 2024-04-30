@@ -25,6 +25,7 @@ pandoc \
   ${USER_DIR}/statements/signal.md  \
   ${USER_DIR}/statements/call.md  \
   ${USER_DIR}/statements/exit.md  \
+  ${USER_DIR}/statements/dq_bbcodes.md  \
   \
   -V 'fontfamily:dejavu'\
   -V colorlinks=true \
@@ -41,6 +42,7 @@ pandoc \
   ${DEV_DIR}/index.md \
   ${DEV_DIR}/../dialogue_quest_tester.md \
   ${DEV_DIR}/setup.md \
+  ${DEV_DIR}/exporting.md \
   ${DEV_DIR}/basics/examples.md \
   ${DEV_DIR}/basics/writing_dialogue.md \
   ${DEV_DIR}/basics/creating_characters.md \

@@ -4,7 +4,7 @@
 
 [resource]
 script = ExtResource("1_gttkv")
-autoplay_enabled = false
-autoplay_delay_sec = 0.5
-autoplay_on_start = true
+autoplay_enabled = true
+autoplay_delay_sec = 1.0
+autoplay_on_start = false
 run_expressions_as_script = false

@@ -6,6 +6,8 @@ const ACTION_ACCEPT := &"dq_accept"
 signal accept_pressed
 signal accept_released
 
+var _ignore_next_press: bool = false
+
 func _ready() -> void:
 	if not InputMap.has_action(ACTION_ACCEPT):
 		InputMap.add_action(ACTION_ACCEPT)
@@ -18,6 +20,16 @@ func _ready() -> void:
 
 func _input(_event: InputEvent) -> void:
 	if Input.is_action_just_pressed(ACTION_ACCEPT):
-		accept_pressed.emit()
+		if not _ignore_next_press:
+			accept_pressed.emit()
 	elif Input.is_action_just_released(ACTION_ACCEPT):
-		accept_released.emit()
+		if _ignore_next_press:
+			_ignore_next_press = false
+		else:
+			accept_released.emit()
+
+func ignore_next_press() -> void:
+	_ignore_next_press = true
+
+func forget_ignore() -> void:
+	_ignore_next_press = false

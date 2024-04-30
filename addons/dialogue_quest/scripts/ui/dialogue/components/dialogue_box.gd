@@ -2,9 +2,14 @@
 extends Control
 class_name DQDialogueBox
 
+## Emitted when all characters are visible
 signal all_text_shown
+## Emitted when the visible characters is changed
+signal text_shown(characters: int)
 signal proceed
 signal settings_changed(new_settings: DQDialogueBoxSettings)
+
+signal auto_toggle_requested
 
 @export
 var settings: DQDialogueBoxSettings :
@@ -19,12 +24,16 @@ var name_text: String : set = set_name_text, get = get_name_text
 @export
 var portrait_image: Texture2D : set = set_portrait_image, get = get_portrait_image
 
+var paused: bool = false
+
 @onready
 var _name: Label = %Name
 @onready
 var _text: RichTextLabel = %DialogueText
 @onready
 var _portrait: TextureRect = %Portrait
+@onready
+var _auto_button: Button = %AutoButton : get = get_auto_button
 
 var _letters_time_debt: float = 0.0
 
@@ -34,6 +43,10 @@ func _ready() -> void:
 	
 	settings_changed.connect(_on_settings_changed)
 	_on_settings_changed(settings)
+	
+	_auto_button.mouse_entered.connect(_auto_button_mouse_entered)
+	_auto_button.mouse_exited.connect(_auto_button_mouse_exited)
+	_auto_button.pressed.connect(_on_auto_pressed)
 
 func _process(delta: float) -> void:
 	if _text.visible_characters == -1:
@@ -42,15 +55,20 @@ func _process(delta: float) -> void:
 		finish()
 		return
 	
+	if paused:
+		return
+	
 	_letters_time_debt += delta
 	
 	while _letters_time_debt >= 1.0 / settings.letters_per_second:
 		_text.visible_characters = min(_text.visible_characters + 1, _text.text.length())
 		_letters_time_debt -= (1.0 / settings.letters_per_second)
+		text_shown.emit(_text.visible_characters)
 
 func accept() -> void:
 	if _text.visible_characters == -1:
 		proceed.emit()
+		paused = false
 	else:
 		finish()
 
@@ -59,8 +77,17 @@ func finish() -> void:
 	_letters_time_debt = 0
 	all_text_shown.emit()
 
+func is_finished() -> bool:
+	return _text.visible_characters == -1
+
 func start_progressing(from_character: int = 0) -> void:
 	set_visible_characters(from_character)
+
+func pause() -> void:
+	paused = true
+
+func resume() -> void:
+	paused = false
 
 func set_text(value: String) -> void:
 	text = value
@@ -123,9 +150,28 @@ func set_text_color(value: Color) -> void:
 func set_name_color(value: Color) -> void:
 	_name.add_theme_color_override("font_color", value)
 
+func get_auto_button() -> Button:
+	return _auto_button
+
+func set_auto_button_active(on: bool) -> void:
+	if on:
+		_auto_button.theme_type_variation = ""
+	else:
+		_auto_button.theme_type_variation = "ButtonActivated"
+
 func _on_settings_changed(new_settings: DQDialogueBoxSettings) -> void:
 	layout_direction = new_settings.layout_direction_box
 	_name.layout_direction = new_settings.layout_direction_name
 	_name.text_direction = new_settings.text_direction_name
 	_text.layout_direction = new_settings.layout_direction_text
 	_text.text_direction = new_settings.text_direction_text
+
+func _auto_button_mouse_entered() -> void:
+	DialogueQuest.Inputs.ignore_next_press()
+
+func _auto_button_mouse_exited() -> void:
+	DialogueQuest.Inputs.forget_ignore()
+
+func _on_auto_pressed() -> void:
+	auto_toggle_requested.emit()
+	_auto_button.release_focus()

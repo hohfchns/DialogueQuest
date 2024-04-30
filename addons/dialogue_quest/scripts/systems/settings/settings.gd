@@ -47,7 +47,7 @@ func get_settings() -> ConfigFile:
 	var settings_f := ConfigFile.new()
 	var err := settings_f.load(SETTINGS_FILE_DIR.path_join(SETTINGS_FILE_NAME))
 	if err != OK:
-		var s := "DialogueQuest | Settings | Failed to save configuration file"
+		var s := "DialogueQuest | Settings | Failed to load configuration file"
 		DialogueQuest.error.emit(s)
 		assert(false, s)
 	return settings_f

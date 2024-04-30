@@ -19,6 +19,9 @@ static func prepare() -> void:
 	
 	ProjectSettings.add_property_info(property_info)
 	
+	if DQGodotHelper.is_final_build():
+		return
+	
 	var es := EditorInterface.get_editor_settings()
 	var cur_extensions: String = es.get_setting("docks/filesystem/textfile_extensions")
 	var ext := DQFilesDefines.DIALOGUE_FILE_EXTENSION
