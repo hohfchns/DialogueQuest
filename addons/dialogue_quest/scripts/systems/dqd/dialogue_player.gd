@@ -62,9 +62,9 @@ func play(dialogue_path: String) -> void:
 	if not parsed.size():
 		return
 
-	play_sections(parsed)
+	play_sections(dialogue_path, parsed)
 
-func play_sections(sections: Array[DQDqdParser.DqdSection]) -> void:
+func play_sections(dialogue_path: String, sections: Array[DQDqdParser.DqdSection]) -> void:
 	if _lock:
 		var s := "DialogueQuest | Player | Cannot run multiple dialogue instances per player."
 		DialogueQuest.error.emit(s)
@@ -73,7 +73,7 @@ func play_sections(sections: Array[DQDqdParser.DqdSection]) -> void:
 	
 	_lock = true
 	_stop_requested = false
-	await _play(sections)
+	await _play(dialogue_path, sections)
 	_lock = false
 
 func stop() -> void:
@@ -88,11 +88,11 @@ func _wait_for_input() -> void:
 	
 	await dialogue_box.proceed
 
-func _play(sections: Array[DQDqdParser.DqdSection]) -> void:
+func _play(dialogue_path: String, sections: Array[DQDqdParser.DqdSection]) -> void:
 	_correct_branch = 0
 	
 	dialogue_box.show()
-	DialogueQuest.Signals.dialogue_started.emit()
+	DialogueQuest.Signals.dialogue_started.emit(dialogue_path)
 	
 	for section in sections:
 		if _stop_requested:
@@ -111,7 +111,7 @@ func _play(sections: Array[DQDqdParser.DqdSection]) -> void:
 				await handler.callback.call(section)
 	
 	dialogue_box.hide()
-	DialogueQuest.Signals.dialogue_ended.emit()
+	DialogueQuest.Signals.dialogue_ended.emit(dialogue_path)
 
 func set_dialogue_box(value: DQDialogueBox) -> void:
 	if dialogue_box:
