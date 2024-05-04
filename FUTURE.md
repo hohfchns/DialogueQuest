@@ -2,9 +2,7 @@
 
 # Planned Features
 
-- Text modifiers for `say` statment
-    - Text speed ✅ *Added in v0.5.0*
-    - Timed pause ✅ *Added in v0.5.0*
+- Skipping dialogue
 
 ## Potential features
 
