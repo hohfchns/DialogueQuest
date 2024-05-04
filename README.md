@@ -22,16 +22,7 @@ DialogueQuest features a standalone program called [DialogueQuestTester](https:/
 
 This is a core "feature" of DialogueQuest and the app will continuously be updated and improved to match DialogueQuest.
 
-# Planned Features
+# Future Features
 
-- Text modifiers for `say` statment
-    - Text speed ✅ *Added in v0.5.0*
-    - Timed pause ✅ *Added in v0.5.0*
-
-## Potential features
-
-*These features can already be achieved without direct implementation in the addon*
-
-- Pausing dialogues
-- Playing sounds
+See [FUTURE.md](https://github.com/hohfchns/DialogueQuest/blob/main/FUTURE.md).
 
