@@ -25,8 +25,8 @@ This is a core "feature" of DialogueQuest and the app will continuously be updat
 # Planned Features
 
 - Text modifiers for `say` statment
-    - Text speed
-    - Timed pause
+    - Text speed ✅ *Added in v0.5.0*
+    - Timed pause ✅ *Added in v0.5.0*
 
 ## Potential features
 
