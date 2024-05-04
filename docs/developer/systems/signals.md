@@ -15,8 +15,8 @@ Other main signals are available via the `DQSignals` instance `DialogueQuest.Sig
 
 The signals are:
 
-- dialogue_started(dialogue_path: String)
-- dialogue_ended(dialogue_path: String)
+- dialogue_started(dialogue_id: String)
+- dialogue_ended(dialogue_id: String)
 - dialogue_signal(params: Array)
     - Emitted via the `signal` statment in dialogue.
 - choice_made(choice: String)
