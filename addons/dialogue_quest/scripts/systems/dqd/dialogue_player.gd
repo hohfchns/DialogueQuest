@@ -33,6 +33,17 @@ var autoplaying: bool = false :
 		if dialogue_box:
 			dialogue_box.set_auto_button_active(autoplaying)
 			_wait_for_input()
+		if autoplaying and skipping:
+			skipping = false
+
+var skipping: bool = false :
+	set(value):
+		skipping = value
+		if dialogue_box:
+			dialogue_box.set_skip_button_active(skipping)
+			_wait_for_input()
+		if skipping and autoplaying:
+			autoplaying = false
 
 ## The current playing dialogue ID.
 var current_dialogue: String = ""
@@ -59,6 +70,12 @@ func _ready() -> void:
 			autoplaying = true
 	else:
 		dialogue_box.get_auto_button().hide()
+	
+	if settings.skip_enabled:
+		dialogue_box.skip_toggle_requested.connect(_on_skip_toggle_requested)
+		dialogue_box.get_skip_button().show()
+	else:
+		dialogue_box.get_skip_button().hide()
 
 func play(dialogue_path: String) -> void:
 	var parsed := DQDqdParser.parse_from_file(dialogue_path)
@@ -90,6 +107,10 @@ func _wait_for_input() -> void:
 		if not dialogue_box.is_finished():
 			await dialogue_box.all_text_shown
 		get_tree().create_timer(settings.autoplay_delay_sec).timeout.connect(accept)
+	elif skipping:
+		while not dialogue_box.is_finished():
+			accept()
+		get_tree().create_timer(1.0 / settings.skip_speed).timeout.connect(accept)
 	
 	await dialogue_box.proceed
 
@@ -269,10 +290,12 @@ func _handle_say(section: DQDqdParser.DqdSection.SectionSay) -> void:
 	dialogue_box.set_text(section.texts[0])
 	
 	dialogue_box.start_progressing()
+	
 	var texts := PackedStringArray(section.texts.slice(1))
 	if texts.size() == 1:
 		if DQScriptingHelper.remove_whitespace(texts[0]).is_empty():
-			await dialogue_box.all_text_shown
+			if not skipping:
+				await dialogue_box.all_text_shown
 			return
 	await _wait_for_input()
 	if not texts.size():
@@ -296,7 +319,8 @@ func _handle_say(section: DQDqdParser.DqdSection.SectionSay) -> void:
 		dialogue_box.start_progressing(prev_len)
 		if i == texts.size() - 2 or (texts.size() - 2) < 0:
 			if DQScriptingHelper.remove_whitespace(texts[texts.size() - 1]).is_empty():
-				await dialogue_box.all_text_shown
+				if not skipping:
+					await dialogue_box.all_text_shown
 				break
 		await _wait_for_input()
 
@@ -313,6 +337,8 @@ func _handle_flag(section: DQDqdParser.DqdSection.SectionFlag) -> void:
 	section.raise()
 
 func _handle_choice(section: DQDqdParser.DqdSection.SectionChoice) -> void:
+	if not settings.skip_after_choices:
+		skipping = false
 	choice_menu.choices = section.choices
 	choice_menu.show()
 	var choice_made: String = await choice_menu.choice_made
@@ -341,3 +367,6 @@ func _on_text_shown(characters: int) -> void:
 
 func _on_auto_toggle_requested() -> void:
 	autoplaying = !autoplaying
+
+func _on_skip_toggle_requested() -> void:
+	skipping = !skipping
