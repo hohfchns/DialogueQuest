@@ -28,5 +28,5 @@ See [FUTURE.md](https://github.com/hohfchns/DialogueQuest/blob/main/FUTURE.md).
 
 # Contributing, suggestions, and bug reports
 
-See [CONTRIBUTING.md](https://github.com/hohfchns/DialogueQuest/blob/main/CONTRIBUTING.md)
+See [CONTRIBUTING.md](https://github.com/hohfchns/DialogueQuest/blob/main/CONTRIBUTING.md).
 
