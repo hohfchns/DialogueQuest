@@ -116,6 +116,7 @@ func _wait_for_input() -> void:
 
 func _play(sections: Array[DQDqdParser.DqdSection], dialogue_id: String="") -> void:
 	_correct_branch = 0
+	_current_branch = 0
 	
 	dialogue_box.show()
 	current_dialogue = dialogue_id
