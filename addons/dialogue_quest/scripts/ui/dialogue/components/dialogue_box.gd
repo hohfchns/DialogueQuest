@@ -10,6 +10,7 @@ signal proceed
 signal settings_changed(new_settings: DQDialogueBoxSettings)
 
 signal auto_toggle_requested
+signal skip_toggle_requested
 
 @export
 var settings: DQDialogueBoxSettings :
@@ -34,6 +35,8 @@ var _text: RichTextLabel = %DialogueText
 var _portrait: TextureRect = %Portrait
 @onready
 var _auto_button: Button = %AutoButton : get = get_auto_button
+@onready
+var _skip_button: Button = %SkipButton : get = get_skip_button
 
 var _letters_time_debt: float = 0.0
 
@@ -47,6 +50,10 @@ func _ready() -> void:
 	_auto_button.mouse_entered.connect(_auto_button_mouse_entered)
 	_auto_button.mouse_exited.connect(_auto_button_mouse_exited)
 	_auto_button.pressed.connect(_on_auto_pressed)
+	
+	_skip_button.mouse_entered.connect(_skip_button_mouse_entered)
+	_skip_button.mouse_exited.connect(_skip_button_mouse_exited)
+	_skip_button.pressed.connect(_on_skip_pressed)
 
 func _process(delta: float) -> void:
 	if _text.visible_characters == -1:
@@ -159,6 +166,15 @@ func set_auto_button_active(on: bool) -> void:
 	else:
 		_auto_button.theme_type_variation = "ButtonActivated"
 
+func get_skip_button() -> Button:
+	return _skip_button
+
+func set_skip_button_active(on: bool) -> void:
+	if on:
+		_skip_button.theme_type_variation = ""
+	else:
+		_skip_button.theme_type_variation = "ButtonActivated"
+
 func _on_settings_changed(new_settings: DQDialogueBoxSettings) -> void:
 	layout_direction = new_settings.layout_direction_box
 	_name.layout_direction = new_settings.layout_direction_name
@@ -175,3 +191,13 @@ func _auto_button_mouse_exited() -> void:
 func _on_auto_pressed() -> void:
 	auto_toggle_requested.emit()
 	_auto_button.release_focus()
+
+func _skip_button_mouse_entered() -> void:
+	DialogueQuest.Inputs.ignore_next_press()
+
+func _skip_button_mouse_exited() -> void:
+	DialogueQuest.Inputs.forget_ignore()
+
+func _on_skip_pressed() -> void:
+	skip_toggle_requested.emit()
+	_skip_button.release_focus()

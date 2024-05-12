@@ -33,6 +33,20 @@ var autoplaying: bool = false :
 		if dialogue_box:
 			dialogue_box.set_auto_button_active(autoplaying)
 			_wait_for_input()
+		if autoplaying and skipping:
+			skipping = false
+
+var skipping: bool = false :
+	set(value):
+		skipping = value
+		if dialogue_box:
+			dialogue_box.set_skip_button_active(skipping)
+			_wait_for_input()
+		if skipping and autoplaying:
+			autoplaying = false
+
+## The current playing dialogue ID.
+var current_dialogue: String = ""
 
 var _lock: bool = false
 var _stop_requested: bool = false
@@ -56,15 +70,23 @@ func _ready() -> void:
 			autoplaying = true
 	else:
 		dialogue_box.get_auto_button().hide()
+	
+	if settings.skip_enabled:
+		dialogue_box.skip_toggle_requested.connect(_on_skip_toggle_requested)
+		dialogue_box.get_skip_button().show()
+	else:
+		dialogue_box.get_skip_button().hide()
 
 func play(dialogue_path: String) -> void:
 	var parsed := DQDqdParser.parse_from_file(dialogue_path)
 	if not parsed.size():
 		return
 
-	play_sections(parsed)
+	play_sections(parsed, dialogue_path)
 
-func play_sections(sections: Array[DQDqdParser.DqdSection]) -> void:
+## Starts the dialogue, playing `sections`.
+## It is recommended to provide `dialogue_id` with the `.dqd` file path / name.
+func play_sections(sections: Array[DQDqdParser.DqdSection], dialogue_id: String="") -> void:
 	if _lock:
 		var s := "DialogueQuest | Player | Cannot run multiple dialogue instances per player."
 		DialogueQuest.error.emit(s)
@@ -73,7 +95,7 @@ func play_sections(sections: Array[DQDqdParser.DqdSection]) -> void:
 	
 	_lock = true
 	_stop_requested = false
-	await _play(sections)
+	await _play(sections, dialogue_id)
 	_lock = false
 
 func stop() -> void:
@@ -85,14 +107,20 @@ func _wait_for_input() -> void:
 		if not dialogue_box.is_finished():
 			await dialogue_box.all_text_shown
 		get_tree().create_timer(settings.autoplay_delay_sec).timeout.connect(accept)
+	elif skipping:
+		while not dialogue_box.is_finished():
+			accept()
+		get_tree().create_timer(1.0 / settings.skip_speed).timeout.connect(accept)
 	
 	await dialogue_box.proceed
 
-func _play(sections: Array[DQDqdParser.DqdSection]) -> void:
+func _play(sections: Array[DQDqdParser.DqdSection], dialogue_id: String="") -> void:
 	_correct_branch = 0
+	_current_branch = 0
 	
 	dialogue_box.show()
-	DialogueQuest.Signals.dialogue_started.emit()
+	current_dialogue = dialogue_id
+	DialogueQuest.Signals.dialogue_started.emit(current_dialogue)
 	
 	for section in sections:
 		if _stop_requested:
@@ -111,7 +139,8 @@ func _play(sections: Array[DQDqdParser.DqdSection]) -> void:
 				await handler.callback.call(section)
 	
 	dialogue_box.hide()
-	DialogueQuest.Signals.dialogue_ended.emit()
+	DialogueQuest.Signals.dialogue_ended.emit(current_dialogue)
+	current_dialogue = ""
 
 func set_dialogue_box(value: DQDialogueBox) -> void:
 	if dialogue_box:
@@ -262,10 +291,12 @@ func _handle_say(section: DQDqdParser.DqdSection.SectionSay) -> void:
 	dialogue_box.set_text(section.texts[0])
 	
 	dialogue_box.start_progressing()
+	
 	var texts := PackedStringArray(section.texts.slice(1))
 	if texts.size() == 1:
 		if DQScriptingHelper.remove_whitespace(texts[0]).is_empty():
-			await dialogue_box.all_text_shown
+			if not skipping:
+				await dialogue_box.all_text_shown
 			return
 	await _wait_for_input()
 	if not texts.size():
@@ -289,7 +320,8 @@ func _handle_say(section: DQDqdParser.DqdSection.SectionSay) -> void:
 		dialogue_box.start_progressing(prev_len)
 		if i == texts.size() - 2 or (texts.size() - 2) < 0:
 			if DQScriptingHelper.remove_whitespace(texts[texts.size() - 1]).is_empty():
-				await dialogue_box.all_text_shown
+				if not skipping:
+					await dialogue_box.all_text_shown
 				break
 		await _wait_for_input()
 
@@ -306,6 +338,8 @@ func _handle_flag(section: DQDqdParser.DqdSection.SectionFlag) -> void:
 	section.raise()
 
 func _handle_choice(section: DQDqdParser.DqdSection.SectionChoice) -> void:
+	if not settings.skip_after_choices:
+		skipping = false
 	choice_menu.choices = section.choices
 	choice_menu.show()
 	var choice_made: String = await choice_menu.choice_made
@@ -334,3 +368,6 @@ func _on_text_shown(characters: int) -> void:
 
 func _on_auto_toggle_requested() -> void:
 	autoplaying = !autoplaying
+
+func _on_skip_toggle_requested() -> void:
+	skipping = !skipping
