@@ -22,7 +22,11 @@ DialogueQuest features a standalone program called [DialogueQuestTester](https:/
 
 This is a core "feature" of DialogueQuest and the app will continuously be updated and improved to match DialogueQuest.
 
-# Future Features
+# Planned Features
 
 See [FUTURE.md](https://github.com/hohfchns/DialogueQuest/blob/main/FUTURE.md).
+
+# Contributing, suggestions, and bug reports
+
+See [CONTRIBUTING.md](https://github.com/hohfchns/DialogueQuest/blob/main/CONTRIBUTING.md).
 
