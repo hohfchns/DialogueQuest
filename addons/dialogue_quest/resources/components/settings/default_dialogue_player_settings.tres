@@ -10,4 +10,5 @@ autoplay_on_start = false
 skip_enabled = true
 skip_speed = 10
 skip_after_choices = false
+skip_stop_on_dialogue_end = true
 run_expressions_as_script = false

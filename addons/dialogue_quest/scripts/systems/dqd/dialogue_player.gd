@@ -138,6 +138,8 @@ func _play(sections: Array[DQDqdParser.DqdSection], dialogue_id: String="") -> v
 			if is_instance_of(section, handler.section_class):
 				await handler.callback.call(section)
 	
+	if settings.skip_stop_on_dialogue_end:
+		skipping = false
 	dialogue_box.hide()
 	DialogueQuest.Signals.dialogue_ended.emit(current_dialogue)
 	current_dialogue = ""
