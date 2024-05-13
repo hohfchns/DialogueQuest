@@ -5,6 +5,7 @@
 ## Near version (v0.6.0)
 
 - Skipping dialogue ✅ *Implemented*
+- Automatic string conversion in DQD ✅ *Implemented*
 - Playing sounds
 - Indicator that shows when all text is shown
 
