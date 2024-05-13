@@ -7,6 +7,20 @@ class Error:
 
 const WHITESPACE_CHARACTERS: PackedStringArray = [" ", "\n", "\r", "	"]
 
+const RESERVED_CHARACTERS: PackedStringArray = [
+	"!", "@", "#", "$", "%", "^", "&", "*", "-",
+	"+", "=", "{", "}", "[", "]", "|", "\\", ":",
+	";", "'", "\"", "<", ">", ", ", ".", "/", "?",
+	"~", "(", ")", "`"
+]
+
+const RESERVED_WORDS: PackedStringArray = [
+	"func", "class", "extends", "self", "if", "elif", "else", "while", "for",
+	"in", "break", "continue", "return", "match", "switch", "case", "const",
+	"var", "onready", "tool", "export", "signal", "preload", "assert", "yield",
+	"do", "class_name", "extends", "is", "as", "true", "false", "or", "and"
+]
+
 static func remove_whitespace(from: String) -> String:
 	var s := from
 	for c in WHITESPACE_CHARACTERS:
@@ -50,3 +64,30 @@ static func evaluate_expression(expression: String, base_instance: Object = null
 		return Error.new()
 	return res
 
+## Takes `expression` and converts non-reserved and non-numeric words into quoted strings for evaluation.
+static func stringify_expression(expression: String) -> String:
+	var new_str: String = ""
+	var words: PackedStringArray = [expression]
+	if " " in expression:
+		words = expression.split(" ")
+
+	for word in words:
+		if word.is_valid_float():
+			new_str += word + " "
+			continue
+		if word in RESERVED_WORDS:
+			new_str += word + " "
+			continue
+
+		var has_reserved_character := false
+		for c in word.split():
+			if c in RESERVED_CHARACTERS:
+				has_reserved_character = true
+				break
+		if has_reserved_character:
+			new_str += word + " "
+			continue
+
+		new_str += "\"%s\"" % word + " "
+
+	return trim_whitespace(new_str)
