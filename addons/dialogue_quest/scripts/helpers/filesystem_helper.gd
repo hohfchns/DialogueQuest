@@ -1,7 +1,10 @@
 extends Node
 class_name DQFilesystemHelper
 
-static func get_all_files(path: String, file_ext := "", full_paths := true, files: PackedStringArray = []) -> PackedStringArray:
+static func get_all_files(path: String, file_ext := "", full_paths := true) -> PackedStringArray:
+	return _get_all_files(path, file_ext, full_paths)
+
+static func _get_all_files(path: String, file_ext := "", full_paths := true, files: PackedStringArray = []) -> PackedStringArray:
 	var dir = DirAccess.open(path)
 	if not dir:
 		printerr(DirAccess.get_open_error())
@@ -13,12 +16,12 @@ static func get_all_files(path: String, file_ext := "", full_paths := true, file
 	
 	while file_name != "":
 		if dir.current_is_dir():
-			files = get_all_files(dir.get_current_dir().path_join(file_name), file_ext, full_paths, files)
+			files = _get_all_files(dir.get_current_dir().path_join(file_name), file_ext, full_paths, files)
 		else:
 			if file_ext and file_name.get_extension() != file_ext:
 				file_name = dir.get_next()
 				continue
- 			
+
 			if full_paths:
 				files.append(dir.get_current_dir().path_join(file_name))
 			else:
