@@ -80,11 +80,11 @@ branch | evaluate | 5 >= 5
     say | This will happen.
 branch | end
 
-branch | evaluate | "this" == "that"
+branch | evaluate | this == that
     say | This won't happen.
 branch | end
 
-branch | evaluate | "that" == "that"
+branch | evaluate | that == that
     say | This will happen.
 branch | end
 
@@ -93,7 +93,7 @@ branch | end
 evaluate can also be used with [flag solving](#flag-solving)
 
 ```
-branch | evaluate | "${main_character}" == "joe"
+branch | evaluate | ${main_character} == joe
     say | joe | Yo, uh-huh
 branch | end
 
