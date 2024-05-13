@@ -333,7 +333,6 @@ func _handle_signal(section: DQDqdParser.DqdSection.SectionRaiseDQSignal) -> voi
 func _handle_call(section: DQDqdParser.DqdSection.SectionEvaluateCall) -> void:
 	section.expression.execute([], DialogueQuest)
 	if section.expression.has_execute_failed() and settings.run_expressions_as_script:
-		printerr("Executing expression failed, running as script...")
 		section.run_as_script()
 
 func _handle_flag(section: DQDqdParser.DqdSection.SectionFlag) -> void:
