@@ -5,11 +5,12 @@
 ## Near version (v0.6.0)
 
 - Skipping dialogue ✅ *Implemented*
-- Playing sounds
+- Playing sounds ✅ *Implemented*
 - Indicator that shows when all text is shown
 
 ## Future Version
 
+- History + Rollback
 - Translations
 
 # Potential features
