@@ -10,6 +10,7 @@
 
 ## Future Version
 
+- More branch options (reduce the need for evaluate branches)
 - History + Rollback
 - Translations
 
