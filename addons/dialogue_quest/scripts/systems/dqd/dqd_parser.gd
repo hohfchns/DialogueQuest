@@ -117,9 +117,17 @@ class DqdSection extends Resource:
 			else:
 				expression = DQDqdParser.solve_flags(expression)
 	
+	class SectionPlaySound extends DqdSection:
+		var sound_file: String = ""
+		var channel: String = ""
+		var volume: float = 0.0
+		
+		func solve_flags() -> void:
+			sound_file = DQDqdParser.solve_flags(sound_file, false)
+
 	class SectionExit extends DqdSection:
 		pass
-
+	
 ## Defines a keyword that can be parsed in a dqd.
 class Statement:
 	var keyword: StringName
@@ -135,7 +143,8 @@ static var statements: Array[Statement] = [
 	Statement.new("flag", DQDqdParser._parse_flag),
 	Statement.new("choice", DQDqdParser._parse_choice),
 	Statement.new("branch", DQDqdParser._parse_branch),
-	Statement.new("exit", DQDqdParser._parse_exit)
+	Statement.new("exit", DQDqdParser._parse_exit),
+	Statement.new("sound", DQDqdParser._parse_sound)
 ]
 
 static func parse_from_file(filepath: String) -> Array[DqdSection]:
@@ -378,3 +387,25 @@ static func _parse_branch(pipeline: PackedStringArray):
 
 static func _parse_exit(pipeline: PackedStringArray) -> DqdSection.SectionExit:
 	return DqdSection.SectionExit.new()
+
+static func _parse_sound(pipeline: PackedStringArray):
+	var section := DqdSection.SectionPlaySound.new()
+
+	if pipeline.size() <= 1:
+		return DqdError.new("DialogQuest | Dqd | Parser | Parse error at line {line} | Cannot parse sound statement | Wrong number of arguments (correct -> 1/2/3, found 0)")
+	if pipeline.size() > 4:
+		return DqdError.new("DialogQuest | Dqd | Parser | Parse error at line {line} | Cannot parse sound statement | Wrong number of arguments (correct -> 1/2/3, found 4+)")
+	
+	section.sound_file = DQScriptingHelper.trim_whitespace(pipeline[1])
+	
+	if pipeline.size() > 2:
+		section.channel = DQScriptingHelper.trim_whitespace(pipeline[2])
+
+	if pipeline.size() > 3:
+		var volume_str := DQScriptingHelper.trim_whitespace(pipeline[3])
+		if not volume_str.is_valid_float():
+			return DqdError.new("DialogQuest | Dqd | Parser | Parse error at line {line} | Cannot parse sound statement | Volume %s is not a valid floating point number." % volume_str)
+		section.volume = float(volume_str)
+	
+	return section
+

@@ -14,7 +14,8 @@ var section_handlers: Array[SectionHandler] = [
 	SectionHandler.new(DQDqdParser.DqdSection.SectionEvaluateCall, _handle_call),
 	SectionHandler.new(DQDqdParser.DqdSection.SectionFlag, _handle_flag),
 	SectionHandler.new(DQDqdParser.DqdSection.SectionChoice, _handle_choice),
-	SectionHandler.new(DQDqdParser.DqdSection.SectionExit, _handle_exit)
+	SectionHandler.new(DQDqdParser.DqdSection.SectionExit, _handle_exit),
+	SectionHandler.new(DQDqdParser.DqdSection.SectionPlaySound, _handle_sound)
 ]
 
 @export
@@ -349,6 +350,14 @@ func _handle_choice(section: DQDqdParser.DqdSection.SectionChoice) -> void:
 
 func _handle_exit(section: DQDqdParser.DqdSection.SectionExit) -> void:
 	stop()
+
+func _handle_sound(section: DQDqdParser.DqdSection.SectionPlaySound) -> void:
+	var bus := &"Master"
+	
+	if not section.channel.is_empty():
+		bus = section.channel
+
+	DialogueQuest.Sounds.play_sound(section.sound_file, bus, section.volume)
 
 func _on_text_shown(characters: int) -> void:
 	dialogue_box.settings.letters_per_second = _dialogue_box_default_speed

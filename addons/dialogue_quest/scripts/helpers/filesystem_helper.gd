@@ -1,8 +1,7 @@
 extends Node
 class_name DQFilesystemHelper
 
-static func get_all_files(path: String, file_ext := "", full_paths := true) -> PackedStringArray:
-	return _get_all_files(path, file_ext, full_paths)
+const SOUND_FILE_FORMATS: PackedStringArray = [ "wav", "ogg", "mp3" ]
 
 static func get_all_files(path: String, full_paths := true, file_exts: PackedStringArray = []) -> PackedStringArray:
 	return _get_all_files(path, full_paths, file_exts)
@@ -40,3 +39,24 @@ static func _get_all_files(path: String, full_paths: bool, file_exts: PackedStri
 		file_name = dir.get_next()
 	
 	return files
+
+static func find_sound_file(file: String, in_dir: String="") -> String:
+	if FileAccess.file_exists(file):
+		return file
+	elif FileAccess.file_exists(in_dir.path_join(file)):
+		return in_dir.path_join(file)
+	elif in_dir.is_empty():
+		return ""
+	
+	var all_files := get_all_files(in_dir, true, SOUND_FILE_FORMATS)
+	
+	for f in all_files:
+		var full_filename := f.get_file()
+		var base_filename := DQScriptingHelper.get_base_filename(f)
+		
+		if full_filename == file or base_filename == file:
+			return f
+
+	return ""
+
+
