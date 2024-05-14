@@ -42,6 +42,12 @@ static func trim_whitespace_suffix(from: String) -> String:
 		s = s.trim_suffix(c)
 	return s
 
+static func trim_extension(from: String) -> String:
+	return from.replace("." + from.get_extension(), "")
+
+static func get_base_filename(of: String) -> String:
+	return trim_extension(of.get_file())
+
 static func evaluate_gdscript(code: String) -> Variant:
 	return run_pure_gdscript(code, true)
 
