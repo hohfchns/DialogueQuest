@@ -6,6 +6,9 @@ If you want to contribute to DialogueQuest, you can do so by submitting pull req
 
 ## Submitting code
 
+When writing code for DialogueQuest, first take a look at the [Code Conventions](https://github.com/hohfchns/DialogueQuest/blob/main/CODE_CONVENTION.md).
+Most of what it describes should be quite familiar to an experienced Godot user.
+
 - Submit a pull request for the `dev` branch.
 
 ## Reporting bugs 
