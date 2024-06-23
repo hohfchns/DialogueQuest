@@ -7,7 +7,7 @@
 - Skipping dialogue ✅ *Implemented*
 - Automatic string conversion in DQD ✅ *Implemented*
 - Playing sounds ✅ *Implemented*
-- Indicator that shows when all text is shown
+- Indicator that shows when all text is shown ✅ *Implemented*
 
 ## Future Version
 
