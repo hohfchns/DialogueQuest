@@ -1,6 +1,10 @@
 extends Resource
 class_name DQDialogueBoxSettings
 
+@export_group("Components")
+@export
+var text_finished_marker_enabled: bool = true
+
 @export_group("Text")
 @export
 var letters_per_second: float
