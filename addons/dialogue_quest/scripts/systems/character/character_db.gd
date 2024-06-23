@@ -13,14 +13,9 @@ func _ready() -> void:
 
 func _find_characters_in_project() -> void:
 	var dq_dir := DialogueQuest.Settings.data_directory
-	var resources := DQFilesystemHelper.get_all_files(dq_dir)
+	var resources := DQFilesystemHelper.get_all_files(dq_dir, true, ["tres"], [".remap"])
 	
 	for res in resources:
-		if res.ends_with(".remap"):
-			res = res.trim_suffix(".remap")
-		if not res.ends_with(".tres"):
-			continue
-		
 		var character := load(res) as DQCharacter
 		if not character:
 			continue
