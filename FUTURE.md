@@ -13,6 +13,7 @@
 - More branch options (reduce the need for evaluate branches)
 - History + Rollback
 - Translations
+- Resource Serialization (Characters/Settings/etc.)
 
 # Potential features
 
