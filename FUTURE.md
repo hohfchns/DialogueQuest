@@ -23,3 +23,11 @@
 - Pausing dialogues
 
 
+# Documentation
+
+*Forms of documentation that will be added to the project.*
+
+- Video tutorial series
+- More detailed documentation+examples for customizing and extending DQ
+- Example game project
+
