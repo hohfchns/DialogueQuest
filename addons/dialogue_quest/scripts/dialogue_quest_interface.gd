@@ -8,6 +8,7 @@ var _flags := DQFlags.new()
 var _inputs := DQInputs.new()
 var _settings := DQMainSettings.new()
 var _character_db := DQCharacterDB.new()
+var _sounds := DQSounds.new()
 
 var Signals: DQSignals :
 	set(value):
@@ -39,9 +40,16 @@ var Inputs : DQInputs:
 	get:
 		return _inputs
 
+var Sounds : DQSounds:
+	set(value):
+		pass
+	get:
+		return _sounds
+
 func _ready() -> void:
 	add_child(_signals)
 	add_child(_flags)
 	add_child(_inputs)
 	add_child(_settings)
 	add_child(_character_db)
+	add_child(_sounds)

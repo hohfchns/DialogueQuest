@@ -1,9 +1,10 @@
-[gd_scene load_steps=5 format=3 uid="uid://ttdif58g3l3i"]
+[gd_scene load_steps=6 format=3 uid="uid://ttdif58g3l3i"]
 
 [ext_resource type="Script" path="res://addons/dialogue_quest/scripts/ui/dialogue/components/dialogue_box.gd" id="1_6hcde"]
 [ext_resource type="Theme" uid="uid://b43o8w87vgskk" path="res://addons/dialogue_quest/resources/themes/default/default_theme.tres" id="1_j5uw8"]
 [ext_resource type="Resource" uid="uid://jh8lun0hq76i" path="res://addons/dialogue_quest/resources/components/settings/default_dialogue_box.tres" id="2_lis4o"]
-[ext_resource type="Texture2D" uid="uid://dnudgc08jcbif" path="res://addons/dialogue_quest/art/placeholders/portraits/shahar_portrait.png" id="2_nl5qw"]
+[ext_resource type="Texture2D" uid="uid://cixdglnpidq4b" path="res://addons/dialogue_quest/art/placeholders/portraits/shahar_portrait.png" id="2_nl5qw"]
+[ext_resource type="PackedScene" uid="uid://bqhktmbt3febd" path="res://addons/dialogue_quest/prefabs/ui/dialogue/components/bobbing_marker/bobbing_marker.tscn" id="5_e6hhv"]
 
 [node name="DialogueBox" type="PanelContainer"]
 anchors_preset = 7
@@ -73,6 +74,13 @@ bbcode_enabled = true
 text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Fringilla ut morbi tincidunt augue interdum. Sed viverra ipsum nunc aliquet bibendum enim facilisis.q"
 fit_content = true
 visible_characters_behavior = 1
+
+[node name="BobbingMarker" parent="Margin/Rows/RowMiddle" instance=ExtResource("5_e6hhv")]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(44, 48)
+layout_mode = 2
+size_flags_vertical = 8
+icon_visible = false
 
 [node name="PortraitBackground" type="PanelContainer" parent="Margin/Rows/RowMiddle"]
 layout_mode = 2

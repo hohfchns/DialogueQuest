@@ -21,8 +21,9 @@ static func prepare() -> void:
 	
 	if DQGodotHelper.is_final_build():
 		return
-	
-	var es := EditorInterface.get_editor_settings()
+
+	var editor_interface = Engine.get_singleton(&"EditorInterface")
+	var es = editor_interface.get_editor_settings()
 	var cur_extensions: String = es.get_setting("docks/filesystem/textfile_extensions")
 	var ext := DQFilesDefines.DIALOGUE_FILE_EXTENSION
 	if not ext in cur_extensions:

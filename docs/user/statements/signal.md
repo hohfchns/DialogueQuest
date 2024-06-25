@@ -13,7 +13,7 @@ signal | [param1] | [param2]...
 For example:
 
 ```
-signal | "play_song" | "Nightcall - Kavinsky"
+signal | play_song | Nightcall - Kavinsky
 ```
 
 The developer can for example check for the signal value "play_song", and play the song accordingly.

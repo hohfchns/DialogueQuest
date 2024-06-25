@@ -53,7 +53,7 @@ say | I have ${money} money now
 You can use `flag | set` to set a flag as an arbitrary value like so:
 
 ```
-flag | set | "Mage" | player_class
+flag | set | Mage | player_class
 
 // Will say `Oh sick! I am a Mage`
 say | Oh sick! I am a ${player_class}

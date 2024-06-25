@@ -14,7 +14,8 @@ var section_handlers: Array[SectionHandler] = [
 	SectionHandler.new(DQDqdParser.DqdSection.SectionEvaluateCall, _handle_call),
 	SectionHandler.new(DQDqdParser.DqdSection.SectionFlag, _handle_flag),
 	SectionHandler.new(DQDqdParser.DqdSection.SectionChoice, _handle_choice),
-	SectionHandler.new(DQDqdParser.DqdSection.SectionExit, _handle_exit)
+	SectionHandler.new(DQDqdParser.DqdSection.SectionExit, _handle_exit),
+	SectionHandler.new(DQDqdParser.DqdSection.SectionPlaySound, _handle_sound)
 ]
 
 @export
@@ -138,6 +139,8 @@ func _play(sections: Array[DQDqdParser.DqdSection], dialogue_id: String="") -> v
 			if is_instance_of(section, handler.section_class):
 				await handler.callback.call(section)
 	
+	if settings.skip_stop_on_dialogue_end:
+		skipping = false
 	dialogue_box.hide()
 	DialogueQuest.Signals.dialogue_ended.emit(current_dialogue)
 	current_dialogue = ""
@@ -331,7 +334,6 @@ func _handle_signal(section: DQDqdParser.DqdSection.SectionRaiseDQSignal) -> voi
 func _handle_call(section: DQDqdParser.DqdSection.SectionEvaluateCall) -> void:
 	section.expression.execute([], DialogueQuest)
 	if section.expression.has_execute_failed() and settings.run_expressions_as_script:
-		printerr("Executing expression failed, running as script...")
 		section.run_as_script()
 
 func _handle_flag(section: DQDqdParser.DqdSection.SectionFlag) -> void:
@@ -348,6 +350,14 @@ func _handle_choice(section: DQDqdParser.DqdSection.SectionChoice) -> void:
 
 func _handle_exit(section: DQDqdParser.DqdSection.SectionExit) -> void:
 	stop()
+
+func _handle_sound(section: DQDqdParser.DqdSection.SectionPlaySound) -> void:
+	var bus := &"Master"
+	
+	if not section.channel.is_empty():
+		bus = section.channel
+
+	DialogueQuest.Sounds.play_sound(section.sound_file, bus, section.volume)
 
 func _on_text_shown(characters: int) -> void:
 	dialogue_box.settings.letters_per_second = _dialogue_box_default_speed

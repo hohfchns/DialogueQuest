@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="DQBobbingMarkerSettings" load_steps=2 format=3 uid="uid://wcffdgcbfihc"]
+
+[ext_resource type="Script" path="res://addons/dialogue_quest/scripts/ui/dialogue/components/resources/settings/bobbing_marker_settings.gd" id="1_l7bgf"]
+
+[resource]
+script = ExtResource("1_l7bgf")
+speed = 2.0
+max_up = 8
+max_down = 8

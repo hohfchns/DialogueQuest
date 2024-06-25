@@ -35,9 +35,9 @@ class DqdSection extends Resource:
 			var new_params: Array
 			for p in params:
 				if p is String:
-					new_params.append(DQDqdParser.solve_flags(p))
+					new_params.append(DQDqdParser.solve_flags(p, true))
 				elif p is StringName:
-					new_params.append(StringName(DQDqdParser.solve_flags(p)))
+					new_params.append(StringName(DQDqdParser.solve_flags(p, true)))
 				else:
 					new_params.append(p)
 			params = new_params
@@ -109,11 +109,25 @@ class DqdSection extends Resource:
 		var expression: String = ""
 		
 		func solve_flags() -> void:
-			expression = DQDqdParser.solve_flags(expression)
+			if type == Type.EVALUATE:
+				expression = DQDqdParser.solve_flags(
+					DQScriptingHelper.stringify_expression(expression),
+					true
+				)
+			else:
+				expression = DQDqdParser.solve_flags(expression)
 	
+	class SectionPlaySound extends DqdSection:
+		var sound_file: String = ""
+		var channel: String = ""
+		var volume: float = 0.0
+		
+		func solve_flags() -> void:
+			sound_file = DQDqdParser.solve_flags(sound_file, false)
+
 	class SectionExit extends DqdSection:
 		pass
-
+	
 ## Defines a keyword that can be parsed in a dqd.
 class Statement:
 	var keyword: StringName
@@ -129,13 +143,14 @@ static var statements: Array[Statement] = [
 	Statement.new("flag", DQDqdParser._parse_flag),
 	Statement.new("choice", DQDqdParser._parse_choice),
 	Statement.new("branch", DQDqdParser._parse_branch),
-	Statement.new("exit", DQDqdParser._parse_exit)
+	Statement.new("exit", DQDqdParser._parse_exit),
+	Statement.new("sound", DQDqdParser._parse_sound)
 ]
 
 static func parse_from_file(filepath: String) -> Array[DqdSection]:
 	if not FileAccess.file_exists(filepath):
 		var dq_dir := DialogueQuest.Settings.data_directory
-		var all_dqd := DQFilesystemHelper.get_all_files(dq_dir, "dqd")
+		var all_dqd := DQFilesystemHelper.get_all_files(dq_dir, true, ["dqd"])
 		for f in all_dqd:
 			var req_name := filepath.get_basename().get_file()
 			var f_name := f.get_basename().get_file()
@@ -184,18 +199,33 @@ static func parse_from_text(text: String) -> Array[DqdSection]:
 	
 	return ret
 
-static func solve_flags(in_string: String) -> String:
-	var regex := RegEx.create_from_string(r"\${(.*?)}")
+static func solve_flags(in_string: String, add_quotes_for_string: bool = false) -> String:
+	var regex := RegEx.create_from_string(r"\${(.*?)}") # Looks for the ${flag} pattern 
 	var found := regex.search_all(in_string)
-	if found.size():
-		var flag_syntax := found[0].strings[0]
-		var flag_name := found[0].strings[1]
-		var flag_value := DialogueQuest.Flags.get_flag(flag_name)
-		if flag_value == null:
-			flag_value = "null"
-		return in_string.replace(flag_syntax, str(flag_value))
-	else:
+
+	if not found.size():
 		return in_string
+
+	var res: String = in_string
+	for v in found:
+		var flag_syntax := v.strings[0]
+		var flag_name := v.strings[1]
+		var flag_value := DialogueQuest.Flags.get_flag(flag_name)
+
+		var as_str: String = ""
+		if flag_value == null:
+			as_str = "null"
+		else:
+			as_str = str(flag_value)
+			if add_quotes_for_string and flag_value is String:
+				as_str = "\"%s\"" % flag_value
+
+		var start_idx = res.find(flag_syntax)
+
+		res = res.erase(start_idx, flag_syntax.length())
+		res = res.insert(start_idx, as_str)
+	
+	return res
 
 ## On success will return [DqdSection.SectionSay].
 ## kOn failure will return [DqdError].
@@ -234,9 +264,10 @@ static func _parse_signal(pipeline: PackedStringArray):
 	
 	var args: Array = []
 	for p in pipeline.slice(1):
-		var as_var := str_to_var(DQScriptingHelper.remove_whitespace(p))
+		var stringified = DQScriptingHelper.stringify_expression(DQScriptingHelper.remove_whitespace(p))
+		var as_var := str_to_var(stringified)
 		if as_var == null:
-			return DqdError.new("DialogQuest | Dqd | Parser | Parse error at line {line} | Cannot parse signal statement | String `%s` could not be parsed into a GDScript variable." % p)
+			return DqdError.new("DialogQuest | Dqd | Parser | Parse error at line {line} | Cannot parse signal statement | String `%s` could not be parsed into a GDScript variable. Perhaps it is a reserved keyword?" % p)
 		args.append(as_var)
 	
 	var sec := DqdSection.SectionRaiseDQSignal.new()
@@ -300,7 +331,9 @@ static func _parse_flag(pipeline: PackedStringArray):
 			if pipeline.size() <= 3:
 				return DqdError.new("DialogQuest | Dqd | Parser | Parse error at line {line} | Cannot parse flag set statement | Wrong number of arguments (correct -> 3, found %d)" % (pipeline.size() - 1))
 			section.type = DqdSection.SectionFlag.Type.SET
-			var var_str := DQScriptingHelper.remove_whitespace(pipeline[2])
+			var var_str := DQScriptingHelper.stringify_expression(
+						   DQScriptingHelper.remove_whitespace(pipeline[2])
+			)
 			section.value = str_to_var(var_str)
 			if section.value == null:
 				return DqdError.new("DialogQuest | Dqd | Parser | Parse error at line {line} | Cannot parse flag set statement | Argument `%s` is not a valid GDScript value" % var_str) 
@@ -354,3 +387,25 @@ static func _parse_branch(pipeline: PackedStringArray):
 
 static func _parse_exit(pipeline: PackedStringArray) -> DqdSection.SectionExit:
 	return DqdSection.SectionExit.new()
+
+static func _parse_sound(pipeline: PackedStringArray):
+	var section := DqdSection.SectionPlaySound.new()
+
+	if pipeline.size() <= 1:
+		return DqdError.new("DialogQuest | Dqd | Parser | Parse error at line {line} | Cannot parse sound statement | Wrong number of arguments (correct -> 1/2/3, found 0)")
+	if pipeline.size() > 4:
+		return DqdError.new("DialogQuest | Dqd | Parser | Parse error at line {line} | Cannot parse sound statement | Wrong number of arguments (correct -> 1/2/3, found 4+)")
+	
+	section.sound_file = DQScriptingHelper.trim_whitespace(pipeline[1])
+	
+	if pipeline.size() > 2:
+		section.channel = DQScriptingHelper.trim_whitespace(pipeline[2])
+
+	if pipeline.size() > 3:
+		var volume_str := DQScriptingHelper.trim_whitespace(pipeline[3])
+		if not volume_str.is_valid_float():
+			return DqdError.new("DialogQuest | Dqd | Parser | Parse error at line {line} | Cannot parse sound statement | Volume %s is not a valid floating point number." % volume_str)
+		section.volume = float(volume_str)
+	
+	return section
+
