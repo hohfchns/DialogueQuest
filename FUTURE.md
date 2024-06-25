@@ -6,7 +6,7 @@
 
 - Skipping dialogue ✅ *Implemented*
 - Playing sounds ✅ *Implemented*
-- Indicator that shows when all text is shown
+- Indicator that shows when all text is shown ✅ *Implemented*
 
 ## Future Version
 
