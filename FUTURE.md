@@ -2,20 +2,16 @@
 
 # Planned Features
 
-## Near version (v0.6.0)
+## Near version (v0.7.0)
 
-- Skipping dialogue ✅ *Implemented*
-- Automatic string conversion in DQD ✅ *Implemented*
-- Playing sounds ✅ *Implemented*
-- Indicator that shows when all text is shown ✅ *Implemented*
+- More branch options (reduce the need for evaluate branches)
+- Resource Serialization (Characters/Settings/etc.)
+- Symbol parsing (`\n` etc.)
 
 ## Future Version
 
-- More branch options (reduce the need for evaluate branches)
 - History + Rollback
 - Translations
-- Resource Serialization (Characters/Settings/etc.)
-- Symbol parsing (`\n` etc.)
 
 # Potential features
 
