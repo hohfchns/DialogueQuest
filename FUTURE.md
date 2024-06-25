@@ -14,6 +14,7 @@
 - History + Rollback
 - Translations
 - Resource Serialization (Characters/Settings/etc.)
+- Symbol parsing (`\n` etc.)
 
 # Potential features
 
