@@ -1,10 +1,9 @@
-[gd_scene load_steps=6 format=3 uid="uid://b7ul1vxhrf6pu"]
+[gd_scene load_steps=5 format=3 uid="uid://b7ul1vxhrf6pu"]
 
 [ext_resource type="Script" path="res://examples/basic/scripts/entry.gd" id="1_ib1bb"]
 [ext_resource type="PackedScene" uid="uid://ttdif58g3l3i" path="res://addons/dialogue_quest/prefabs/ui/dialogue/components/dialogue_box/dialogue_box.tscn" id="2_x58pj"]
-[ext_resource type="Script" path="res://addons/dialogue_quest/scripts/systems/dqd/dialogue_player.gd" id="4_d3ah8"]
+[ext_resource type="PackedScene" uid="uid://c2yt2j56lo2sv" path="res://addons/dialogue_quest/prefabs/systems/dqd/dialogue_player.tscn" id="4_nt6r1"]
 [ext_resource type="PackedScene" uid="uid://dye384gy0fmiu" path="res://addons/dialogue_quest/prefabs/ui/dialogue/components/choice_menu/choice_menu.tscn" id="5_65g7h"]
-[ext_resource type="Resource" uid="uid://br1srvonmm4ok" path="res://addons/dialogue_quest/resources/components/settings/default_dialogue_player_settings.tres" id="5_ir1fj"]
 
 [node name="Entry" type="Control"]
 layout_mode = 3
@@ -31,8 +30,6 @@ offset_top = -43.5
 offset_right = 49.5
 offset_bottom = 43.5
 
-[node name="DialoguePlayer" type="Node" parent="." node_paths=PackedStringArray("dialogue_box", "choice_menu")]
-script = ExtResource("4_d3ah8")
-settings = ExtResource("5_ir1fj")
+[node name="DialoguePlayer" parent="." node_paths=PackedStringArray("dialogue_box", "choice_menu") instance=ExtResource("4_nt6r1")]
 dialogue_box = NodePath("../DialogueBox")
 choice_menu = NodePath("../ChoiceMenu")
