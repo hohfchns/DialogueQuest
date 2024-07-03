@@ -2,8 +2,8 @@
 
 [ext_resource type="Script" path="res://addons/dialogue_quest/scripts/ui/dialogue/components/dialogue_box.gd" id="1_6hcde"]
 [ext_resource type="Theme" uid="uid://b43o8w87vgskk" path="res://addons/dialogue_quest/resources/themes/default/default_theme.tres" id="1_j5uw8"]
-[ext_resource type="Resource" uid="uid://jh8lun0hq76i" path="res://addons/dialogue_quest/resources/components/settings/default_dialogue_box.tres" id="2_lis4o"]
-[ext_resource type="Texture2D" uid="uid://cixdglnpidq4b" path="res://addons/dialogue_quest/art/placeholders/portraits/shahar_portrait.png" id="2_nl5qw"]
+[ext_resource type="Resource" uid="uid://jh8lun0hq76i" path="res://addons/dialogue_quest/resources/components/settings/default_dialogue_box_settings.tres" id="2_lis4o"]
+[ext_resource type="Texture2D" uid="uid://dnudgc08jcbif" path="res://addons/dialogue_quest/art/placeholders/portraits/shahar_portrait.png" id="2_nl5qw"]
 [ext_resource type="PackedScene" uid="uid://bqhktmbt3febd" path="res://addons/dialogue_quest/prefabs/ui/dialogue/components/bobbing_marker/bobbing_marker.tscn" id="5_e6hhv"]
 
 [node name="DialogueBox" type="PanelContainer"]

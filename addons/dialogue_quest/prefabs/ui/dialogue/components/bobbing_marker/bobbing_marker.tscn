@@ -1,8 +1,8 @@
 [gd_scene load_steps=4 format=3 uid="uid://bqhktmbt3febd"]
 
 [ext_resource type="Script" path="res://addons/dialogue_quest/scripts/ui/dialogue/components/bobbing_marker.gd" id="1_gfy1d"]
-[ext_resource type="Resource" uid="uid://wcffdgcbfihc" path="res://addons/dialogue_quest/resources/components/settings/default_bobbing_marker.tres" id="2_tvxdx"]
-[ext_resource type="Texture2D" uid="uid://cy577t2jevxm6" path="res://addons/dialogue_quest/art/quest_marker.png" id="2_uhtah"]
+[ext_resource type="Resource" uid="uid://wcffdgcbfihc" path="res://addons/dialogue_quest/resources/components/settings/default_bobbing_marker_settings.tres" id="2_tvxdx"]
+[ext_resource type="Texture2D" uid="uid://el62ugco8wog" path="res://addons/dialogue_quest/art/quest_marker.png" id="2_uhtah"]
 
 [node name="BobbingMarker" type="Control"]
 custom_minimum_size = Vector2(48, 48)
