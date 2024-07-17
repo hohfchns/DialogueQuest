@@ -1,0 +1,71 @@
+[gd_scene load_steps=2 format=3 uid="uid://bpf36yuxsdmp7"]
+
+[ext_resource type="Script" path="res://addons/dialogue_quest/scripts/ui/editor/dialogue_quest_menu.gd" id="1_vvpfd"]
+
+[node name="TabContainer" type="TabContainer"]
+offset_right = 1152.0
+script = ExtResource("1_vvpfd")
+
+[node name="CharacterDB" type="VBoxContainer" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Toolbar" type="HBoxContainer" parent="CharacterDB"]
+layout_mode = 2
+
+[node name="CDBExport" type="Button" parent="CharacterDB/Toolbar"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Export"
+
+[node name="CDBImport" type="Button" parent="CharacterDB/Toolbar"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Import"
+
+[node name="CDBSelectAll" type="Button" parent="CharacterDB/Toolbar"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Select All"
+
+[node name="CDBDeselectAll" type="Button" parent="CharacterDB/Toolbar"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Deselect All"
+
+[node name="CDBEntries" type="VBoxContainer" parent="CharacterDB"]
+unique_name_in_owner = true
+texture_filter = 1
+layout_mode = 2
+
+[node name="CDBChooseFolderDialog" type="FileDialog" parent="CharacterDB"]
+unique_name_in_owner = true
+title = "Open a Directory"
+initial_position = 1
+size = Vector2i(800, 600)
+ok_button_text = "Select Current Folder"
+file_mode = 2
+access = 2
+root_subfolder = "res://"
+
+[node name="CDBChooseFilesDialog" type="FileDialog" parent="CharacterDB"]
+unique_name_in_owner = true
+title = "Open File(s)"
+initial_position = 1
+size = Vector2i(800, 600)
+ok_button_text = "Open"
+file_mode = 1
+access = 2
+root_subfolder = "res://"
+filters = PackedStringArray("*.dqc")
+
+[node name="ErrorDialog" type="ConfirmationDialog" parent="."]
+unique_name_in_owner = true
+title = "Error!"
+initial_position = 1
+
+[node name="InfoDialog" type="ConfirmationDialog" parent="."]
+unique_name_in_owner = true
+title = "Info"
+initial_position = 1
