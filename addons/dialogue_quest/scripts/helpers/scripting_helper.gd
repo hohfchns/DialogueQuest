@@ -5,6 +5,12 @@ class_name DQScriptingHelper
 class Error:
 	pass
 
+const SYMBOL_MAP: Dictionary = {
+	"\\n": "\n",
+	"	": "    ",
+	"\\r": "\r"
+}
+
 const WHITESPACE_CHARACTERS: PackedStringArray = [" ", "\n", "\r", "	"]
 
 const RESERVED_CHARACTERS: PackedStringArray = [
@@ -20,6 +26,12 @@ const RESERVED_WORDS: PackedStringArray = [
 	"var", "onready", "tool", "export", "signal", "preload", "assert", "yield",
 	"do", "class_name", "extends", "is", "as", "true", "false", "or", "and"
 ]
+
+static func solve_symbols(from: String) -> String:
+	var s := from
+	for symbol in SYMBOL_MAP.keys():
+		s = s.replace(symbol, SYMBOL_MAP[symbol])
+	return s
 
 static func remove_whitespace(from: String) -> String:
 	var s := from

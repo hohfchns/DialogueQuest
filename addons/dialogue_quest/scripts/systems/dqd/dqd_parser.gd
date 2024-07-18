@@ -250,7 +250,13 @@ static func _parse_say(pipeline: PackedStringArray):
 			return DqdError.new("DialogQuest | Dqd | Parser | Parse error at line {line} | Cannot parse say statement | Character `{character}` not found".format({"character": character_id}))
 	
 	for p in pipeline.slice(2):
-		say.texts.append(DQScriptingHelper.trim_whitespace_prefix(p))
+		say.texts.append(
+			DQScriptingHelper.trim_whitespace_prefix(
+				DQScriptingHelper.solve_symbols(
+					p
+				)
+			)
+		)
 
 	return say
 	
