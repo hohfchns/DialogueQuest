@@ -5,8 +5,8 @@
 ## Near version (v0.7.0)
 
 - More branch options (reduce the need for evaluate branches)
-- Resource Serialization (Characters/Settings/etc.)
-- Symbol parsing (`\n` etc.)
+- Resource Serialization (Characters/Settings/etc.) ✅ (*Character serialization implemented in `dev` branch*)
+- Symbol parsing (`\n` etc.) ✅ (*Implemented in feature branch*)
 
 ## Future Version
 
@@ -18,8 +18,7 @@
 *These features can already be achieved without direct implementation in the addon, however they are likely to be implemented at some point.*
 
 - Pausing dialogues
-
-
+ 
 # Documentation
 
 *Forms of documentation that will be added to the project.*
