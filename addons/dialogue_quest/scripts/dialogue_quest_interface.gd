@@ -3,6 +3,7 @@ extends Node
 class_name DQInterface
 
 signal error(message: String)
+signal info(message: String)
 
 var _signals := DQSignals.new()
 var _flags := DQFlags.new()

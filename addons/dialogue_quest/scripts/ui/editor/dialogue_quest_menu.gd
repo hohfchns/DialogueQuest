@@ -30,6 +30,9 @@ var _import_files: PackedStringArray = []
 func _ready() -> void:
 	await DialogueQuest.ready
 	
+	DialogueQuest.error.connect(_on_error)
+	DialogueQuest.info.connect(_on_info)
+	
 	_cdb_export_button.pressed.connect(_on_export)
 	_cdb_import_button.pressed.connect(_on_import)
 	_cdb_select_all_button.pressed.connect(_on_select_all)
@@ -95,16 +98,7 @@ func _on_toggle(on: bool, idx: int) -> void:
 		_selected.erase(idx)
 
 func _on_export_confirmed(dir: String) -> void:
-	if not DirAccess.dir_exists_absolute(dir):
-		_error("DialogueQuest | Editor | CharacterDB | Export | Directory does not exist at '%s'" % dir)
-		return
-	
-	var access := DirAccess.open(dir)
-	if not access:
-		_error("DialogueQuest | Editor | CharacterDB | Export | Could not open directory at '%s' | Error code: %s" % [dir, access.get_open_error()])
-		return
-	
-	var export_count := 0
+	var characters: Array[DQCharacter] = []
 	for idx in _selected:
 		var entry := _cdb_entries_container.get_children()[idx] as DQEditorCharacterEntry
 		if not entry:
@@ -114,16 +108,11 @@ func _on_export_confirmed(dir: String) -> void:
 		var character := entry.get_character()
 		if not character:
 			_error("DialogueQuest | Editor | CharacterDB | Export | Internal error: Character resource not found")
-		var path := "%s/%s.dqc" % [dir, character.character_id]
-		character.serialize_to_file(path)
-		export_count += 1
+			continue
+		
+		characters.append(character)
 	
-	var s := "DialogueQuest | Editor | CharacterDB | Export | Export finished successfully. Exported %s character" % export_count
-	if export_count != 1:
-		s += "s"
-	s += "."
-	
-	_info(s)
+	var export_count := DQCharacterDBMigrator.export_characters(characters, dir)
 
 func _on_import_confirmed(files: PackedStringArray) -> void:
 	_import_files = files
@@ -143,43 +132,22 @@ func _on_import_directory_confirmed(dir: String) -> void:
 		_error("DialogueQuest | Editor | CharacterDB | Import | Could not open directory at '%s' | Error code: %s" % [dir, d_access.get_open_error()])
 		return
 	
-	var import_count := 0
-	for f in _import_files:
-		if not FileAccess.file_exists(f):
-			_error("DialogueQuest | Editor | CharacterDB | Import | File does not exist at '%s'" % f)
-			return
-		
-		var access := FileAccess.open(f, FileAccess.READ)
-		if not access:
-			_error("DialogueQuest | Editor | CharacterDB | Import | Could not open file for reading at '%s' | Error code: %s" % [f, access.get_open_error()])
-			return
-		
-		var character := DQCharacter.new()
-		var save_path := "%s/%s.tres" % [dir, f.get_basename().get_file()]
-		character.deserialize_from_file(f, save_path)
-		
-		if not FileAccess.file_exists(save_path):
-			_error("DialogueQuest | Editor | CharacterDB | Import | Internal Error: Saving resource file went wrong." % [f, access.get_open_error()])
-		
-		import_count += 1
-	
-	var s := "DialogueQuest | Editor | CharacterDB | Import | Import finished successfully. Imported %s character" % import_count
-	if import_count != 1:
-		s += "s"
-	s += "."
-	
+	var import_count := DQCharacterDBMigrator.import_characters(_import_files, dir)
 	if import_count > 0:
-		DialogueQuest.CharacterDB._find_characters_in_project()
 		_refresh_character_db_entries()
-	
-	_info(s)
 
 func _error(message: String) -> void:
+	DialogueQuest.error.emit(message)
+
+func _info(message: String) -> void:
+	DialogueQuest.info.emit(message)
+
+func _on_error(message: String) -> void:
 	_error_dialog.dialog_text = message
 	_error_dialog.popup()
 	printerr(message)
 
-func _info(message: String) -> void:
+func _on_info(message: String) -> void:
 	_info_dialog.dialog_text = message
 	_info_dialog.popup()
 	print(message)
