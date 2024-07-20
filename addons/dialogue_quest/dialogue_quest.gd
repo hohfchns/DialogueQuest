@@ -16,6 +16,7 @@ func _enter_tree() -> void:
 	DQProjectSettings.prepare()
 
 	main_panel_instance = DQ_PANEL.instantiate()
+	main_screen_changed.connect(_on_main_screen_changed)
 	EditorInterface.get_editor_main_screen().add_child(main_panel_instance)
 	_make_visible(false)
 
@@ -32,3 +33,9 @@ func _has_main_screen():
 
 func _get_plugin_name():
 	return "DialogueQuest"
+
+func _on_main_screen_changed(screen_name: String) -> void:
+	if screen_name == _get_plugin_name():
+		if not DialogueQuest.is_node_ready():
+			await DialogueQuest.ready
+		main_panel_instance._refresh_character_db_entries()

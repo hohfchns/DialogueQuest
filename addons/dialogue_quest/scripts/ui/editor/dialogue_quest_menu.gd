@@ -30,6 +30,8 @@ var _import_files: PackedStringArray = []
 func _ready() -> void:
 	await DialogueQuest.ready
 	
+	
+	
 	DialogueQuest.error.connect(_on_error)
 	DialogueQuest.info.connect(_on_info)
 	
@@ -41,6 +43,8 @@ func _ready() -> void:
 	_refresh_character_db_entries()
 
 func _refresh_character_db_entries() -> void:
+	DialogueQuest.CharacterDB._find_characters_in_project()
+	
 	for c in _cdb_entries_container.get_children():
 		_cdb_entries_container.remove_child(c)
 		c.queue_free()

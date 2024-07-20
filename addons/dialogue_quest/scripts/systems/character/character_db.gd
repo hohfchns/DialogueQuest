@@ -12,10 +12,14 @@ func _ready() -> void:
 	DialogueQuest.Settings.data_directory_changed.connect(_on_data_directory_changed)
 	_find_characters_in_project()
 
-func _find_characters_in_project() -> void:
+## Scan the filesystem for DQCharacter resource files.
+## If `replace == true` (default), any characters not found in the filesystem will be removed.
+func _find_characters_in_project(replace: bool = true) -> void:
 	var dq_dir := DialogueQuest.Settings.data_directory
 	var resources := DQFilesystemHelper.get_all_files(dq_dir, true, ["tres"], [".remap"])
 	
+	if replace:
+		_character_registry.clear()
 	for res in resources:
 		var character := load(res) as DQCharacter
 		if not character:
