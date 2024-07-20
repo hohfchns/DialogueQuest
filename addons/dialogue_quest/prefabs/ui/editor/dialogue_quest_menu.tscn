@@ -47,7 +47,6 @@ size = Vector2i(800, 600)
 ok_button_text = "Select Current Folder"
 file_mode = 2
 access = 2
-root_subfolder = "res://"
 
 [node name="CDBChooseFilesDialog" type="FileDialog" parent="CharacterDB"]
 unique_name_in_owner = true
@@ -57,7 +56,6 @@ size = Vector2i(800, 600)
 ok_button_text = "Open"
 file_mode = 1
 access = 2
-root_subfolder = "res://"
 filters = PackedStringArray("*.dqc")
 
 [node name="ErrorDialog" type="ConfirmationDialog" parent="."]
