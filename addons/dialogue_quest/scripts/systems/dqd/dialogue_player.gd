@@ -63,6 +63,12 @@ var _current_bbcodes: Dictionary = {}
 func _ready() -> void:
 	DialogueQuest.Inputs.accept_released.connect(accept)
 	
+	if not dialogue_box.is_node_ready():
+		await dialogue_box.ready
+	
+	if not choice_menu.is_node_ready():
+		await choice_menu.ready
+	
 	if settings.autoplay_enabled:
 		dialogue_box.auto_toggle_requested.connect(_on_auto_toggle_requested)
 		dialogue_box.get_auto_button().show()
