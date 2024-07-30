@@ -63,6 +63,9 @@ var _current_bbcodes: Dictionary = {}
 func _ready() -> void:
 	DialogueQuest.Inputs.accept_released.connect(accept)
 	
+	if not dialogue_box:
+		return
+	
 	if not dialogue_box.is_node_ready():
 		await dialogue_box.ready
 	
@@ -171,7 +174,7 @@ func get_choice_menu() -> DQChoiceMenu:
 	return choice_menu
 
 func accept() -> void:
-	if dialogue_box.visible:
+	if dialogue_box and dialogue_box.visible:
 		dialogue_box.accept()
 
 ## Returns an array consisting of dictionaries with three variables:
