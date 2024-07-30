@@ -18,6 +18,16 @@ Also create a `DQDialoguePlayerSettings` for it. It is recommended to save this 
 
 You can also do this setup through code, however make sure the `DQDialoguePlayer` node set up before it is added to the scene.
 
+When setting up the scene, make sure you instantiate the scene for each component, rather than instantiating the script object.
+
+The scenes can be found at the following paths:
+
+```
+prefabs/systems/dqd/dialogue_player.tscn
+prefabs/ui/dialogue/components/dialogue_box/dialogue_box.tscn
+prefabs/ui/dialogue/components/choice_menu/choice_menu.tscn
+```
+
 ## Starting the dialogue
 
 In order to start the dialogue, use the `DQDialoguePlayer.play()` method.
