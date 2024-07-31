@@ -1,5 +1,7 @@
 # DialogueQuest - An easy dialogue system
 
+[dialogue_quest_preview.webm](https://github.com/user-attachments/assets/375b870e-f1bd-4e35-aa98-e29e6e3ea6e9)
+
 # What is DialogueQuest?
 
 DialogueQuest is a dialogue system (shocker!) for the Godot 4 game engine, that is designed with a few core principles:
@@ -29,4 +31,3 @@ See [FUTURE.md](https://github.com/hohfchns/DialogueQuest/blob/main/FUTURE.md).
 # Contributing, suggestions, and bug reports
 
 See [CONTRIBUTING.md](https://github.com/hohfchns/DialogueQuest/blob/main/CONTRIBUTING.md).
-
