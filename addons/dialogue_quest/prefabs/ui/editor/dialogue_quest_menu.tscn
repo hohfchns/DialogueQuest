@@ -4,12 +4,14 @@
 
 [node name="TabContainer" type="TabContainer"]
 offset_right = 1152.0
+current_tab = 0
 script = ExtResource("1_vvpfd")
 
 [node name="CharacterDB" type="VBoxContainer" parent="."]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+metadata/_tab_index = 0
 
 [node name="Toolbar" type="HBoxContainer" parent="CharacterDB"]
 layout_mode = 2
@@ -33,6 +35,11 @@ text = "Select All"
 unique_name_in_owner = true
 layout_mode = 2
 text = "Deselect All"
+
+[node name="CDBRefresh" type="Button" parent="CharacterDB/Toolbar"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Refresh"
 
 [node name="CDBEntries" type="VBoxContainer" parent="CharacterDB"]
 unique_name_in_owner = true

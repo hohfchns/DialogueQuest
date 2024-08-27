@@ -19,6 +19,8 @@ var _cdb_select_all_button: Button = %CDBSelectAll
 @onready
 var _cdb_deselect_all_button: Button = %CDBDeselectAll
 @onready
+var _cdb_refresh_button: Button = %CDBRefresh
+@onready
 var _cdb_choose_folder_dialog: FileDialog = %CDBChooseFolderDialog
 @onready
 var _cdb_choose_files_dialog: FileDialog = %CDBChooseFilesDialog
@@ -30,8 +32,6 @@ var _import_files: PackedStringArray = []
 func _ready() -> void:
 	await DialogueQuest.ready
 	
-	
-	
 	DialogueQuest.error.connect(_on_error)
 	DialogueQuest.info.connect(_on_info)
 	
@@ -39,6 +39,7 @@ func _ready() -> void:
 	_cdb_import_button.pressed.connect(_on_import)
 	_cdb_select_all_button.pressed.connect(_on_select_all)
 	_cdb_deselect_all_button.pressed.connect(_on_deselect_all)
+	_cdb_refresh_button.pressed.connect(_on_refresh_character_db)
 	
 	_refresh_character_db_entries()
 
@@ -93,6 +94,9 @@ func _on_deselect_all() -> void:
 		if not entry:
 			continue
 		entry.checkbox.set_pressed_no_signal(false)
+
+func _on_refresh_character_db() -> void:
+	_refresh_character_db_entries()
 
 func _on_toggle(on: bool, idx: int) -> void:
 	if on:
