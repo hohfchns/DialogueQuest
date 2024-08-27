@@ -55,6 +55,11 @@ static func remove_whitespace(from: String) -> String:
 		s = s.replace(c, "")
 	return s
 
+static func remove_whitespace_array(from: PackedStringArray) -> PackedStringArray:
+	for i in range(from.size()):
+		from[i] = remove_whitespace(from[i])
+	return from
+
 static func trim_whitespace(from: String) -> String:
 	return trim_whitespace_suffix(trim_whitespace_prefix(from))
 
@@ -125,3 +130,22 @@ static func stringify_expression(expression: String) -> String:
 		new_str += "\"%s\"" % word + " "
 
 	return trim_whitespace(new_str)
+
+## Takes `expressions` and returns string connected by a conditional `operator` of all of them
+## If `stringify` is true, will apply the `stringify_expression` method to each
+## expression in `expressions`
+static func connect_expressions(expressions: PackedStringArray, operator: String = "and", stringify: bool = false) -> String:
+	assert(expressions.size())
+	if expressions.size() == 1:
+		return expressions[0]
+
+	var str := ""
+	var i := 0
+	for e in expressions.slice(0, -1):
+		if stringify:
+			e = stringify_expression(e)
+		str += "(%s) %s " % [e, operator]
+	str += "(%s)" % expressions[-1]
+
+	print(str)
+	return str
