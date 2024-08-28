@@ -4,9 +4,9 @@
 
 ## Near version (v0.7.0)
 
-- More branch options (reduce the need for evaluate branches) ✅ (*Implemented in `dev` branch*)
-- Resource Serialization (Characters/Settings/etc.) ✅ (*Implemented in `dev` branch*)
-- Symbol parsing (`\n` etc.) ✅ (*Implemented in feature branch*)
+- More branch options (reduce the need for evaluate branches) ✅
+- Resource Serialization (Characters/Settings/etc.) ✅
+- Symbol parsing (`\n` etc.) ✅
 
 ## Future Version
 
