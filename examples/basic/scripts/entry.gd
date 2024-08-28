@@ -11,4 +11,3 @@ func _ready() -> void:
 
 func _on_dialogue_signal(params: Array) -> void:
 	print("Got dialogue params: %s" % str(params))
-

@@ -251,10 +251,25 @@ func _handle_branch(section: DQDqdParser.DqdSection.SectionBranch) -> void:
 				_correct_branch += 1
 				DialogueQuest.Flags.confirm_choice(section.expression)
 		DQDqdParser.DqdSection.SectionBranch.Type.FLAG:
-			if DialogueQuest.Flags.is_raised(section.expression):
-				_correct_branch += 1
+			for flag in section.expressions:
+				if DialogueQuest.Flags.is_raised(flag):
+					_correct_branch += 1
+					break
 		DQDqdParser.DqdSection.SectionBranch.Type.NO_FLAG:
-			if not DialogueQuest.Flags.is_raised(section.expression):
+			var result: bool = true
+			for flag in section.expressions:
+				if DialogueQuest.Flags.is_raised(flag):
+					result = false
+					break
+			if result:
+				_correct_branch += 1
+		DQDqdParser.DqdSection.SectionBranch.Type.FLAGS:
+			var result: bool = true
+			for flag in section.expressions:
+				if not DialogueQuest.Flags.is_raised(flag):
+					result = false
+					break
+			if result:
 				_correct_branch += 1
 		DQDqdParser.DqdSection.SectionBranch.Type.EVALUATE:
 			var res: Variant = DQScriptingHelper.evaluate_expression(section.expression, DialogueQuest)

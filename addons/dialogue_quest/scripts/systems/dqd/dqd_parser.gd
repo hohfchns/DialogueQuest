@@ -102,20 +102,33 @@ class DqdSection extends Resource:
 			EVALUATE,
 			FLAG,
 			NO_FLAG,
-			END
+			FLAGS,
+			END,
+			INVALID
 		}
 		
-		var type: Type = Type.END
+		var type: Type = Type.INVALID
 		var expression: String = ""
+		var expressions: PackedStringArray = []
+		var stringify: bool = false
 		
 		func solve_flags() -> void:
-			if type == Type.EVALUATE:
+			if expressions.size():
+				for i in range(expressions.size()):
+					expressions[i] = DQDqdParser.solve_flags(expressions[i])
+
+			if stringify:
 				expression = DQDqdParser.solve_flags(
 					DQScriptingHelper.stringify_expression(expression),
 					true
 				)
 			else:
 				expression = DQDqdParser.solve_flags(expression)
+
+		## Consumes `expressions` and connects it into `expression`
+		func connect_expressions(operator: String = "or") -> void:
+			expression = DQScriptingHelper.connect_expressions(expressions, operator)
+			expressions = []
 	
 	class SectionPlaySound extends DqdSection:
 		var sound_file: String = ""
@@ -250,7 +263,13 @@ static func _parse_say(pipeline: PackedStringArray):
 			return DqdError.new("DialogQuest | Dqd | Parser | Parse error at line {line} | Cannot parse say statement | Character `{character}` not found".format({"character": character_id}))
 	
 	for p in pipeline.slice(2):
-		say.texts.append(DQScriptingHelper.trim_whitespace_prefix(p))
+		say.texts.append(
+			DQScriptingHelper.trim_whitespace_prefix(
+				DQScriptingHelper.solve_symbols(
+					p
+				)
+			)
+		)
 
 	return say
 	
@@ -361,27 +380,85 @@ static func _parse_choice(pipeline: PackedStringArray):
 ## On failure will return [DqdError].
 static func _parse_branch(pipeline: PackedStringArray):
 	var section := DqdSection.SectionBranch.new()
+	
+	var wrong_arg_count_msg := "DialogQuest | Dqd | Parser | Parse error at line {line} | Cannot parse branch statement | Wrong number of arguments (found -> %s, correct -> %s)" % [pipeline.size() - 1, "%s"]
+
 	if pipeline.size() <= 1:
-		return DqdError.new("DialogQuest | Dqd | Parser | Parse error at line {line} | Cannot parse branch statement | Wrong number of arguments (correct -> 1/2, found 0)")
-	
-	if pipeline.size() >= 4:
-		return DqdError.new("DialogQuest | Dqd | Parser | Parse error at line {line} | Cannot parse branch statement | Wrong number of arguments (correct -> 2, found 3+)")
-	
+		return DqdError.new("DialogQuest | Dqd | Parser | Parse error at line {line} | Cannot parse branch statement | Must provide at least one argument (branch type)")
+
 	match DQScriptingHelper.remove_whitespace(pipeline[1]):
 		"end":
+			if pipeline.size() <= 1:
+				return DqdError.new(wrong_arg_count_msg % 1)
+			if pipeline.size() > 2:
+				return DqdError.new(wrong_arg_count_msg % 1)
 			section.type = DqdSection.SectionBranch.Type.END
 		"choice":
+			if pipeline.size() <= 2:
+				return DqdError.new(wrong_arg_count_msg % 2)
+			if pipeline.size() > 3:
+				return DqdError.new(wrong_arg_count_msg % 2)
 			section.type = DqdSection.SectionBranch.Type.CHOICE
 			section.expression = DQScriptingHelper.trim_whitespace(pipeline[2])
 		"flag":
 			section.type = DqdSection.SectionBranch.Type.FLAG
-			section.expression = DQScriptingHelper.remove_whitespace(pipeline[2])
+			section.expressions = DQScriptingHelper.remove_whitespace_array(pipeline.slice(2))
 		"no_flag":
 			section.type = DqdSection.SectionBranch.Type.NO_FLAG
-			section.expression = DQScriptingHelper.remove_whitespace(pipeline[2])
-		"evaluate":
+			section.expressions = DQScriptingHelper.remove_whitespace_array(pipeline.slice(2))
+		"flags":
+			section.type = DqdSection.SectionBranch.Type.FLAGS
+			section.expressions = DQScriptingHelper.remove_whitespace_array(pipeline.slice(2))
+		"flag>":
+			if pipeline.size() <= 3:
+				return DqdError.new(wrong_arg_count_msg % 3)
+			if pipeline.size() > 4:
+				return DqdError.new(wrong_arg_count_msg % 3)
 			section.type = DqdSection.SectionBranch.Type.EVALUATE
+			section.stringify = true
+			section.expression = "( ${%s} ) > ( %s )" % [DQScriptingHelper.trim_whitespace(pipeline[2]), DQScriptingHelper.trim_whitespace(pipeline[3])]
+		"flag<":
+			if pipeline.size() <= 3:
+				return DqdError.new(wrong_arg_count_msg % 3)
+			if pipeline.size() > 4:
+				return DqdError.new(wrong_arg_count_msg % 3)
+			section.type = DqdSection.SectionBranch.Type.EVALUATE
+			section.stringify = true
+			section.expression = "( ${%s} ) < ( %s )" % [DQScriptingHelper.trim_whitespace(pipeline[2]), DQScriptingHelper.trim_whitespace(pipeline[3])]
+		"flag=":
+			if pipeline.size() <= 3:
+				return DqdError.new(wrong_arg_count_msg % 3)
+			if pipeline.size() > 4:
+				return DqdError.new(wrong_arg_count_msg % 3)
+			section.type = DqdSection.SectionBranch.Type.EVALUATE
+			section.stringify = true
+			section.expression = "( ${%s} ) == ( %s )" % [DQScriptingHelper.trim_whitespace(pipeline[2]), DQScriptingHelper.trim_whitespace(pipeline[3])]
+		"flag>=":
+			if pipeline.size() <= 3:
+				return DqdError.new(wrong_arg_count_msg % 3)
+			if pipeline.size() > 4:
+				return DqdError.new(wrong_arg_count_msg % 3)
+			section.type = DqdSection.SectionBranch.Type.EVALUATE
+			section.stringify = true
+			section.expression = "( ${%s} ) >= ( %s )" % [DQScriptingHelper.trim_whitespace(pipeline[2]), DQScriptingHelper.trim_whitespace(pipeline[3])]
+		"flag<=":
+			if pipeline.size() <= 3:
+				return DqdError.new(wrong_arg_count_msg % 3)
+			if pipeline.size() > 4:
+				return DqdError.new(wrong_arg_count_msg % 3)
+			section.type = DqdSection.SectionBranch.Type.EVALUATE
+			section.stringify = true
+			section.expression = "( ${%s} ) <= ( %s )" % [DQScriptingHelper.trim_whitespace(pipeline[2]), DQScriptingHelper.trim_whitespace(pipeline[3])]
+		"evaluate":
+			if pipeline.size() <= 2:
+				return DqdError.new(wrong_arg_count_msg % 2)
+			if pipeline.size() > 3:
+				return DqdError.new(wrong_arg_count_msg % 2)
+			section.type = DqdSection.SectionBranch.Type.EVALUATE
+			section.stringify = true
 			section.expression = DQScriptingHelper.trim_whitespace(pipeline[2])
+
+	assert(section.type != DqdSection.SectionBranch.Type.INVALID, "DialogQuest | Dqd | Parser | Parse error at line {line} | Cannot parse branch statement | `%s` is not a valid branch statement" % pipeline[1])
 	
 	return section
 
@@ -408,4 +485,3 @@ static func _parse_sound(pipeline: PackedStringArray):
 		section.volume = float(volume_str)
 	
 	return section
-
