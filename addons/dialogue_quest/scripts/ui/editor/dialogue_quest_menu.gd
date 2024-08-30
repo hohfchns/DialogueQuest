@@ -30,7 +30,8 @@ var _selected: Array[int] = []
 var _import_files: PackedStringArray = []
 
 func _ready() -> void:
-	await DialogueQuest.ready
+	if not DialogueQuest.is_node_ready():
+		await DialogueQuest.ready
 	
 	DialogueQuest.error.connect(_on_error)
 	DialogueQuest.info.connect(_on_info)
