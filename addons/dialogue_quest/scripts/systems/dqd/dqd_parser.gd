@@ -395,18 +395,22 @@ static func _parse_branch(pipeline: PackedStringArray):
 			section.type = DqdSection.SectionBranch.Type.END
 		"choice":
 			if pipeline.size() <= 2:
-				return DqdError.new(wrong_arg_count_msg % 2)
-			if pipeline.size() > 3:
-				return DqdError.new(wrong_arg_count_msg % 2)
+				return DqdError.new(wrong_arg_count_msg % "2+")
 			section.type = DqdSection.SectionBranch.Type.CHOICE
-			section.expression = DQScriptingHelper.trim_whitespace(pipeline[2])
+			section.expressions = DQScriptingHelper.remove_whitespace_array(pipeline.slice(2))
 		"flag":
+			if pipeline.size() <= 2:
+				return DqdError.new(wrong_arg_count_msg % "2+")
 			section.type = DqdSection.SectionBranch.Type.FLAG
 			section.expressions = DQScriptingHelper.remove_whitespace_array(pipeline.slice(2))
 		"no_flag":
+			if pipeline.size() <= 2:
+				return DqdError.new(wrong_arg_count_msg % "2+")
 			section.type = DqdSection.SectionBranch.Type.NO_FLAG
 			section.expressions = DQScriptingHelper.remove_whitespace_array(pipeline.slice(2))
 		"flags":
+			if pipeline.size() <= 2:
+				return DqdError.new(wrong_arg_count_msg % "2+")
 			section.type = DqdSection.SectionBranch.Type.FLAGS
 			section.expressions = DQScriptingHelper.remove_whitespace_array(pipeline.slice(2))
 		"flag>":

@@ -46,10 +46,13 @@ func delete_flag(flag: String) -> void:
 	flag_registry.erase(flag)
 
 func make_choice(choice: String) -> void:
+	choice = DQScriptingHelper.remove_whitespace(choice)
 	_choice_stack.push_back(choice)
 
 func choice_made(choice: String) -> bool:
+	choice = DQScriptingHelper.remove_whitespace(choice)
 	return choice in _choice_stack
 
 func confirm_choice(choice: String) -> void:
+	choice = DQScriptingHelper.remove_whitespace(choice)
 	_choice_stack.erase(choice)
