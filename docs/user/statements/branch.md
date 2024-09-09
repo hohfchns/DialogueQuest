@@ -62,6 +62,16 @@ branch | end
 
 We do not have to provide a branch for every choice.
 
+We can also check for multiple choices, like so:
+
+```
+choice | a | b | c | d
+
+branch | choice | a | b
+    say | We picked either A or B!
+branch | end
+```
+
 ## Evalute
 
 `evaluate` is the most complex branch statement, and will use [GDScript](https://docs.godotengine.org/en/stable/tutorials/scripting/gdscript/gdscript_basics.html#statements-and-control-flow) to solve the branch.
