@@ -60,11 +60,9 @@ say | Oh sick! I am a ${player_class}
 
 flag | set | 20 | number_of_enemies
 
-// Will say We have 20 enemies here, that's a lot!
+// Will say `We have 20 enemies here, that's a lot!`
 say | We have ${number_of_enemies} enemies here, that's a lot!
 ```
-
-*Do note the quatations around the word Mage, indicating it is a [String value](https://en.wikipedia.org/wiki/String_(computer_science))*
 
 And finally, you can delete a flag as well:
 
@@ -72,7 +70,7 @@ And finally, you can delete a flag as well:
 ```
 flag | raise | road_is_safe
 
-// Will say `<i>The player proceeds forward</i>`
+// Will say `The player proceeds forward` (in Italics)
 branch | flag | road_is_safe
     say | [i]The player proceeds forward
 branch | end
@@ -82,7 +80,7 @@ branch | end
 
 flag | delete | road_is_safe
 
-// Will say `<i>The player stays back</i>`
+// Will say `The player stays back`
 branch | flag | road_is_safe
     say | [i]The player proceeds forward
 branch | end
