@@ -1,4 +1,4 @@
-# DialogueQuest - An easy dialogue system
+# DialogueQuest - The friendly dialogue system
 
 [dialogue_quest_preview.webm](https://github.com/user-attachments/assets/375b870e-f1bd-4e35-aa98-e29e6e3ea6e9)
 
@@ -6,11 +6,11 @@
 
 DialogueQuest is a dialogue system (shocker!) for the Godot 4 game engine, that is designed with a few core principles:
 
-- Collaboration - DialogueQuest is made with the vision of separating coders from scriptwriters.
-- Simplicity - DialogueQuest does not try to be anything more than it needs to be.
+- Collaboration - DialogueQuest is made with the vision of decoupling coders from scriptwriters.
+- Simplicity - DialogueQuest does not try to be anything more than it needs to be. It is simple at it's core, and easy to extend upon.
 - Stability - DialogueQuest keeps a limited scope in order to stay managable.
-- Intuitivity - DialogueQuest always attempts to be easy to grasp and pick up quickly.
-- Documentation - DialogueQuest keeps an up to date [user manual](docs/user_manual.pdf) and [developer manual](docs/developer_manual.pdf).
+- Intuitivity - DialogueQuest attempts to be easy to grasp and pick up quickly.
+- Documentation - DialogueQuest keeps a complete and always up to date [user manual](docs/user_manual.pdf) and [developer manual](docs/developer_manual.pdf).
 
 # What do I do??
 
