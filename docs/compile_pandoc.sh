@@ -18,6 +18,7 @@ pandoc \
   ${USER_DIR}/../dialogue_quest_tester.md \
   ${USER_DIR}/writing_dialogue.md \
   ${USER_DIR}/characters.md \
+  ${USER_DIR}/dialogue_quest_tester/importing_characters.md \
   ${USER_DIR}/statements/say.md  \
   ${USER_DIR}/statements/flag.md  \
   ${USER_DIR}/statements/choice.md  \
@@ -46,6 +47,7 @@ pandoc \
   ${DEV_DIR}/basics/examples.md \
   ${DEV_DIR}/basics/writing_dialogue.md \
   ${DEV_DIR}/basics/creating_characters.md \
+  ${DEV_DIR}/basics/exporting_characters.md \
   ${DEV_DIR}/basics/creating_dialogue.md \
   ${DEV_DIR}/basics/playing_dialogue.md \
   ${DEV_DIR}/basics/settings.md \
