@@ -425,6 +425,14 @@ static func _parse_branch(pipeline: PackedStringArray):
 			section.type = DqdSection.SectionBranch.Type.EVALUATE
 			section.stringify = true
 			section.expression = "( ${%s} ) < ( %s )" % [DQScriptingHelper.trim_whitespace(pipeline[2]), DQScriptingHelper.trim_whitespace(pipeline[3])]
+		"flag!=":
+			if pipeline.size() <= 3:
+				return DqdError.new(wrong_arg_count_msg % 3)
+			if pipeline.size() > 4:
+				return DqdError.new(wrong_arg_count_msg % 3)
+			section.type = DqdSection.SectionBranch.Type.EVALUATE
+			section.stringify = true
+			section.expression = "( ${%s} ) != ( %s )" % [DQScriptingHelper.trim_whitespace(pipeline[2]), DQScriptingHelper.trim_whitespace(pipeline[3])]
 		"flag=":
 			if pipeline.size() <= 3:
 				return DqdError.new(wrong_arg_count_msg % 3)
