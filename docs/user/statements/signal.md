@@ -20,6 +20,6 @@ The developer can for example check for the signal value "play_song", and play t
 
 Also see:
 
-Developer manual entry for [signals](#signals)
+Developer manual entry for `signals`
 
 

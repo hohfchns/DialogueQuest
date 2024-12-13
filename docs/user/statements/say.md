@@ -57,7 +57,7 @@ say | | This does work though! |
 
 ## See Also
 
-[Writing Dialogue](#writing-dialogue)
+[Writing Dialogue](#writing-dialogue---dqd)
 
 [BBCode and Text Effects](#bbcode-and-text-effects)
 

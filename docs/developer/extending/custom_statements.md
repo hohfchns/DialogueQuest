@@ -1,6 +1,6 @@
 # Custom Statements
 
-DialogueQuest allows you to add custom statements to `DQD` and extend the featureset of [DqdParser](#the-dqdparser-class).
+DialogueQuest allows you to add custom statements to `DQD` and extend the featureset of `DqdParser`
 
 To do so, do the following:
 
