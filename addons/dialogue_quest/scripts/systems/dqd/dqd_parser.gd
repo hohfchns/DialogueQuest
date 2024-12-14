@@ -203,7 +203,10 @@ static func parse_from_text(text: String) -> Array[DqdSection]:
 			if statement.keyword == DQScriptingHelper.remove_whitespace(pipeline[0]):
 				parsed = statement.parse_function.call(pipeline)
 		
-		assert(parsed != null, "DialogQuest | Dqd | Parser | Parse error at line %d | Statement `%s` not recognized" % [line_num, pipeline[0]])
+		if parsed == null:
+			var s := "DialogQuest | Dqd | Parser | Parse error at line %d | Statement `%s` not recognized" % [line_num, pipeline[0]]
+			DialogueQuest.error.emit(s)
+			assert(false, s)
 		
 		if parsed is DqdError:
 			var s: String = parsed.formatted(line_num)
