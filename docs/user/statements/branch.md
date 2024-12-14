@@ -21,6 +21,7 @@ branch | no_flag | [flag1] | [flag2]...
 branch | flag > | [flag] | [value]
 branch | flag < | [flag] | [value]
 branch | flag = | [flag] | [value]
+branch | flag != | [flag] | [value]
 branch | flag >= | [flag] | [value]
 branch | flag <= | [flag] | [value]
 ```
@@ -215,6 +216,11 @@ flag | set | 10 | stairs
 branch | flag >= | stairs | 11
     // We will not see this
     say | I'm gonna take the elevator.
+branch | end
+
+branch | flag != | stairs | 0
+    // We will see this
+    say | We have stairs
 branch | end
 
 branch | flag < | stairs | 2

@@ -35,7 +35,7 @@ branch | choice | Left
 	branch | choice | Head Back
 		say | shahar | Okay, back to safety.
 	branch | end
-brnach | end
+branch | end
 branch | choice | Right
 	say | shahar | I'm going right
 	say | You made the right choice!
