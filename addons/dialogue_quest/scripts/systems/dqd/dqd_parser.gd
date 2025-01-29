@@ -101,8 +101,14 @@ class DqdSection extends Resource:
 			CHOICE,
 			EVALUATE,
 			FLAG,
-			NO_FLAG,
 			FLAGS,
+			NO_FLAG,
+			FLAG_GREATER,
+			FLAG_GREATER_EQUAL,
+			FLAG_LESSER,
+			FLAG_LESSER_EQUAL,
+			FLAG_EQUAL,
+			FLAG_NOT_EQUAL,
 			END,
 			INVALID
 		}
@@ -423,49 +429,60 @@ static func _parse_branch(pipeline: PackedStringArray):
 				return DqdError.new(wrong_arg_count_msg % 3)
 			if pipeline.size() > 4:
 				return DqdError.new(wrong_arg_count_msg % 3)
-			section.type = DqdSection.SectionBranch.Type.EVALUATE
+			section.type = DqdSection.SectionBranch.Type.FLAG_GREATER
 			section.stringify = true
-			section.expression = "( ${%s} ) > ( %s )" % [DQScriptingHelper.trim_whitespace(pipeline[2]), DQScriptingHelper.trim_whitespace(pipeline[3])]
-		"flag<":
-			if pipeline.size() <= 3:
-				return DqdError.new(wrong_arg_count_msg % 3)
-			if pipeline.size() > 4:
-				return DqdError.new(wrong_arg_count_msg % 3)
-			section.type = DqdSection.SectionBranch.Type.EVALUATE
-			section.stringify = true
-			section.expression = "( ${%s} ) < ( %s )" % [DQScriptingHelper.trim_whitespace(pipeline[2]), DQScriptingHelper.trim_whitespace(pipeline[3])]
-		"flag!=":
-			if pipeline.size() <= 3:
-				return DqdError.new(wrong_arg_count_msg % 3)
-			if pipeline.size() > 4:
-				return DqdError.new(wrong_arg_count_msg % 3)
-			section.type = DqdSection.SectionBranch.Type.EVALUATE
-			section.stringify = true
-			section.expression = "( ${%s} ) != ( %s )" % [DQScriptingHelper.trim_whitespace(pipeline[2]), DQScriptingHelper.trim_whitespace(pipeline[3])]
-		"flag=":
-			if pipeline.size() <= 3:
-				return DqdError.new(wrong_arg_count_msg % 3)
-			if pipeline.size() > 4:
-				return DqdError.new(wrong_arg_count_msg % 3)
-			section.type = DqdSection.SectionBranch.Type.EVALUATE
-			section.stringify = true
-			section.expression = "( ${%s} ) == ( %s )" % [DQScriptingHelper.trim_whitespace(pipeline[2]), DQScriptingHelper.trim_whitespace(pipeline[3])]
+			var flag_name := DQScriptingHelper.trim_whitespace(pipeline[2])
+			var value := DQScriptingHelper.trim_whitespace(pipeline[3])
+			section.expressions = [flag_name, value]
 		"flag>=":
 			if pipeline.size() <= 3:
 				return DqdError.new(wrong_arg_count_msg % 3)
 			if pipeline.size() > 4:
 				return DqdError.new(wrong_arg_count_msg % 3)
-			section.type = DqdSection.SectionBranch.Type.EVALUATE
+			section.type = DqdSection.SectionBranch.Type.FLAG_GREATER_EQUAL
 			section.stringify = true
-			section.expression = "( ${%s} ) >= ( %s )" % [DQScriptingHelper.trim_whitespace(pipeline[2]), DQScriptingHelper.trim_whitespace(pipeline[3])]
+			var flag_name := DQScriptingHelper.trim_whitespace(pipeline[2])
+			var value := DQScriptingHelper.trim_whitespace(pipeline[3])
+			section.expressions = [flag_name, value]
+		"flag<":
+			if pipeline.size() <= 3:
+				return DqdError.new(wrong_arg_count_msg % 3)
+			if pipeline.size() > 4:
+				return DqdError.new(wrong_arg_count_msg % 3)
+			section.type = DqdSection.SectionBranch.Type.FLAG_LESSER
+			section.stringify = true
+			var flag_name := DQScriptingHelper.trim_whitespace(pipeline[2])
+			var value := DQScriptingHelper.trim_whitespace(pipeline[3])
+			section.expressions = [flag_name, value]
 		"flag<=":
 			if pipeline.size() <= 3:
 				return DqdError.new(wrong_arg_count_msg % 3)
 			if pipeline.size() > 4:
 				return DqdError.new(wrong_arg_count_msg % 3)
-			section.type = DqdSection.SectionBranch.Type.EVALUATE
+			section.type = DqdSection.SectionBranch.Type.FLAG_LESSER_EQUAL
 			section.stringify = true
-			section.expression = "( ${%s} ) <= ( %s )" % [DQScriptingHelper.trim_whitespace(pipeline[2]), DQScriptingHelper.trim_whitespace(pipeline[3])]
+			var flag_name := DQScriptingHelper.trim_whitespace(pipeline[2])
+			var value := DQScriptingHelper.trim_whitespace(pipeline[3])
+			section.expressions = [flag_name, value]
+		"flag!=":
+			if pipeline.size() <= 3:
+				return DqdError.new(wrong_arg_count_msg % 3)
+			if pipeline.size() > 4:
+				return DqdError.new(wrong_arg_count_msg % 3)
+			section.type = DqdSection.SectionBranch.Type.FLAG_NOT_EQUAL
+			section.stringify = true
+			var flag_name := DQScriptingHelper.trim_whitespace(pipeline[2])
+			var value := DQScriptingHelper.trim_whitespace(pipeline[3])
+			section.expressions = [flag_name, value]
+		"flag=":
+			if pipeline.size() <= 3:
+				return DqdError.new(wrong_arg_count_msg % 3)
+			if pipeline.size() > 4:
+				return DqdError.new(wrong_arg_count_msg % 3)
+			section.type = DqdSection.SectionBranch.Type.FLAG_EQUAL
+			var flag_name := DQScriptingHelper.trim_whitespace(pipeline[2])
+			var value := DQScriptingHelper.trim_whitespace(pipeline[3])
+			section.expressions = [flag_name, value]
 		"evaluate":
 			if pipeline.size() <= 2:
 				return DqdError.new(wrong_arg_count_msg % 2)
