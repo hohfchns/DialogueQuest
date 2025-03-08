@@ -497,8 +497,7 @@ static func _parse_branch(pipeline: PackedStringArray):
 			if pipeline.size() > 3:
 				return DqdError.new(wrong_arg_count_msg % 2)
 			section.type = DqdSection.SectionBranch.Type.EVALUATE
-			section.stringify = true
-			section.stringify_whole = false
+			section.stringify = false
 			section.expression = DQScriptingHelper.trim_whitespace(pipeline[2])
 
 	assert(section.type != DqdSection.SectionBranch.Type.INVALID, "DialogQuest | Dqd | Parser | Parse error at line {line} | Cannot parse branch statement | `%s` is not a valid branch statement" % pipeline[1])
