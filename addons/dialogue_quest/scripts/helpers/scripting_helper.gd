@@ -24,7 +24,8 @@ const RESERVED_WORDS: PackedStringArray = [
 	"func", "class", "extends", "self", "if", "elif", "else", "while", "for",
 	"in", "break", "continue", "return", "match", "switch", "case", "const",
 	"var", "onready", "tool", "export", "signal", "preload", "assert", "yield",
-	"do", "class_name", "extends", "is", "as", "true", "false", "or", "and"
+	"do", "class_name", "extends", "is", "as", "true", "false", "or", "and", "not",
+	"null"
 ]
 
 static func replace_with_escape(from: String, what: String, with: String, escape: String) -> String:
@@ -104,13 +105,35 @@ static func evaluate_expression(expression: String, base_instance: Object = null
 	return res
 
 ## Takes `expression` and converts non-reserved and non-numeric words into quoted strings for evaluation.
-static func stringify_expression(expression: String) -> String:
+## If `whole` is set to `false` (default), the returned string will contain parantheses around each words, otherwise it will be per the whole expression.
+static func stringify_expression(expression: String, whole: bool = false) -> String:
 	var new_str: String = ""
 	var words: PackedStringArray = [expression]
 	if " " in expression:
 		words = expression.split(" ")
 
+	var is_whole_string: bool = false
+	var string_state: bool = false
+
 	for word in words:
+		var added_characters := 0
+		for c in word:
+			if c == '"':
+				string_state = !string_state
+				new_str += '"'
+				added_characters += 1
+			else:
+				if string_state:
+					new_str += c
+					added_characters += 1
+		
+		if added_characters == word.length():
+			new_str += " "
+			continue
+		
+		if string_state:
+			continue
+		
 		if word.is_valid_float():
 			new_str += word + " "
 			continue
@@ -127,8 +150,16 @@ static func stringify_expression(expression: String) -> String:
 			new_str += word + " "
 			continue
 
-		new_str += "\"%s\"" % word + " "
-
+		if whole:
+			new_str += '%s ' % word
+		else:
+			new_str += '"%s" ' % word
+		
+		is_whole_string = true
+	
+	if whole and is_whole_string:
+		return '"%s"' % trim_whitespace(new_str)
+	
 	return trim_whitespace(new_str)
 
 ## Takes `expressions` and returns string connected by a conditional `operator` of all of them

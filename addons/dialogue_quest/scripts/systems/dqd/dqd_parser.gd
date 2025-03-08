@@ -117,6 +117,7 @@ class DqdSection extends Resource:
 		var expression: String = ""
 		var expressions: PackedStringArray = []
 		var stringify: bool = false
+		var stringify_whole: bool = true
 		
 		func solve_flags() -> void:
 			if expressions.size():
@@ -126,7 +127,7 @@ class DqdSection extends Resource:
 			if stringify:
 				expression = DQDqdParser.solve_flags(
 					DQScriptingHelper.stringify_expression(expression),
-					true
+					stringify_whole
 				)
 			else:
 				expression = DQDqdParser.solve_flags(expression)
@@ -294,11 +295,14 @@ static func _parse_signal(pipeline: PackedStringArray):
 	
 	var args: Array = []
 	for p in pipeline.slice(1):
-		var stringified = DQScriptingHelper.stringify_expression(DQScriptingHelper.remove_whitespace(p))
-		var as_var := str_to_var(stringified)
-		if as_var == null:
-			return DqdError.new("DialogQuest | Dqd | Parser | Parse error at line {line} | Cannot parse signal statement | String `%s` could not be parsed into a GDScript variable. Perhaps it is a reserved keyword?" % p)
-		args.append(as_var)
+		var stringified = DQScriptingHelper.stringify_expression(DQScriptingHelper.trim_whitespace(p), true)
+		if stringified == "null":
+			args.append(null)
+		else:
+			var as_var := str_to_var(stringified)
+			if as_var == null:
+				return DqdError.new("DialogQuest | Dqd | Parser | Parse error at line {line} | Cannot parse signal statement | String `%s` could not be parsed into a GDScript variable. Perhaps it is a reserved keyword?" % p)
+			args.append(as_var)
 	
 	var sec := DqdSection.SectionRaiseDQSignal.new()
 	sec.params = args
@@ -362,7 +366,8 @@ static func _parse_flag(pipeline: PackedStringArray):
 				return DqdError.new("DialogQuest | Dqd | Parser | Parse error at line {line} | Cannot parse flag set statement | Wrong number of arguments (correct -> 3, found %d)" % (pipeline.size() - 1))
 			section.type = DqdSection.SectionFlag.Type.SET
 			var var_str := DQScriptingHelper.stringify_expression(
-						   DQScriptingHelper.remove_whitespace(pipeline[2])
+										DQScriptingHelper.trim_whitespace(pipeline[2]),
+										true
 			)
 			section.value = str_to_var(var_str)
 			if section.value == null:
@@ -490,6 +495,7 @@ static func _parse_branch(pipeline: PackedStringArray):
 				return DqdError.new(wrong_arg_count_msg % 2)
 			section.type = DqdSection.SectionBranch.Type.EVALUATE
 			section.stringify = true
+			section.stringify_whole = false
 			section.expression = DQScriptingHelper.trim_whitespace(pipeline[2])
 
 	assert(section.type != DqdSection.SectionBranch.Type.INVALID, "DialogQuest | Dqd | Parser | Parse error at line {line} | Cannot parse branch statement | `%s` is not a valid branch statement" % pipeline[1])
