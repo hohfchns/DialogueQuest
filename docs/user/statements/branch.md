@@ -117,7 +117,7 @@ branch | end
 evaluate can also be used with [flag solving](#flag-solving)
 
 ```
-branch | evaluate | ${main_character} == joe
+branch | evaluate | "${main_character}" == "joe"
     say | joe | Yo, uh-huh
 branch | end
 
