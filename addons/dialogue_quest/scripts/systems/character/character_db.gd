@@ -2,6 +2,8 @@
 extends Node
 class_name DQCharacterDB
 
+signal character_registry_changed
+
 ## A Dictionary of format { character_id([String]) : character_data([DQCharacter]) }
 ## Generated at runtime
 var _character_registry: Dictionary = {}
@@ -26,6 +28,8 @@ func _find_characters_in_project(replace: bool = true) -> void:
 			continue
 		
 		_character_registry[character.character_id] = character
+	
+	character_registry_changed.emit()
 
 func get_character_from_id(character_id: String) -> DQCharacter:
 	if character_id not in _character_registry:

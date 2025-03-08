@@ -33,6 +33,8 @@ func _ready() -> void:
 	if not DialogueQuest.is_node_ready():
 		await DialogueQuest.ready
 	
+	DialogueQuest.CharacterDB.character_registry_changed.connect(_on_character_registry_changed)
+	
 	DialogueQuest.error.connect(_on_error)
 	DialogueQuest.info.connect(_on_info)
 	
@@ -46,7 +48,8 @@ func _ready() -> void:
 
 func _refresh_character_db_entries() -> void:
 	DialogueQuest.CharacterDB._find_characters_in_project()
-	
+
+func _on_character_registry_changed() -> void:
 	for c in _cdb_entries_container.get_children():
 		_cdb_entries_container.remove_child(c)
 		c.queue_free()
