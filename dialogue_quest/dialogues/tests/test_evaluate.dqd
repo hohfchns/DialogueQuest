@@ -27,7 +27,7 @@ branch | end
 
 flag | set | 5 | flag_value_5
 
-branch | evaluate | flag_value_5
+branch | evaluate | ${flag_value_5}
   say | 5
 branch | end
 
