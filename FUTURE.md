@@ -2,18 +2,17 @@
 
 # Planned Features
 
-## Near version (v0.7.0)
+## Near version (v0.8.0)
 
-- More branch options (reduce the need for evaluate branches) ✅
-- Resource Serialization (Characters/Settings/etc.) ✅
-- Symbol parsing (`\n` etc.) ✅
-- Dialogue testing ✅
+- [ ] Upgrade to Godot 4.4
+- [ ] Convert scenes to classes
+- [ ] History + Rollback
+- [ ] Fail Tests (wrong syntax or usage being allowed)
+- [ ] (Automatic) Unit tests
 
 ## Future Version
 
-- History + Rollback
-- Translations
-- (Automatic) Unit tests
+- Translations Interface
 
 # Potential features
 
