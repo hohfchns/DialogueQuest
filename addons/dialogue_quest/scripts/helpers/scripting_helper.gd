@@ -30,16 +30,32 @@ const RESERVED_WORDS: PackedStringArray = [
 
 static func replace_with_escape(from: String, what: String, with: String, escape: String) -> String:
 	var found_idx := from.find(what)
-	if found_idx == -1:
-		return from
+	
+	var new_str := ""
+	var last_idx := 0
+	while true:
+		found_idx = from.find(what, last_idx)
+		if found_idx == -1:
+			break
+		
+		if found_idx == 0:
+			new_str = with + from.substr(what.length())
+			last_idx = found_idx + what.length()
+			continue
 
-	if found_idx == 0:
-		return with + from.substr(0, what.length())
+		if from[found_idx - 1] == escape:
+			new_str += from.substr(last_idx, found_idx - last_idx - 1)
+			new_str += what
+			last_idx = found_idx + what.length()
+			continue
+		
+		new_str += from.substr(last_idx, found_idx - last_idx)
+		new_str += with
+		last_idx = found_idx + what.length()
+	
+	new_str += from.substr(last_idx)
 
-	if from.substr(found_idx - escape.length(), escape.length()) == escape:
-		return from.substr(0, found_idx - escape.length()) + from.substr(found_idx)
-
-	return from.replace(what, with)
+	return new_str
 
 static func solve_symbols(from: String, allow_escape: bool = true) -> String:
 	var s := from

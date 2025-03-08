@@ -265,7 +265,13 @@ static func _parse_say(pipeline: PackedStringArray):
 	say.texts = []
 	
 	if pipeline.size() == 2:
-		say.texts.append(DQScriptingHelper.trim_whitespace_prefix(pipeline[1]))
+		say.texts.append(
+			DQScriptingHelper.trim_whitespace_prefix(
+				DQScriptingHelper.solve_symbols(
+					pipeline[1]
+				)
+			)
+		)
 		return say
 	
 	var character_id: String = pipeline[1]
