@@ -178,6 +178,19 @@ static func stringify_expression(expression: String, whole: bool = false) -> Str
 	
 	return trim_whitespace(new_str)
 
+## Applies `stringify_expression` and converts it to a Variant
+## To check the error, use `result is DQScriptingHelper.Error`, as `null` is a vaslid return value
+static func expression_to_value(expression: String, whole: bool = false) -> Variant:
+	var stringified = DQScriptingHelper.stringify_expression(expression, whole)
+	if stringified == "null":
+		return null
+	
+	var as_var := str_to_var(stringified)
+	if as_var == null:
+		return Error.new()
+	
+	return as_var
+
 ## Takes `expressions` and returns string connected by a conditional `operator` of all of them
 ## If `stringify` is true, will apply the `stringify_expression` method to each
 ## expression in `expressions`

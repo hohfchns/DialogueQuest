@@ -301,14 +301,11 @@ static func _parse_signal(pipeline: PackedStringArray):
 	
 	var args: Array = []
 	for p in pipeline.slice(1):
-		var stringified = DQScriptingHelper.stringify_expression(DQScriptingHelper.trim_whitespace(p), true)
-		if stringified == "null":
-			args.append(null)
-		else:
-			var as_var := str_to_var(stringified)
-			if as_var == null:
-				return DqdError.new("DialogQuest | Dqd | Parser | Parse error at line {line} | Cannot parse signal statement | String `%s` could not be parsed into a GDScript variable. Perhaps it is a reserved keyword?" % p)
-			args.append(as_var)
+		var value = DQScriptingHelper.expression_to_value(DQScriptingHelper.trim_whitespace(p), true)
+		if value is DQScriptingHelper.Error:
+			return DqdError.new("DialogQuest | Dqd | Parser | Parse error at line {line} | Cannot parse signal statement | String `%s` could not be parsed into a GDScript variable. Perhaps it is a reserved keyword?" % p)
+		
+		args.append(value)
 	
 	var sec := DqdSection.SectionRaiseDQSignal.new()
 	sec.params = args

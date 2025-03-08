@@ -137,4 +137,26 @@ branch | flag>= | nonexistent | 0
   branch | end
 branch | end
 
-say | 23 end
+branch | flag= | nonexistent | 0 
+  say | 23
+branch | end
+
+branch | flag!= | nonexistent | 0 
+  say | ERROR (nonexistent != 0)
+branch | end
+
+flag | set | StringFlag | string_flag
+branch | flag= | string_flag | StringFlag
+  say | 24
+branch | end
+
+flag | set | String Flag With Spaces | string_flag_with_spaces
+branch | flag= | string_flag_with_spaces | String Flag With Spaces
+  say | 25
+branch | end
+
+branch | flag= | string_flag_with_spaces | "String Flag With Spaces"
+  say | 26
+branch | end
+
+say | 27 end

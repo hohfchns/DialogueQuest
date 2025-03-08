@@ -331,11 +331,13 @@ func _handle_branch(section: DQDqdParser.DqdSection.SectionBranch) -> void:
 		DQDqdParser.DqdSection.SectionBranch.Type.FLAG_EQUAL:
 			var flag_name := section.expressions[0]
 			var value_str := section.expressions[1]
-			if not value_str.is_valid_float():
-				var s := "DialogueQuest | DialoguePlayer | flag comparison operator provided bad value (non-number) %s" % value_str
+			
+			var value = DQScriptingHelper.expression_to_value(DQScriptingHelper.trim_whitespace(value_str), true)
+			if value is DQScriptingHelper.Error:
+				var s := "DialogueQuest | DialoguePlayer | flag comparison operator provided bad value (can't convert to an expression) `%s`" % value_str
 				DialogueQuest.error.emit(s)
 				assert(false, s)
-			var value := float(value_str)
+			
 			var flag_value = DialogueQuest.Flags.get_flag(flag_name)
 			if flag_value == null:
 				flag_value = 0
@@ -344,11 +346,13 @@ func _handle_branch(section: DQDqdParser.DqdSection.SectionBranch) -> void:
 		DQDqdParser.DqdSection.SectionBranch.Type.FLAG_NOT_EQUAL:
 			var flag_name := section.expressions[0]
 			var value_str := section.expressions[1]
-			if not value_str.is_valid_float():
-				var s := "DialogueQuest | DialoguePlayer | flag comparison operator provided bad value (non-number) %s" % value_str
+			
+			var value = DQScriptingHelper.expression_to_value(DQScriptingHelper.trim_whitespace(value_str), true)
+			if value is DQScriptingHelper.Error:
+				var s := "DialogueQuest | DialoguePlayer | flag comparison operator provided bad value (can't convert to an expression) `%s`" % value_str
 				DialogueQuest.error.emit(s)
 				assert(false, s)
-			var value := float(value_str)
+			
 			var flag_value = DialogueQuest.Flags.get_flag(flag_name)
 			if flag_value == null:
 				flag_value = 0
