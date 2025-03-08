@@ -1,0 +1,140 @@
+flag | set | 5 | flag_value_5
+
+say | 1
+branch | flag> | nonexistent | 0
+  say | ERROR (nonexistent > 0)
+branch | end
+branch | flag< | nonexistent | 0 
+  say | ERROR (nonexistent < 0)
+branch | end
+branch | flag= | nonexistent | 1 
+  say | ERROR (nonexistent = 1)
+branch | end
+branch | flag>= | nonexistent | 0 
+  say | 2
+branch | end
+branch | flag= | nonexistent | 0 
+  say | 3
+branch | end
+branch | flag<= | nonexistent | 0 
+  say | 4
+branch | end
+
+branch | flag> | flag_value_5 | 5 
+  say | ERROR (5 > 5)
+branch | end
+branch | flag< | flag_value_5 | 5 
+  say | ERROR (5 < 5)
+branch | end
+branch | flag>= | flag_value_5 | 5 
+  say | 5
+branch | end
+branch | flag= | flag_value_5 | 5 
+  say | 6
+branch | end
+branch | flag<= | flag_value_5 | 5 
+  say | 7
+branch | end
+
+branch | flag> | flag_value_5 | 6 
+  say | ERROR (5 > 6)
+branch | end
+branch | flag>= | flag_value_5 | 6 
+  say | ERROR (5 >= 6)
+branch | end
+branch | flag< | flag_value_5 | 6 
+  say | 8
+branch | end
+branch | flag<= | flag_value_5 | 6 
+  say | 9
+branch | end
+
+branch | evaluate | true
+  say | 10
+branch | end
+
+branch | evaluate | false
+  say | ERROR (evaluate false)
+branch | end
+
+flag | raise | raised_flag
+flag | raise | raised_flag_2
+
+branch | flag | raised_flag
+  say | 11
+branch | end
+
+branch | flags | raised_flag | nonexistent
+  say | ERROR (raised_flag + nonexistent)
+branch | end
+
+branch | flags | raised_flag | raised_flag_2
+  say | 12
+branch | end
+
+branch | no_flag | raised_flag
+  say | ERROR (no raised_flag)
+branch | end
+
+branch | no_flag | raised_flag_2
+  say | ERROR (no raised_flag_2)
+branch | end
+
+branch | no_flag | raised_flag_2 | raised_flag
+  say | ERROR (no raised_flag_2 + raised_flag)
+branch | end
+
+branch | no_flag | nonexistent
+  say | 13
+branch | end
+
+branch | flag | raised_flag | nonexistent
+  say | 14
+branch | end
+
+branch | evaluate | true
+  say | 15
+  branch | evaluate | true
+    say | 16
+    branch | evaluate | true
+      say | 17
+      branch | evaluate | true
+        say | 18
+      branch | end
+    branch | end
+  branch | end
+branch | end
+
+choice | a | b | c
+
+branch | choice | a
+  say | 19 (a)
+branch | end
+branch | choice | b
+  say | 19 (b)
+branch | end
+branch | choice | c
+  say | 19 (c)
+branch | end
+
+branch | flag>= | nonexistent | 0
+  say | 20
+
+  choice | d | e | f
+
+  branch | choice | d
+    say | 21 (d)
+  branch | end
+  branch | choice | e
+    say | 21 (e)
+  branch | end
+  branch | choice | f
+    say | 21 (f)
+  branch | end
+
+  branch | flag< | flag_value_5 | 999999
+    say | 22
+  branch | end
+branch | end
+
+say | 23 end

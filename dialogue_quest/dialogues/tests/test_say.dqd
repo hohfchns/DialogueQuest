@@ -1,0 +1,31 @@
+
+
+say | Narrator (Regular)
+say | shahar | Character (Regular)
+
+say || Narrator (Autoskip) |
+say || Narrator |, Sentence | In | Parts
+say || Narra|tor | (Split with spacing)
+
+say | shahar | Character (Autoskip) |
+say | shahar | Character |, Sentence | In | Parts
+say | shahar | Charac|ter | (Split with spacing)
+
+say | Sentence\nWith multiline\nUsage using '\\n'
+say | [speed=500]Really fast sentence
+say | [speed=1]Really slow sentence
+say | [speed=20]Starts slow [speed=500]And becomes fast
+
+say | Stut[pause=0.5]-ter, s[pause=0.1]-s[pause=0.1]-s[pause=0.1]-tutter
+
+say | bold? [b]bold
+say | bold? [b]bold[/b] (closed)
+say | italic? [i]italic
+say | italic? [i]italic[/i] (closed)
+say | [i]italic[/i] and [b]bold[/b]
+say | [font_size=8]small[/font_size] and [font_size=40]LARGE[/font_size]
+
+flag | set | 8 | small_font
+say | font [font_size=${small_font}]from flag[/font_size]
+
+say | end

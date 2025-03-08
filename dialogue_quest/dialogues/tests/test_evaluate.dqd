@@ -1,0 +1,69 @@
+
+flag | set | Some string flag | string_flag
+
+branch | evaluate | 1 > 5
+  say | ERROR (1 > 5)
+branch | end
+
+branch | evaluate | 1 < 5
+  say | 1
+branch | end
+
+branch | evaluate | 1 == 1
+  say | 2
+branch | end
+
+branch | evaluate | true
+  say | 3
+branch | end
+
+branch | evaluate | ${nonexistent} == 0
+  say | ERROR (nonexistent == 0)
+branch | end
+
+branch | evaluate | ${nonexistent} == null
+  say | 4
+branch | end
+
+flag | set | 5 | flag_value_5
+
+branch | evaluate | flag_value_5
+  say | 5
+branch | end
+
+branch | evaluate | ${flag_value_5} == 5
+  say | 6
+branch | end
+
+branch | evaluate | ${flag_value_5} > 5
+  say | ERROR (flag_value_5 > 5)
+branch | end
+
+branch | evaluate | DialogueQuest.Flags.is_raised("flag_value_5")
+  say | 7
+branch | end
+
+branch | evaluate | not DialogueQuest.Flags.is_raised("flag_value_5")
+  say | ERROR (not DialogueQuest.Flags.is_raised("flag_value_5"))
+branch | end
+
+flag | set | Some string flag | string_flag
+
+branch | evaluate | "${string_flag}" == "Some string flag"
+  say | 8
+branch | end
+
+branch | evaluate | "${string_flag}".length() == "Some string flag".length()
+  say | 9
+branch | end
+
+branch | evaluate | "Some string" == "Some other string"
+  say | ERROR ("Some string" == "Some other string")
+branch | end
+
+branch | evaluate | "Some string" != "Some other string"
+  say | 10
+branch | end
+
+say | 11 end
+

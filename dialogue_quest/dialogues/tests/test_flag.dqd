@@ -1,0 +1,79 @@
+
+flag | raise | raised
+branch | flag | raised
+  say | SUCCESS: Flag Raised
+branch | end
+
+branch | no_flag | raised
+  say | ERROR: Flag Raised
+  exit |
+branch | end
+
+// flag | raise | not_raised
+branch | flag | not_raised
+  say | ERROR: Flag Not Raised
+  exit |
+branch | end
+
+branch | no_flag | not_raised
+  say | SUCCESS: Flag Not Raised
+branch | end
+
+flag | set | 0 | set_0
+
+flag | set | 5 | set_positive
+
+say | :set_positive:SHOULD BE 5:IS ${set_positive}:
+
+flag | set | -5 | set_negative
+say | :set_negative:SHOULD BE -5:IS ${set_negative}:
+
+flag | set | SomeString | set_string
+say | :set_string:SHOULD BE "SomeString":IS "${set_string}":
+
+flag | set | Some String With Spaces | set_string
+say | :set_string:SHOULD BE "Some String With Spaces":IS "${set_string}":
+
+flag | set | "Some Code-Like String" | set_string_var
+say | :set_string_var:SHOULD BE "Some Code-Like String":IS "${set_string_var}":
+
+flag | inc | inc_new_flag
+say | :inc_new_flag:SHOULD BE 1:IS ${inc_new_flag}:
+
+flag | inc | 5 | inc_by_new_flag
+say | :inc_by_new_flag:SHOULD BE 5:IS ${inc_by_new_flag}:
+
+flag | dec | dec_new_flag
+say | :dec_new_flag:SHOULD BE -1:IS ${dec_new_flag}:
+
+flag | dec | 5 | dec_by_new_flag
+say | :dec_by_new_flag:SHOULD BE -5:IS ${dec_by_new_flag}:
+
+flag | set | 5 | dec_existing_flag
+flag | dec | dec_existing_flag
+say | :dec_existing_flag:SHOULD BE 4:IS ${dec_existing_flag}:
+
+flag | set | 0 | dec_negative
+flag | dec | dec_negative
+say | :dec_negative:SHOULD BE -1:IS ${dec_negative}:
+flag | dec | dec_negative
+say | :dec_negative:SHOULD BE -2:IS ${dec_negative}:
+flag | dec | 2 | dec_negative
+say | :dec_negative:SHOULD BE -4:IS ${dec_negative}:
+flag | dec | dec_negative
+say | :dec_negative:SHOULD BE -5:IS ${dec_negative}:
+
+flag | raise | delete
+flag | delete | delete
+
+branch | flag | delete
+  say | ERROR: Delete
+  exit |
+branch | end
+
+branch | no_flag | delete
+  say | SUCCESS: Delete
+branch | end
+
+say | end
+

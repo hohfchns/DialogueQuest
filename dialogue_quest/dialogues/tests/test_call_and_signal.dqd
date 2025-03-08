@@ -1,0 +1,23 @@
+
+call | print("Hello GDScript!")
+call | DialogueQuest.Flags.raise_flag("test_call_flag")
+call | DialogueQuest.Flags.set_flag("test_call_flag_value", "A string with spaces?")
+branch | flag | test_call_flag
+  call | print("Test call flag SUCCESS")
+branch | end
+branch | no_flag | test_call_flag
+  call | printerr("Test call flag ERROR")
+branch | end
+call | print("test_call_flag_value = \"%s\"" % DialogueQuest.Flags.get_flag("test_call_flag_value"))
+
+signal | Hello Signal | 5 | 10
+signal | 10
+signal | s
+signal | 50
+signal | 50.0
+signal | 50.99999
+signal | 50.99999 | KLAsjglkaj | -910568
+signal | true | false | maybe
+signal | null
+
+signal | "end"
