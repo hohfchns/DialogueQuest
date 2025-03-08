@@ -7,11 +7,13 @@
 - More branch options (reduce the need for evaluate branches) ✅
 - Resource Serialization (Characters/Settings/etc.) ✅
 - Symbol parsing (`\n` etc.) ✅
+- Dialogue testing ✅
 
 ## Future Version
 
 - History + Rollback
 - Translations
+- (Automatic) Unit tests
 
 # Potential features
 
