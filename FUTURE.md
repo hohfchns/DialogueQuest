@@ -4,7 +4,7 @@
 
 ## Near version (v0.8.0)
 
-- [ ] Upgrade to Godot 4.4
+- [x] Upgrade to Godot 4.4
 - [ ] Convert scenes to classes
 - [ ] History + Rollback
 - [ ] Fail Tests (wrong syntax or usage being allowed)

@@ -1,10 +1,10 @@
 [gd_scene load_steps=7 format=3 uid="uid://cl5lij8pkswdk"]
 
-[ext_resource type="Script" path="res://tests/tests.gd" id="1_mhga2"]
+[ext_resource type="Script" uid="uid://cgcpd1iljlmfn" path="res://tests/tests.gd" id="1_mhga2"]
 [ext_resource type="PackedScene" uid="uid://ttdif58g3l3i" path="res://addons/dialogue_quest/prefabs/ui/dialogue/components/dialogue_box/dialogue_box.tscn" id="2_o8m5u"]
 [ext_resource type="PackedScene" uid="uid://dye384gy0fmiu" path="res://addons/dialogue_quest/prefabs/ui/dialogue/components/choice_menu/choice_menu.tscn" id="3_yr02p"]
 [ext_resource type="PackedScene" uid="uid://c2yt2j56lo2sv" path="res://addons/dialogue_quest/prefabs/systems/dqd/dialogue_player.tscn" id="4_5ybm1"]
-[ext_resource type="Script" path="res://addons/dialogue_quest/scripts/ui/dialogue/components/resources/settings/dialogue_player_settings.gd" id="5_vfsad"]
+[ext_resource type="Script" uid="uid://cshn2jwtyrmvv" path="res://addons/dialogue_quest/scripts/ui/dialogue/components/resources/settings/dialogue_player_settings.gd" id="5_vfsad"]
 
 [sub_resource type="Resource" id="Resource_81mh7"]
 script = ExtResource("5_vfsad")

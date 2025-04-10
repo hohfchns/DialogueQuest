@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="DQDialoguePlayerSettings" load_steps=2 format=3 uid="uid://br1srvonmm4ok"]
 
-[ext_resource type="Script" path="res://addons/dialogue_quest/scripts/ui/dialogue/components/resources/settings/dialogue_player_settings.gd" id="1_gttkv"]
+[ext_resource type="Script" uid="uid://cshn2jwtyrmvv" path="res://addons/dialogue_quest/scripts/ui/dialogue/components/resources/settings/dialogue_player_settings.gd" id="1_gttkv"]
 
 [resource]
 script = ExtResource("1_gttkv")

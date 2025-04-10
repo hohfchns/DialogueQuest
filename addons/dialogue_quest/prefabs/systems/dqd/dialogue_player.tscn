@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://c2yt2j56lo2sv"]
 
-[ext_resource type="Script" path="res://addons/dialogue_quest/scripts/systems/dqd/dialogue_player.gd" id="1_crmgo"]
+[ext_resource type="Script" uid="uid://b6deyavb4vgh2" path="res://addons/dialogue_quest/scripts/systems/dqd/dialogue_player.gd" id="1_crmgo"]
 [ext_resource type="Resource" uid="uid://br1srvonmm4ok" path="res://addons/dialogue_quest/resources/components/settings/default_dialogue_player_settings.tres" id="2_r8t3v"]
 
 [node name="DialoguePlayer" type="Node"]

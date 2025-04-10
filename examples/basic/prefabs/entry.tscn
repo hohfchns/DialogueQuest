@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3 uid="uid://b7ul1vxhrf6pu"]
 
-[ext_resource type="Script" path="res://examples/basic/scripts/entry.gd" id="1_ib1bb"]
+[ext_resource type="Script" uid="uid://cp143cinem2j5" path="res://examples/basic/scripts/entry.gd" id="1_ib1bb"]
 [ext_resource type="PackedScene" uid="uid://ttdif58g3l3i" path="res://addons/dialogue_quest/prefabs/ui/dialogue/components/dialogue_box/dialogue_box.tscn" id="2_x58pj"]
 [ext_resource type="PackedScene" uid="uid://c2yt2j56lo2sv" path="res://addons/dialogue_quest/prefabs/systems/dqd/dialogue_player.tscn" id="4_nt6r1"]
 [ext_resource type="PackedScene" uid="uid://dye384gy0fmiu" path="res://addons/dialogue_quest/prefabs/ui/dialogue/components/choice_menu/choice_menu.tscn" id="5_65g7h"]
