@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="DialogueQuest"
-config/version="0.7.0-rc3"
+config/version="0.8.0-dev"
 run/main_scene="res://examples/basic/prefabs/entry.tscn"
 config/features=PackedStringArray("4.4", "Forward Plus")
 config/icon="res://icon.png"
