@@ -13,6 +13,19 @@ say | [speech] | [speech2]
 say || [speech] | [speech2] |
 ```
 
+
+---
+
+> NOTE: The `say` statement has a special use case, where the statement can be skipped:
+> ```
+> [character_id] | ...
+> ```
+> So writing `say |` is optional, as long as a valid character ID is provided.
+> This setting may be disabled by a developer (however it is enabled by default).
+
+---
+
+
 The basic use case would be:
 
 ```
