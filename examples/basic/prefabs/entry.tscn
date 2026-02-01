@@ -1,11 +1,11 @@
-[gd_scene load_steps=5 format=3 uid="uid://b7ul1vxhrf6pu"]
+[gd_scene format=3 uid="uid://b7ul1vxhrf6pu"]
 
-[ext_resource type="Script" uid="uid://cp143cinem2j5" path="res://examples/basic/scripts/entry.gd" id="1_ib1bb"]
+[ext_resource type="Script" uid="uid://b5gnfj7e8r6fe" path="res://examples/basic/scripts/entry.gd" id="1_ib1bb"]
 [ext_resource type="PackedScene" uid="uid://ttdif58g3l3i" path="res://addons/dialogue_quest/prefabs/ui/dialogue/components/dialogue_box/dialogue_box.tscn" id="2_x58pj"]
 [ext_resource type="PackedScene" uid="uid://c2yt2j56lo2sv" path="res://addons/dialogue_quest/prefabs/systems/dqd/dialogue_player.tscn" id="4_nt6r1"]
 [ext_resource type="PackedScene" uid="uid://dye384gy0fmiu" path="res://addons/dialogue_quest/prefabs/ui/dialogue/components/choice_menu/choice_menu.tscn" id="5_65g7h"]
 
-[node name="Entry" type="Control"]
+[node name="Entry" type="Control" unique_id=1841634051]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -14,7 +14,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_ib1bb")
 
-[node name="DialogueBox" parent="." instance=ExtResource("2_x58pj")]
+[node name="DialogueBox" parent="." unique_id=828573312 instance=ExtResource("2_x58pj")]
 layout_mode = 1
 anchors_preset = -1
 offset_left = -550.0
@@ -23,13 +23,13 @@ offset_right = 552.0
 offset_bottom = -20.0
 text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Fringilla ut morbi tincidunt augue interdum. Sed viverra ipsum nunc aliquet bibendum enim facilisis. Sem fringilla ut morbi tincidunt augue interdum velit. Ut enim blandit volutpat maecenas volutpat blandit. Vel pharetra vel turpis nunc eget lorem dolor sed viverra. Nunc pulvinar sapien et ligula ullamcorper. Cursus vitae congue mauris q"
 
-[node name="ChoiceMenu" parent="." instance=ExtResource("5_65g7h")]
+[node name="ChoiceMenu" parent="." unique_id=2141346912 instance=ExtResource("5_65g7h")]
 layout_mode = 1
 offset_left = -49.5
 offset_top = -43.5
 offset_right = 49.5
 offset_bottom = 43.5
 
-[node name="DialoguePlayer" parent="." node_paths=PackedStringArray("dialogue_box", "choice_menu") instance=ExtResource("4_nt6r1")]
+[node name="DialoguePlayer" parent="." unique_id=1690055434 node_paths=PackedStringArray("dialogue_box", "choice_menu") instance=ExtResource("4_nt6r1")]
 dialogue_box = NodePath("../DialogueBox")
 choice_menu = NodePath("../ChoiceMenu")

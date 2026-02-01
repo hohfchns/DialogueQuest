@@ -185,7 +185,7 @@ static func parse_from_file(filepath: String) -> Array[DqdSection]:
 		DialogueQuest.error.emit(s)
 		assert(false, s)
 
-	return parse_from_text(f.get_as_text(true))
+	return parse_from_text(f.get_as_text())
 
 static func parse_from_text(text: String) -> Array[DqdSection]:
 	var ret: Array[DqdSection]
