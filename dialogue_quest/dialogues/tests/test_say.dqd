@@ -3,6 +3,8 @@
 say | Narrator (Regular)
 say | shahar | Character (Regular)
 
+shahar | Character (No say statement)
+
 say || Narrator (Autoskip) |
 say || Narrator |, Sentence | In | Parts
 say || Narra|tor | (Split with spacing)
@@ -10,6 +12,10 @@ say || Narra|tor | (Split with spacing)
 say | shahar | Character (Autoskip) |
 say | shahar | Character |, Sentence | In | Parts
 say | shahar | Charac|ter | (Split with spacing)
+
+shahar | Character (Autoskip) (No say statement) |
+shahar | Character |, Sentence | In | Parts | (No say statement)
+shahar | Charac|ter | (Split with spacing)| (No say statement)
 
 say | Sentence\nWith multiline\nUsage using '\\n'
 say | [speed=500]Really fast sentence

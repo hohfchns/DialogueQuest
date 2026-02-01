@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="DQCharacter" load_steps=4 format=3 uid="uid://pt060xv5uva2"]
 
-[ext_resource type="Script" path="res://addons/dialogue_quest/scripts/systems/character/resources/character.gd" id="1_2ht73"]
-[ext_resource type="Texture2D" uid="uid://dnudgc08jcbif" path="res://addons/dialogue_quest/art/placeholders/portraits/shahar_portrait.png" id="1_py3qm"]
+[ext_resource type="Script" uid="uid://cjgeerk1adeay" path="res://addons/dialogue_quest/scripts/systems/character/resources/character.gd" id="1_2ht73"]
+[ext_resource type="Texture2D" uid="uid://cma1dcsxxn33" path="res://addons/dialogue_quest/art/placeholders/portraits/shahar_portrait.png" id="1_py3qm"]
 [ext_resource type="Theme" uid="uid://c7laljutcxc4c" path="res://dialogue_quest/characters/shahar_name_theme.tres" id="1_taiis"]
 
 [resource]

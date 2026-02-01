@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://dargphjs33xan"]
 
-[ext_resource type="Script" path="res://addons/dialogue_quest/scripts/ui/editor/character_entry.gd" id="2_3xile"]
-[ext_resource type="Texture2D" uid="uid://dnudgc08jcbif" path="res://addons/dialogue_quest/art/placeholders/portraits/shahar_portrait.png" id="2_jw2rx"]
+[ext_resource type="Script" uid="uid://cokm2w20qp8h5" path="res://addons/dialogue_quest/scripts/ui/editor/character_entry.gd" id="2_3xile"]
+[ext_resource type="Texture2D" uid="uid://cma1dcsxxn33" path="res://addons/dialogue_quest/art/placeholders/portraits/shahar_portrait.png" id="2_jw2rx"]
 
 [node name="CharacterEntry" type="HBoxContainer"]
 custom_minimum_size = Vector2(0, 64)

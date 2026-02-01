@@ -1,10 +1,10 @@
-[gd_scene load_steps=7 format=3 uid="uid://cl5lij8pkswdk"]
+[gd_scene format=3 uid="uid://cl5lij8pkswdk"]
 
-[ext_resource type="Script" path="res://tests/tests.gd" id="1_mhga2"]
+[ext_resource type="Script" uid="uid://cgcpd1iljlmfn" path="res://tests/tests.gd" id="1_mhga2"]
 [ext_resource type="PackedScene" uid="uid://ttdif58g3l3i" path="res://addons/dialogue_quest/prefabs/ui/dialogue/components/dialogue_box/dialogue_box.tscn" id="2_o8m5u"]
 [ext_resource type="PackedScene" uid="uid://dye384gy0fmiu" path="res://addons/dialogue_quest/prefabs/ui/dialogue/components/choice_menu/choice_menu.tscn" id="3_yr02p"]
 [ext_resource type="PackedScene" uid="uid://c2yt2j56lo2sv" path="res://addons/dialogue_quest/prefabs/systems/dqd/dialogue_player.tscn" id="4_5ybm1"]
-[ext_resource type="Script" path="res://addons/dialogue_quest/scripts/ui/dialogue/components/resources/settings/dialogue_player_settings.gd" id="5_vfsad"]
+[ext_resource type="Script" uid="uid://cshn2jwtyrmvv" path="res://addons/dialogue_quest/scripts/ui/dialogue/components/resources/settings/dialogue_player_settings.gd" id="5_vfsad"]
 
 [sub_resource type="Resource" id="Resource_81mh7"]
 script = ExtResource("5_vfsad")
@@ -13,11 +13,9 @@ autoplay_delay_sec = 1.0
 autoplay_on_start = false
 skip_enabled = true
 skip_speed = 10
-skip_after_choices = false
-skip_stop_on_dialogue_end = true
 run_expressions_as_script = true
 
-[node name="Tests" type="Control"]
+[node name="Tests" type="Control" unique_id=1219052695]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -26,7 +24,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_mhga2")
 
-[node name="DialogueBox" parent="." instance=ExtResource("2_o8m5u")]
+[node name="DialogueBox" parent="." unique_id=761447294 instance=ExtResource("2_o8m5u")]
 layout_mode = 1
 anchors_preset = -1
 offset_left = -550.0
@@ -35,14 +33,14 @@ offset_right = 552.0
 offset_bottom = -20.0
 text = ""
 
-[node name="ChoiceMenu" parent="." instance=ExtResource("3_yr02p")]
+[node name="ChoiceMenu" parent="." unique_id=343887543 instance=ExtResource("3_yr02p")]
 layout_mode = 1
 offset_left = -49.5
 offset_top = -43.5
 offset_right = 49.5
 offset_bottom = 43.5
 
-[node name="DialoguePlayer" parent="." node_paths=PackedStringArray("dialogue_box", "choice_menu") instance=ExtResource("4_5ybm1")]
+[node name="DialoguePlayer" parent="." unique_id=440563798 node_paths=PackedStringArray("dialogue_box", "choice_menu") instance=ExtResource("4_5ybm1")]
 settings = SubResource("Resource_81mh7")
 dialogue_box = NodePath("../DialogueBox")
 choice_menu = NodePath("../ChoiceMenu")

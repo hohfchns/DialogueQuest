@@ -8,17 +8,21 @@
 
 config_version=5
 
+[animation]
+
+compatibility/default_parent_skeleton_in_mesh_instance_3d=true
+
 [application]
 
 config/name="DialogueQuest"
-config/version="0.7.0-rc3"
+config/version="0.8.0-dev"
 run/main_scene="res://examples/basic/prefabs/entry.tscn"
-config/features=PackedStringArray("4.3", "Forward Plus")
+config/features=PackedStringArray("4.6", "Forward Plus")
 config/icon="res://icon.png"
 
 [autoload]
 
-DialogueQuest="*res://addons/dialogue_quest/scripts/dialogue_quest_interface.gd"
+DialogueQuest="*uid://b672ftpwqx8rj"
 
 [category]
 
@@ -27,6 +31,7 @@ property_name=0
 [dialogue_quest]
 
 data_directory="res://dialogue_quest/"
+say_by_name=true
 
 [editor_plugins]
 

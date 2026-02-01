@@ -1,4 +1,4 @@
-[gd_resource type="Theme" load_steps=5 format=3 uid="uid://b43o8w87vgskk"]
+[gd_resource type="Theme" format=3 uid="uid://b43o8w87vgskk"]
 
 [ext_resource type="StyleBox" uid="uid://bt40pkyuf1dnx" path="res://addons/dialogue_quest/resources/themes/default/components/stylebox/default_panel.tres" id="1_e03ju"]
 [ext_resource type="StyleBox" uid="uid://dvtav16gx0cbc" path="res://addons/dialogue_quest/resources/themes/default/components/stylebox/default_panel_foreground.tres" id="2_pb7ya"]

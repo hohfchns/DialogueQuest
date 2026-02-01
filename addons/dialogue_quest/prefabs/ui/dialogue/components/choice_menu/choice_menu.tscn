@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://dye384gy0fmiu"]
 
 [ext_resource type="Theme" uid="uid://b43o8w87vgskk" path="res://addons/dialogue_quest/resources/themes/default/default_theme.tres" id="1_ov2ao"]
-[ext_resource type="Script" path="res://addons/dialogue_quest/scripts/ui/dialogue/components/choice_menu/choice_menu.gd" id="2_7pwjb"]
+[ext_resource type="Script" uid="uid://gqo5l1l4vu0b" path="res://addons/dialogue_quest/scripts/ui/dialogue/components/choice_menu/choice_menu.gd" id="2_7pwjb"]
 
 [node name="ChoiceMenu" type="PanelContainer"]
 anchors_preset = 8
