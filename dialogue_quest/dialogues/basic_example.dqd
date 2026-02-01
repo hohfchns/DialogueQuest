@@ -1,7 +1,7 @@
 say | shahar | Hey broza
 say | Yo my dude wuzzup
 signal | "whatsup" | 5
-say | shahar | All's good | in da hood |
+shahar | All's good | in da hood |
 call | print("DialogueQuest is awesome!")
 say || Hell yeah :D |
 flag | inc | hell_yeah

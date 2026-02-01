@@ -31,6 +31,7 @@ property_name=0
 [dialogue_quest]
 
 data_directory="res://dialogue_quest/"
+say_by_name=true
 
 [editor_plugins]
 

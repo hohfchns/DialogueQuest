@@ -209,6 +209,12 @@ static func parse_from_text(text: String) -> Array[DqdSection]:
 		for statement in statements:
 			if statement.keyword == DQScriptingHelper.remove_whitespace(pipeline[0]):
 				parsed = statement.parse_function.call(pipeline)
+			elif DialogueQuest.Settings.say_by_name:
+				var character_id: String = DQScriptingHelper.remove_whitespace(pipeline[0])
+				if not character_id.is_empty():
+					if DQCharacter.find_by_id(character_id):
+						pipeline = PackedStringArray(["say"]) + pipeline
+						parsed = _parse_say(pipeline)
 		
 		if parsed == null:
 			var s := "DialogQuest | Dqd | Parser | Parse error at line %d | Statement `%s` not recognized" % [line_num, pipeline[0]]
@@ -253,7 +259,7 @@ static func solve_flags(in_string: String, add_quotes_for_string: bool = false) 
 	return res
 
 ## On success will return [DqdSection.SectionSay].
-## kOn failure will return [DqdError].
+## On failure will return [DqdError].
 static func _parse_say(pipeline: PackedStringArray):
 	if pipeline.size() <= 1:
 		return DqdError.new("DialogQuest | Dqd | Parser | Parse error at line {line} | Cannot parse say statement | Wrong number of arguments (correct -> 1/2, found 0)")
