@@ -15,7 +15,7 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 [application]
 
 config/name="DialogueQuest"
-config/version="0.8.0-dev"
+config/version="0.8.0-beta1"
 run/main_scene="res://examples/basic/prefabs/entry.tscn"
 config/features=PackedStringArray("4.6", "Forward Plus")
 config/icon="res://icon.png"
