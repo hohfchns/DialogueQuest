@@ -117,7 +117,7 @@ static func evaluate_expression(expression: String, base_instance: Object = null
 	var exp := Expression.new()
 	if exp.parse(expression) != OK:
 		return Error.new()
-	var res: Variant = exp.execute([], base_instance)
+	var res: Variant = exp.execute([], base_instance, false)
 	if exp.has_execute_failed():
 		return Error.new()
 	return res

@@ -432,16 +432,15 @@ func _handle_branch(section: DQDqdParser.DqdSection.SectionBranch) -> void:
 				_correct_branch += 1
 		DQDqdParser.DqdSection.SectionBranch.Type.EVALUATE:
 			var res: Variant = DQScriptingHelper.evaluate_expression(section.expression, DialogueQuest)
-			var correct = false
+			if res is DQScriptingHelper.Error and settings.run_expressions_as_script:
+				res = DQScriptingHelper.evaluate_gdscript(section.expression)
 			if res is DQScriptingHelper.Error:
-				if settings.run_expressions_as_script:
-					if DQScriptingHelper.evaluate_gdscript(section.expression):
-						correct = true
-			else:
-				if res:
-					correct = true
-			
-			if correct:
+				var s := "DialogueQuest | Player | Failed to evaluate branch `%s`" % section.expression
+				DialogueQuest.error.emit(s)
+				assert(false, s)
+				stop()
+				return
+			if res:
 				_correct_branch += 1
 	
 	_current_branch += 1
@@ -493,9 +492,15 @@ func _handle_signal(section: DQDqdParser.DqdSection.SectionRaiseDQSignal) -> voi
 	DialogueQuest.Signals.dialogue_signal.emit(section.params)
 
 func _handle_call(section: DQDqdParser.DqdSection.SectionEvaluateCall) -> void:
-	section.expression.execute([], DialogueQuest)
-	if section.expression.has_execute_failed() and settings.run_expressions_as_script:
-		section.run_as_script()
+	section.expression.execute([], DialogueQuest, false)
+	if not section.expression.has_execute_failed():
+		return
+	if settings.run_expressions_as_script and not section.run_as_script() is DQScriptingHelper.Error:
+		return
+	var s := "DialogueQuest | Player | Failed to execute call `%s`" % section.expression_string
+	DialogueQuest.error.emit(s)
+	assert(false, s)
+	stop()
 
 func _handle_flag(section: DQDqdParser.DqdSection.SectionFlag) -> void:
 	section.raise()

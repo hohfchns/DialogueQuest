@@ -37,6 +37,7 @@ func _run() -> void:
 	_check(_test_first_found(), "Lookup tests must complete")
 	_check(await _test_text_effects(), "Text effect tests must complete")
 	_check(_test_zero_increment(), "Zero increment tests must complete")
+	_check(await _test_examples(), "Example playback tests must complete")
 	print("DialogueQuest regression tests: %s failure(s)" % _failures)
 	get_tree().quit(1 if _failures else 0)
 
@@ -231,4 +232,27 @@ func _test_zero_increment() -> bool:
 	_check(DialogueQuest.Flags.get_flag("score") == 10, "An explicit zero increment must not change the flag")
 	_player.play_sections(DQDqdParser.parse_from_text("flag | set | 10 | score\nflag | dec | 0 | score"), "zero_decrement")
 	_check(DialogueQuest.Flags.get_flag("score") == 10, "An explicit zero decrement must not change the flag")
+	return true
+
+func _test_examples() -> bool:
+	_player.settings.run_expressions_as_script = true
+	for path in DQFilesystemHelper.get_all_files("res://dialogue_quest/dialogues/tests", true, ["dqd"]):
+		DialogueQuest.Flags.flag_registry.clear()
+		_player.play(path)
+		var frames := 0
+		while not _player.current_dialogue.is_empty() and frames < 500:
+			_check(not "ERROR" in _player.dialogue_box.text, "Example entered a failing branch: %s" % path)
+			if _player.choice_menu.visible:
+				_player.choice_menu.choice_made.emit(_player.choice_menu.choices[0])
+			else:
+				_player.accept()
+			frames += 1
+			await get_tree().process_frame
+		_check(_player.current_dialogue.is_empty(), "Example must complete: %s" % path)
+		if path.ends_with("test_call_and_signal.dqd"):
+			_check(DialogueQuest.Flags.is_raised("test_call_flag"), "Call examples must run their flag changes")
+		if path.ends_with("test_flag.dqd"):
+			_check(DialogueQuest.Flags.get_flag("dec_negative") == -5, "Flag examples must produce the expected result")
+		_player.stop()
+	_player.settings.run_expressions_as_script = false
 	return true
