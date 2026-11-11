@@ -1,6 +1,19 @@
 extends Node
 class_name DQDialoguePlayer
 
+signal playback_cancelled
+
+class PlaybackWait:
+	signal completed
+	var value: Variant = null
+
+	func complete(result: Variant = null) -> void:
+		value = result
+		completed.emit()
+
+	func cancel() -> void:
+		completed.emit()
+
 class SectionHandler:
 	var section_class: GDScript
 	var callback: Callable
@@ -33,24 +46,27 @@ var autoplaying: bool = false :
 		autoplaying = value
 		if dialogue_box:
 			dialogue_box.set_auto_button_active(autoplaying)
-			_wait_for_input()
 		if autoplaying and skipping:
 			skipping = false
+		_update_advance_timer()
 
 var skipping: bool = false :
 	set(value):
 		skipping = value
 		if dialogue_box:
 			dialogue_box.set_skip_button_active(skipping)
-			_wait_for_input()
 		if skipping and autoplaying:
 			autoplaying = false
+		_update_advance_timer()
 
 ## The current playing dialogue ID.
 var current_dialogue: String = ""
 
 var _lock: bool = false
-var _stop_requested: bool = false
+var _run_id: int = 0
+var _waiting_for_input: bool = false
+var _advance_timer := Timer.new()
+var _pause_timer := Timer.new()
 
 var _correct_branch: int = 0
 var _current_branch: int = 0
@@ -61,6 +77,12 @@ var _dialogue_box_default_speed: int
 var _current_bbcodes: Dictionary = {}
 
 func _ready() -> void:
+	_advance_timer.one_shot = true
+	_pause_timer.one_shot = true
+	add_child(_advance_timer)
+	add_child(_pause_timer)
+	_advance_timer.timeout.connect(accept)
+	_pause_timer.timeout.connect(_on_pause_timeout)
 	DialogueQuest.Inputs.accept_released.connect(accept)
 	
 	if not dialogue_box:
@@ -104,27 +126,64 @@ func play_sections(sections: Array[DQDqdParser.DqdSection], dialogue_id: String=
 		return
 	
 	_lock = true
-	_stop_requested = false
-	await _play(sections, dialogue_id)
-	_lock = false
+	_run_id += 1
+	_play(sections, dialogue_id, _run_id)
 
 func stop() -> void:
 	if _lock:
-		_stop_requested = true
+		_finish_playback()
+
+func _finish_playback() -> void:
+	var dialogue_id := current_dialogue
+	_lock = false
+	_run_id += 1
+	_waiting_for_input = false
+	_advance_timer.stop()
+	_pause_timer.stop()
+	if settings.skip_stop_on_dialogue_end:
+		skipping = false
+	dialogue_box.resume()
+	dialogue_box.hide()
+	choice_menu.hide()
+	_current_bbcodes.clear()
+	current_dialogue = ""
+	playback_cancelled.emit()
+	DialogueQuest.Signals.dialogue_ended.emit(dialogue_id)
+
+## Returns the signal's first argument, or [null] when cancelled.
+func _wait_for_signal(source: Signal) -> Variant:
+	var pending := PlaybackWait.new()
+	source.connect(pending.complete)
+	playback_cancelled.connect(pending.cancel)
+	await pending.completed
+	source.disconnect(pending.complete)
+	playback_cancelled.disconnect(pending.cancel)
+	return pending.value
 
 func _wait_for_input() -> void:
-	if autoplaying:
-		if not dialogue_box.is_finished():
-			await dialogue_box.all_text_shown
-		get_tree().create_timer(settings.autoplay_delay_sec).timeout.connect(accept)
-	elif skipping:
-		while not dialogue_box.is_finished():
-			accept()
-		get_tree().create_timer(1.0 / settings.skip_speed).timeout.connect(accept)
-	
-	await dialogue_box.proceed
+	var run_id := _run_id
+	_waiting_for_input = true
+	_update_advance_timer()
+	await _wait_for_signal(dialogue_box.proceed)
+	if run_id != _run_id:
+		return
+	_waiting_for_input = false
+	_advance_timer.stop()
 
-func _play(sections: Array[DQDqdParser.DqdSection], dialogue_id: String="") -> void:
+func _update_advance_timer() -> void:
+	if not _advance_timer.is_inside_tree():
+		return
+	_advance_timer.stop()
+	if not _lock or not _waiting_for_input:
+		return
+	if skipping:
+		if not dialogue_box.is_finished():
+			dialogue_box.finish()
+		_advance_timer.start(1.0 / settings.skip_speed)
+	elif autoplaying and dialogue_box.is_finished():
+		_advance_timer.start(maxf(settings.autoplay_delay_sec, 0.001))
+
+func _play(sections: Array[DQDqdParser.DqdSection], dialogue_id: String, run_id: int) -> void:
 	_correct_branch = 0
 	_current_branch = 0
 	
@@ -133,8 +192,8 @@ func _play(sections: Array[DQDqdParser.DqdSection], dialogue_id: String="") -> v
 	DialogueQuest.Signals.dialogue_started.emit(current_dialogue)
 	
 	for section in sections:
-		if _stop_requested:
-			break
+		if run_id != _run_id:
+			return
 		
 		section.solve_flags()
 
@@ -145,24 +204,25 @@ func _play(sections: Array[DQDqdParser.DqdSection], dialogue_id: String="") -> v
 			continue
 		
 		for handler in section_handlers:
+			if run_id != _run_id:
+				return
 			if is_instance_of(section, handler.section_class):
 				await handler.callback.call(section)
 	
-	if settings.skip_stop_on_dialogue_end:
-		skipping = false
-	dialogue_box.hide()
-	DialogueQuest.Signals.dialogue_ended.emit(current_dialogue)
-	current_dialogue = ""
+	if run_id == _run_id:
+		_finish_playback()
 
 func set_dialogue_box(value: DQDialogueBox) -> void:
 	if dialogue_box:
 		dialogue_box.text_shown.disconnect(_on_text_shown)
+		dialogue_box.all_text_shown.disconnect(_update_advance_timer)
 	
 	dialogue_box = value
 	
 	_dialogue_box_default_speed = dialogue_box.settings.letters_per_second
 	
 	dialogue_box.text_shown.connect(_on_text_shown)
+	dialogue_box.all_text_shown.connect(_update_advance_timer)
 
 func get_dialogue_box() -> DQDialogueBox:
 	return dialogue_box
@@ -375,6 +435,9 @@ func _handle_branch(section: DQDqdParser.DqdSection.SectionBranch) -> void:
 	_current_branch += 1
 
 func _handle_say(section: DQDqdParser.DqdSection.SectionSay) -> void:
+	var run_id := _run_id
+	_pause_timer.stop()
+	dialogue_box.resume()
 	if not section.texts.size():
 		return
 	
@@ -410,12 +473,16 @@ func _handle_say(section: DQDqdParser.DqdSection.SectionSay) -> void:
 	if texts.size() == 1:
 		if DQScriptingHelper.remove_whitespace(texts[0]).is_empty():
 			if not skipping:
-				await dialogue_box.all_text_shown
+				await _wait_for_signal(dialogue_box.all_text_shown)
 			return
 	await _wait_for_input()
+	if run_id != _run_id:
+		return
 	if not texts.size():
 		return
 	for i in texts.size():
+		_pause_timer.stop()
+		dialogue_box.resume()
 		var prev_len = dialogue_box.text.length()
 		
 		for bbcode_type in custom_bbcodes:
@@ -435,9 +502,11 @@ func _handle_say(section: DQDqdParser.DqdSection.SectionSay) -> void:
 		if i == texts.size() - 2 or (texts.size() - 2) < 0:
 			if DQScriptingHelper.remove_whitespace(texts[texts.size() - 1]).is_empty():
 				if not skipping:
-					await dialogue_box.all_text_shown
+					await _wait_for_signal(dialogue_box.all_text_shown)
 				break
 		await _wait_for_input()
+		if run_id != _run_id:
+			return
 
 func _handle_signal(section: DQDqdParser.DqdSection.SectionRaiseDQSignal) -> void:
 	DialogueQuest.Signals.dialogue_signal.emit(section.params)
@@ -451,11 +520,14 @@ func _handle_flag(section: DQDqdParser.DqdSection.SectionFlag) -> void:
 	section.raise()
 
 func _handle_choice(section: DQDqdParser.DqdSection.SectionChoice) -> void:
+	var run_id := _run_id
 	if not settings.skip_after_choices:
 		skipping = false
 	choice_menu.choices = section.choices
 	choice_menu.show()
-	var choice_made: String = await choice_menu.choice_made
+	var choice_made: Variant = await _wait_for_signal(choice_menu.choice_made)
+	if run_id != _run_id:
+		return
 	choice_menu.hide()
 	DialogueQuest.Flags.make_choice(choice_made)
 
@@ -484,8 +556,10 @@ func _on_text_shown(characters: int) -> void:
 			var index: int = bbcode["start_index"]
 			if characters == index:
 				dialogue_box.pause()
-				await get_tree().create_timer(bbcode["pause"]).timeout
-				dialogue_box.resume()
+				_pause_timer.start(maxf(bbcode["pause"], 0.001))
+
+func _on_pause_timeout() -> void:
+	dialogue_box.resume()
 
 func _on_auto_toggle_requested() -> void:
 	autoplaying = !autoplaying

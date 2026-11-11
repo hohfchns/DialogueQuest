@@ -45,3 +45,11 @@ dialogue_player.play("my_dialogue_name")
 
 If you want to stop the dialogue early, you can call the `DQDialoguePlayer.stop()` method which will end the dialogue early.
 
+Stopping immediately hides the dialogue and choice menu, cancels automatic advancement,
+and releases the built-in input and choice waits. `dialogue_ended` is emitted once,
+after the player has cleared its state. You can start another dialogue from that signal.
+
+Custom asynchronous handlers should listen to the player's `playback_cancelled` signal
+to release their own waits. The player ignores their completion after a dialogue ends,
+but a custom handler remains responsible for cancelling its own external effects.
+
