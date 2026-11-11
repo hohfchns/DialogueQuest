@@ -35,6 +35,7 @@ func _run() -> void:
 	_check(_test_settings(), "Settings tests must complete")
 	_check(_test_character_exchange(), "Character exchange tests must complete")
 	_check(_test_first_found(), "Lookup tests must complete")
+	_check(await _test_text_effects(), "Text effect tests must complete")
 	print("DialogueQuest regression tests: %s failure(s)" % _failures)
 	get_tree().quit(1 if _failures else 0)
 
@@ -198,4 +199,28 @@ func _test_first_found() -> bool:
 	DialogueQuest.Settings.data_directory = original_directory
 	for path in files + characters:
 		DirAccess.remove_absolute(path)
+	return true
+
+func _test_text_effects() -> bool:
+	_check(DQDialogueBoxSettings.new().letters_per_second > 0.0, "New settings must have a usable speed")
+	_player.play_sections(DQDqdParser.parse_from_text("say | [b]Hi[/b]"), "rich_text")
+	_check(_player.dialogue_box.get_total_character_count() == 2, "Character counts must exclude markup")
+	await get_tree().create_timer(0.2).timeout
+	_check(_player.dialogue_box.is_finished(), "Markup must not add invisible typing delays")
+	_player.stop()
+	_player.play_sections(DQDqdParser.parse_from_text("say | [b]A[/b][pause=0.1][speed=5]B[/speed]C"), "mixed_effects")
+	_player.dialogue_box.text_shown.emit(1)
+	_check(_player.dialogue_box.paused, "Pauses must use displayed character positions")
+	_check(_player.dialogue_box.letters_per_second == 5.0, "Speed effects must ignore other markup")
+	_player.dialogue_box.text_shown.emit(2)
+	_check(_player.dialogue_box.letters_per_second == _player.dialogue_box.settings.letters_per_second, "Closing a speed span must restore the default")
+	_player.stop()
+	_player.play_sections(DQDqdParser.parse_from_text("say | [pause=0.1]Start"), "initial_pause")
+	_check(_player.dialogue_box.paused, "Effects at character zero must run before revealing text")
+	_player.stop()
+	_player.play_sections(DQDqdParser.parse_from_text("say || [b]Hi[/b]|[pause=0.1]there"), "split_effects")
+	_player.dialogue_box.finish()
+	_player.accept()
+	_check(_player.dialogue_box.paused, "Split text must resume at the displayed character offset")
+	_player.stop()
 	return true

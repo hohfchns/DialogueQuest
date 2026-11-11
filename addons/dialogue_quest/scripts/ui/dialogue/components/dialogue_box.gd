@@ -13,7 +13,7 @@ signal auto_toggle_requested
 signal skip_toggle_requested
 
 @export
-var settings: DQDialogueBoxSettings :
+var settings: DQDialogueBoxSettings = DQDialogueBoxSettings.new():
 	set(value):
 		settings = value
 		settings_changed.emit(value)
@@ -27,7 +27,14 @@ var portrait_image: Texture2D : set = set_portrait_image, get = get_portrait_ima
 
 var paused: bool = false
 ## Current typing speed. Changing this does not modify the settings Resource.
-var letters_per_second: float = 20.0
+var letters_per_second: float = 20.0:
+	set(value):
+		if not is_finite(value) or value <= 0.0:
+			var s := "DialogueQuest | DialogueBox | Typing speed must be a positive finite number"
+			DialogueQuest.error.emit(s)
+			assert(false, s)
+			return
+		letters_per_second = value
 
 @onready
 var _name: Label = %Name
@@ -65,24 +72,25 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	if _text.visible_characters == -1:
 		return
-	if _text.visible_characters >= _text.text.length():
-		finish()
-		return
-	
 	if paused:
+		return
+	if _text.visible_characters >= _text.get_total_character_count():
+		finish()
 		return
 	
 	_letters_time_debt += delta
 	
-	while _letters_time_debt >= 1.0 / letters_per_second:
-		_text.visible_characters = min(_text.visible_characters + 1, _text.text.length())
+	while not paused and _text.visible_characters < _text.get_total_character_count() and _letters_time_debt >= 1.0 / letters_per_second:
+		_text.visible_characters += 1
 		_letters_time_debt -= (1.0 / letters_per_second)
 		text_shown.emit(_text.visible_characters)
+	if not paused and _text.visible_characters >= _text.get_total_character_count():
+		finish()
 
 func accept() -> void:
 	if _text.visible_characters == -1:
-		proceed.emit()
 		paused = false
+		proceed.emit()
 	else:
 		finish()
 
@@ -95,7 +103,12 @@ func is_finished() -> bool:
 	return _text.visible_characters == -1
 
 func start_progressing(from_character: int = 0) -> void:
+	_letters_time_debt = 0.0
 	set_visible_characters(from_character)
+	text_shown.emit(from_character)
+
+func get_total_character_count() -> int:
+	return _text.get_total_character_count()
 
 func pause() -> void:
 	paused = true

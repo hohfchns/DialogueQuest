@@ -33,3 +33,10 @@ say | I have hi[pause=0.5]-hiccups and a bit of a s[pause=0.1]-s[pause=0.1]-s[pa
 
 [BBCode and Text Effects](#bbcode-and-text-effects)
 
+# Timing and formatting
+
+Speed and pause effects count displayed characters, excluding formatting tags such
+as `[b]`. Effects can be combined with formatting, multiline text, and text split
+across pipes. A pause at the start of the text happens before the first character.
+Speed values must be positive finite numbers; pause durations must be non-negative.
+

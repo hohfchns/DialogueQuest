@@ -32,7 +32,7 @@ var section_handlers: Array[SectionHandler] = [
 ]
 
 @export
-var settings: DQDialoguePlayerSettings
+var settings: DQDialoguePlayerSettings = DQDialoguePlayerSettings.new()
 
 @export
 var dialogue_box: DQDialogueBox : set = set_dialogue_box, get = get_dialogue_box
@@ -71,8 +71,18 @@ var _pause_timer := Timer.new()
 var _correct_branch: int = 0
 var _current_branch: int = 0
 
-## Dictionary of bbcode_type([String]): bbcodes([Array]([Dictionary]))
-var _current_bbcodes: Dictionary = {}
+class TextEffect:
+	var tag: StringName
+	var value: float
+	var start_index: int
+	var end_index: int = -1
+
+class PreparedText:
+	var text: String = ""
+	var effects: Array[TextEffect] = []
+
+var _current_effects: Array[TextEffect] = []
+var _last_pause_index: int = -1
 
 func _ready() -> void:
 	_advance_timer.one_shot = true
@@ -143,7 +153,7 @@ func _finish_playback() -> void:
 	dialogue_box.resume()
 	dialogue_box.hide()
 	choice_menu.hide()
-	_current_bbcodes.clear()
+	_current_effects.clear()
 	current_dialogue = ""
 	playback_cancelled.emit()
 	DialogueQuest.Signals.dialogue_ended.emit(dialogue_id)
@@ -175,10 +185,20 @@ func _update_advance_timer() -> void:
 	if not _lock or not _waiting_for_input:
 		return
 	if skipping:
+		if settings.skip_speed <= 0:
+			var s := "DialogueQuest | Player | Skip speed must be positive"
+			DialogueQuest.error.emit(s)
+			assert(false, s)
+			return
 		if not dialogue_box.is_finished():
 			dialogue_box.finish()
 		_advance_timer.start(1.0 / settings.skip_speed)
 	elif autoplaying and dialogue_box.is_finished():
+		if not is_finite(settings.autoplay_delay_sec) or settings.autoplay_delay_sec < 0.0:
+			var s := "DialogueQuest | Player | Autoplay delay must be a non-negative finite number"
+			DialogueQuest.error.emit(s)
+			assert(false, s)
+			return
 		_advance_timer.start(maxf(settings.autoplay_delay_sec, 0.001))
 
 func _play(sections: Array[DQDqdParser.DqdSection], dialogue_id: String, run_id: int) -> void:
@@ -234,64 +254,46 @@ func accept() -> void:
 	if dialogue_box and dialogue_box.visible:
 		dialogue_box.accept()
 
-## Returns an array consisting of dictionaries with three variables:
-## `value` - The value of the bbcode
-## `content` - The text within the bbcode
-## `final` - `text` with the bbcode removed
-## `start_index` - The index in `final` where `content` begins
-## `end_index` - The index in `final` where `content` ends
-func _extract_bbcode(text: String, tag: String, is_numeral: bool = true) -> Array[Dictionary]:
-	var out: Array[Dictionary] = []
-	var pattern := "\\[%s=(?<%s>\\d+\\.?\\d*)\\](?<content>.*)" % [tag, tag]
-	var regex := RegEx.new()
-	regex.compile(pattern)
-	
-	var t := text
-	var res := regex.search(t)
-	
-	while res != null:
-		var value := res.get_string(tag)
-		if not value:
+func _prepare_text(text: String) -> PreparedText:
+	var result := PreparedText.new()
+	var regex := RegEx.create_from_string(r"\[(?<closing>/)?(?<tag>[a-zA-Z_][a-zA-Z_0-9]*)(?:=(?<value>[^\]]*))?\]")
+	var last_index := 0
+	for found in regex.search_all(text):
+		var tag := StringName(found.get_string("tag"))
+		if not tag in custom_bbcodes:
 			continue
-		
-		var d := {}
-		
-		if is_numeral:
-			if not value.is_valid_float():
-				var s := "DialogueQuest | DialoguePlayer | %s tag provided bad value (non-number)" % tag
-				DialogueQuest.error.emit(s)
-				assert(false, s)
-				return []
-			d[tag] = value.to_float()
-		else:
-			d[tag] = value
-		
-		var content := res.get_string("content")
-		var end_index = content.find("[/%s]" % tag)
-		if end_index != -1:
-			content = content.substr(0, end_index)
-		
-		d["content"] = content
-		
-		var regex_start_index = res.get_start()
-		var regex_end_index: int
-		
-		if end_index == -1:
-			regex_end_index = res.get_end()
-		else:
-			regex_end_index = res.get_start("content") + end_index + len("[/%s]" % tag)
-		
-		d["final"] = t.substr(0, regex_start_index) + content + t.substr(regex_end_index)
-		var start_length: int = res.get_start("content") - regex_start_index
-		d["start_index"] = res.get_start("content") - start_length
-		d["end_index"] = d["start_index"] + len(content)
-		
-		out.append(d)
-		
-		t = d["final"]
-		res = regex.search(t)
-	
-	return out
+		result.text += text.substr(last_index, found.get_start() - last_index)
+		last_index = found.get_end()
+		if not found.get_string("closing").is_empty():
+			for i in range(result.effects.size() - 1, -1, -1):
+				var effect := result.effects[i]
+				if effect.tag == tag and effect.end_index == -1:
+					effect.end_index = result.text.length()
+					break
+			continue
+		var value := found.get_string("value")
+		if not value.is_valid_float() or not is_finite(value.to_float()) or value.to_float() < 0.0 or (tag == &"speed" and value.to_float() == 0.0):
+			var s := "DialogueQuest | Player | Invalid value '%s' for text effect '%s'" % [value, tag]
+			DialogueQuest.error.emit(s)
+			assert(false, s)
+			return null
+		var effect := TextEffect.new()
+		effect.tag = tag
+		effect.value = value.to_float()
+		effect.start_index = result.text.length()
+		result.effects.append(effect)
+	result.text += text.substr(last_index)
+	var label := RichTextLabel.new()
+	label.bbcode_enabled = true
+	for effect in result.effects:
+		if effect.end_index == -1:
+			effect.end_index = result.text.length()
+		label.text = result.text.substr(0, effect.start_index)
+		effect.start_index = label.get_total_character_count()
+		label.text = result.text.substr(0, effect.end_index)
+		effect.end_index = label.get_total_character_count()
+	label.free()
+	return result
 
 func _handle_branch(section: DQDqdParser.DqdSection.SectionBranch) -> void:
 	if section.type == DQDqdParser.DqdSection.SectionBranch.Type.END:
@@ -448,13 +450,9 @@ func _handle_say(section: DQDqdParser.DqdSection.SectionSay) -> void:
 	var run_id := _run_id
 	_pause_timer.stop()
 	dialogue_box.resume()
-	dialogue_box.letters_per_second = dialogue_box.settings.letters_per_second
-	if not section.texts.size():
-		return
-	
-	_current_bbcodes = {}
-	
-	var chara: DQCharacter = section.character
+	_last_pause_index = -1
+	_current_effects.clear()
+	var chara := section.character
 	if chara:
 		dialogue_box.set_name_text(chara.character_name)
 		dialogue_box.set_name_color(chara.color)
@@ -466,55 +464,27 @@ func _handle_say(section: DQDqdParser.DqdSection.SectionSay) -> void:
 		dialogue_box.set_portrait_image(null)
 		dialogue_box.set_text_theme(null)
 		dialogue_box.set_name_theme(null)
-		dialogue_box.start_progressing()
-	
-	for bbcode_type in custom_bbcodes:
-		var t := section.texts[0]
-		var bbcodes := _extract_bbcode(t, bbcode_type)
-		for bb_res in bbcodes:
-			section.texts[0] = bb_res["final"]
-		
-		_current_bbcodes[bbcode_type] = bbcodes
-	
-	dialogue_box.set_text(section.texts[0])
-	
-	dialogue_box.start_progressing()
-	
-	var texts := PackedStringArray(section.texts.slice(1))
-	if texts.size() == 1:
-		if DQScriptingHelper.remove_whitespace(texts[0]).is_empty():
-			if not skipping:
-				await _wait_for_signal(dialogue_box.all_text_shown)
+
+	var source_text := ""
+	for i in section.texts.size():
+		source_text += section.texts[i]
+		var prepared := _prepare_text(source_text)
+		if not prepared:
+			stop()
 			return
-	await _wait_for_input()
-	if run_id != _run_id:
-		return
-	if not texts.size():
-		return
-	for i in texts.size():
+		_current_effects = prepared.effects
+		var previous_count := dialogue_box.get_total_character_count() if i > 0 else 0
+		dialogue_box.set_text(prepared.text)
 		_pause_timer.stop()
 		dialogue_box.resume()
-		var prev_len = dialogue_box.text.length()
-		
-		for bbcode_type in custom_bbcodes:
-			var bbcodes := _extract_bbcode(texts[i], bbcode_type)
-			
-			for bb_res in bbcodes:
-				texts[i] = bb_res["final"]
-				bb_res["start_index"] += prev_len
-				bb_res["end_index"] += prev_len
-			
-			_current_bbcodes[bbcode_type] = bbcodes
-		
-		var text: String = texts[i]
-		
-		dialogue_box.text += text
-		dialogue_box.start_progressing(prev_len)
-		if i == texts.size() - 2 or (texts.size() - 2) < 0:
-			if DQScriptingHelper.remove_whitespace(texts[texts.size() - 1]).is_empty():
-				if not skipping:
-					await _wait_for_signal(dialogue_box.all_text_shown)
-				break
+		dialogue_box.start_progressing(previous_count)
+		var auto_continue := i == section.texts.size() - 2 and section.texts[-1].strip_edges().is_empty()
+		if auto_continue:
+			if skipping:
+				dialogue_box.finish()
+			elif not dialogue_box.is_finished():
+				await _wait_for_signal(dialogue_box.all_text_shown)
+			return
 		await _wait_for_input()
 		if run_id != _run_id:
 			return
@@ -555,19 +525,16 @@ func _handle_sound(section: DQDqdParser.DqdSection.SectionPlaySound) -> void:
 
 func _on_text_shown(characters: int) -> void:
 	dialogue_box.letters_per_second = dialogue_box.settings.letters_per_second
-	if "speed" in _current_bbcodes:
-		for bbcode in _current_bbcodes["speed"]:
-			var content_start: int = bbcode["start_index"]
-			var content_end: int = bbcode["end_index"]
-			if content_start <= characters and characters <= content_end:
-				dialogue_box.letters_per_second = bbcode["speed"]
-	
-	if "pause" in _current_bbcodes:
-		for bbcode in _current_bbcodes["pause"]:
-			var index: int = bbcode["start_index"]
-			if characters == index:
-				dialogue_box.pause()
-				_pause_timer.start(maxf(bbcode["pause"], 0.001))
+	var pause_seconds := 0.0
+	for effect in _current_effects:
+		if effect.tag == &"speed" and effect.start_index <= characters and characters < effect.end_index:
+			dialogue_box.letters_per_second = effect.value
+		elif effect.tag == &"pause" and effect.start_index == characters and characters > _last_pause_index:
+			pause_seconds += effect.value
+	if pause_seconds > 0.0:
+		_last_pause_index = characters
+		dialogue_box.pause()
+		_pause_timer.start(pause_seconds)
 
 func _on_pause_timeout() -> void:
 	dialogue_box.resume()

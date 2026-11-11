@@ -9,7 +9,7 @@ var autoplay_enabled: bool = false :
 		autoplay_enabled = value
 		notify_property_list_changed()
 
-@export
+@export_range(0.0, 60.0, 0.01, "or_greater")
 var autoplay_delay_sec: float = 0.5
 
 @export
@@ -23,7 +23,7 @@ var skip_enabled: bool = false :
 		notify_property_list_changed()
 
 ## How many paragraphs to skip per seconds
-@export
+@export_range(1, 1000, 1, "or_greater")
 var skip_speed: int = 5
 
 ## Whether to keep skipping after a choice is made
