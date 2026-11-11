@@ -71,8 +71,6 @@ var _pause_timer := Timer.new()
 var _correct_branch: int = 0
 var _current_branch: int = 0
 
-var _dialogue_box_default_speed: int
-
 ## Dictionary of bbcode_type([String]): bbcodes([Array]([Dictionary]))
 var _current_bbcodes: Dictionary = {}
 
@@ -191,10 +189,11 @@ func _play(sections: Array[DQDqdParser.DqdSection], dialogue_id: String, run_id:
 	current_dialogue = dialogue_id
 	DialogueQuest.Signals.dialogue_started.emit(current_dialogue)
 	
-	for section in sections:
+	for source in sections:
 		if run_id != _run_id:
 			return
 		
+		var section := source.copy_for_playback()
 		section.solve_flags()
 
 		if section is DQDqdParser.DqdSection.SectionBranch:
@@ -218,8 +217,6 @@ func set_dialogue_box(value: DQDialogueBox) -> void:
 		dialogue_box.all_text_shown.disconnect(_update_advance_timer)
 	
 	dialogue_box = value
-	
-	_dialogue_box_default_speed = dialogue_box.settings.letters_per_second
 	
 	dialogue_box.text_shown.connect(_on_text_shown)
 	dialogue_box.all_text_shown.connect(_update_advance_timer)
@@ -451,6 +448,7 @@ func _handle_say(section: DQDqdParser.DqdSection.SectionSay) -> void:
 	var run_id := _run_id
 	_pause_timer.stop()
 	dialogue_box.resume()
+	dialogue_box.letters_per_second = dialogue_box.settings.letters_per_second
 	if not section.texts.size():
 		return
 	
@@ -556,13 +554,13 @@ func _handle_sound(section: DQDqdParser.DqdSection.SectionPlaySound) -> void:
 	DialogueQuest.Sounds.play_sound(section.sound_file, bus, section.volume)
 
 func _on_text_shown(characters: int) -> void:
-	dialogue_box.settings.letters_per_second = _dialogue_box_default_speed
+	dialogue_box.letters_per_second = dialogue_box.settings.letters_per_second
 	if "speed" in _current_bbcodes:
 		for bbcode in _current_bbcodes["speed"]:
 			var content_start: int = bbcode["start_index"]
 			var content_end: int = bbcode["end_index"]
 			if content_start <= characters and characters <= content_end:
-				dialogue_box.settings.letters_per_second = bbcode["speed"]
+				dialogue_box.letters_per_second = bbcode["speed"]
 	
 	if "pause" in _current_bbcodes:
 		for bbcode in _current_bbcodes["pause"]:

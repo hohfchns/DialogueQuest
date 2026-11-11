@@ -1,6 +1,12 @@
 extends Node
 class_name DQRegressionTests
 
+class CustomSection extends DQDqdParser.DqdSection:
+	var values: Array = [["${name}"]]
+
+	func solve_flags() -> void:
+		values[0][0] = DQDqdParser.solve_flags(values[0][0])
+
 const DIALOGUE_BOX: PackedScene = preload("res://addons/dialogue_quest/prefabs/ui/dialogue/components/dialogue_box/dialogue_box.tscn")
 const CHOICE_MENU: PackedScene = preload("res://addons/dialogue_quest/prefabs/ui/dialogue/components/choice_menu/choice_menu.tscn")
 
@@ -24,6 +30,7 @@ func _run() -> void:
 	DialogueQuest.Signals.dialogue_ended.connect(_on_dialogue_ended)
 	_check(await _test_lifecycle(), "Lifecycle tests must complete")
 	_check(_test_validation(), "Validation tests must complete")
+	_check(_test_replay(), "Replay tests must complete")
 	print("DialogueQuest regression tests: %s failure(s)" % _failures)
 	get_tree().quit(1 if _failures else 0)
 
@@ -84,4 +91,30 @@ func _test_validation() -> bool:
 	_check(DQDqdParser.validate_from_text("branch | flag | score\nsay | Hello\nbranch | end").is_valid(), "Balanced branches must validate")
 	for path in DQFilesystemHelper.get_all_files("res://dialogue_quest/dialogues", true, ["dqd"]):
 		_check(DQDqdParser.validate_from_file(path).is_valid(), "Existing dialogue must validate: %s" % path)
+	return true
+
+func _test_replay() -> bool:
+	var sections := DQDqdParser.parse_from_text("say | [speed=1]Hello ${name}")
+	var original := (sections[0] as DQDqdParser.DqdSection.SectionSay).texts[0]
+	var default_speed := _player.dialogue_box.settings.letters_per_second
+	DialogueQuest.Flags.set_flag("name", "First")
+	_player.play_sections(sections, "replay_first")
+	_check(_player.dialogue_box.text == "Hello First", "First playback must resolve flags")
+	_player.dialogue_box.text_shown.emit(1)
+	_check(_player.dialogue_box.letters_per_second == 1.0, "Speed effects must change runtime speed")
+	_check(_player.dialogue_box.settings.letters_per_second == default_speed, "Speed effects must preserve settings")
+	_player.stop()
+	DialogueQuest.Flags.set_flag("name", "Second")
+	_player.play_sections(sections, "replay_second")
+	_check(_player.dialogue_box.text == "Hello Second", "Replay must use current flags")
+	_check((sections[0] as DQDqdParser.DqdSection.SectionSay).texts[0] == original, "Playback must preserve source text and effects")
+	_player.stop()
+	var call_section := DQDqdParser.parse_from_text("call | print(1)")[0] as DQDqdParser.DqdSection.SectionEvaluateCall
+	var copy := call_section.copy_for_playback() as DQDqdParser.DqdSection.SectionEvaluateCall
+	_check(copy.expression != call_section.expression, "Playback expressions must not be shared")
+	var custom := CustomSection.new()
+	var custom_copy := custom.copy_for_playback() as CustomSection
+	custom_copy.solve_flags()
+	_check(custom_copy.values[0][0] == "Second", "Custom solve_flags hooks must still work")
+	_check(custom.values[0][0] == "${name}", "Nested custom section arrays must remain unchanged")
 	return true

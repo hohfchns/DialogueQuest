@@ -36,6 +36,21 @@ class ParseResult:
 class DqdSection extends Resource:
 	var source_path: String = ""
 	var source_line: int = 0
+
+	## Copies script fields for playback. Objects remain shared; override when mutating them.
+	func copy_for_playback() -> DqdSection:
+		var copy := get_script().new() as DqdSection
+		for property in get_property_list():
+			if not property.usage & PROPERTY_USAGE_SCRIPT_VARIABLE:
+				continue
+			var value: Variant = get(property.name)
+			if value is Array or value is Dictionary:
+				value = value.duplicate(true)
+			elif value is PackedStringArray:
+				value = value.duplicate()
+			copy.set(property.name, value)
+		return copy
+
 	## Handler for the ${flag} syntax, should be implemented by the section
 	func solve_flags() -> void:
 		pass
@@ -65,6 +80,12 @@ class DqdSection extends Resource:
 	class SectionEvaluateCall extends DqdSection:
 		var expression_string: String
 		var expression: Expression
+
+		func copy_for_playback() -> DqdSection:
+			var copy := super.copy_for_playback() as SectionEvaluateCall
+			copy.expression = Expression.new()
+			copy.expression.parse(expression_string)
+			return copy
 		
 		func run_as_script() -> Variant:
 			return DQScriptingHelper.run_pure_gdscript(expression_string)

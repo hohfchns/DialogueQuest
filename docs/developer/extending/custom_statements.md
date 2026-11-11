@@ -34,6 +34,13 @@ First we create a new section class which extends `DQDqdParser.DqdSection`, this
 
 We can give it the `solve_flags()` method which will define how the `${flag}` syntax works in [DQD](#writing-dialogue).
 
+The player calls `solve_flags()` on a playback copy, leaving the parsed section
+unchanged for later playback. Script fields are copied, including independent
+arrays and dictionaries. Referenced Resources and other Objects remain shared.
+Override `copy_for_playback() -> DQDqdParser.DqdSection` if your section mutates
+those objects or requires constructor arguments. Return an independent instance
+containing the original section's source information and data.
+
 Now we need to create our parser function, in this case `_my_statement_func`. Note that the `static` is optional, however the rest of the signature is critical.
 
 The function must take in an argument of type `PackedStringArray`, and must return either an object of class inheriting `DqdSection` indicating it is successful, or `DqdError` indicating it has failed.
