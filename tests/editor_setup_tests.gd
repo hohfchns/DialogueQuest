@@ -37,11 +37,15 @@ func _run() -> void:
 	var player: Node = null
 	for child in layer.get_children():
 		_check(child.owner == edited, "Components must be saved as editable scene instances")
+		if child is CanvasItem:
+			_check(child.visible, "Generated UI components must be visible in the editor")
 		if child.name == &"DialoguePlayer":
 			player = child
 	_check(player != null, "The player must exist")
 	var box := player.get("dialogue_box") as Control
 	_check(box != null and player.get("choice_menu") != null, "The player must reference the generated UI")
+	_check(not String(box.get("text")).is_empty() and not String(box.get("name_text")).is_empty(), "The editor preview must retain default text and name")
+	_check(box.get("portrait_image") != null, "The editor preview must retain its default portrait")
 	var player_settings := player.get("settings") as Resource
 	var box_settings := box.get("settings") as Resource
 	_check(player_settings.resource_path.is_empty(), "Player settings must be independent of addon defaults")

@@ -294,7 +294,9 @@ func _test_generated_setup() -> bool:
 			player = child
 	_check(player != null, "Saved setup must include its player")
 	_check(player.dialogue_box != null and player.choice_menu != null, "Saved setup must retain its references")
+	_check(not player.dialogue_box.visible and not player.choice_menu.visible, "Generated UI must hide on runtime startup")
 	player.play_sections(DQDqdParser.parse_from_text("say | Ready"), "generated_setup")
+	_check(player.dialogue_box.visible, "The generated dialogue box must show when playback starts")
 	_check(player.dialogue_box.text == "Ready", "Generated setup must play without manual wiring")
 	player.stop()
 	setup.queue_free()

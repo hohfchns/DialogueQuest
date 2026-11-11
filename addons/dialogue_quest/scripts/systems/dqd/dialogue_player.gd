@@ -98,6 +98,7 @@ func _ready() -> void:
 	
 	if not dialogue_box.is_node_ready():
 		await dialogue_box.ready
+	dialogue_box.hide()
 	
 	if not choice_menu.is_node_ready():
 		await choice_menu.ready

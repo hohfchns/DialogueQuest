@@ -5,8 +5,10 @@
 Open your scene and choose **Project > Tools > Add DialogueQuest UI**. The helper
 adds a `DialogueQuestUI` CanvasLayer containing a player, dialogue box, and choice
 menu. Their references are already connected and settings are copied from the
-addon defaults. The box starts hidden until dialogue begins. The action supports
-the editor's Undo and Redo commands.
+addon defaults. The components and their preview content remain visible in the
+editor. At runtime, the player hides the box until dialogue begins, and the choice
+menu hides itself until choices are shown. The action supports the editor's Undo
+and Redo commands.
 
 Each component is an ordinary scene instance with its own exported properties.
 You can customize or replace it without enabling Editable Children. Save your scene

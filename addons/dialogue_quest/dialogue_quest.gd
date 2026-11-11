@@ -86,10 +86,6 @@ func add_default_dialogue() -> void:
 	var player := DQ_PLAYER.instantiate(PackedScene.GEN_EDIT_STATE_INSTANCE) as DQDialoguePlayer
 	box.settings = box.settings.duplicate(true) as DQDialogueBoxSettings
 	player.settings = player.settings.duplicate(true) as DQDialoguePlayerSettings
-	box.text = ""
-	box.name_text = ""
-	box.portrait_image = null
-	box.hide()
 	layer.add_child(box)
 	layer.add_child(choices)
 	layer.add_child(player)
