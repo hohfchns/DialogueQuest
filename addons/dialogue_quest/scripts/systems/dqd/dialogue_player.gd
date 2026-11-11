@@ -89,7 +89,7 @@ func _ready() -> void:
 	_pause_timer.one_shot = true
 	add_child(_advance_timer)
 	add_child(_pause_timer)
-	_advance_timer.timeout.connect(accept)
+	_advance_timer.timeout.connect(_on_advance_timeout)
 	_pause_timer.timeout.connect(_on_pause_timeout)
 	DialogueQuest.Inputs.accept_released.connect(accept)
 	
@@ -234,12 +234,12 @@ func _play(sections: Array[DQDqdParser.DqdSection], dialogue_id: String, run_id:
 func set_dialogue_box(value: DQDialogueBox) -> void:
 	if dialogue_box:
 		dialogue_box.text_shown.disconnect(_on_text_shown)
-		dialogue_box.all_text_shown.disconnect(_update_advance_timer)
+		dialogue_box.all_text_shown.disconnect(_on_all_text_shown)
 	
 	dialogue_box = value
 	
 	dialogue_box.text_shown.connect(_on_text_shown)
-	dialogue_box.all_text_shown.connect(_update_advance_timer)
+	dialogue_box.all_text_shown.connect(_on_all_text_shown)
 
 func get_dialogue_box() -> DQDialogueBox:
 	return dialogue_box
@@ -543,6 +543,12 @@ func _on_text_shown(characters: int) -> void:
 
 func _on_pause_timeout() -> void:
 	dialogue_box.resume()
+
+func _on_advance_timeout() -> void:
+	accept()
+
+func _on_all_text_shown() -> void:
+	_update_advance_timer()
 
 func _on_auto_toggle_requested() -> void:
 	autoplaying = !autoplaying

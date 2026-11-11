@@ -29,7 +29,7 @@ func _enter_tree() -> void:
 	_validation_file_dialog.access = EditorFileDialog.ACCESS_RESOURCES
 	_validation_file_dialog.filters = PackedStringArray(["*.dqd ; DialogueQuest dialogue"])
 	_validation_file_dialog.title = "Validate Dialogue"
-	_validation_file_dialog.file_selected.connect(_validate_dialogue)
+	_validation_file_dialog.file_selected.connect(_on_validation_file_selected)
 	EditorInterface.get_base_control().add_child(_validation_file_dialog)
 	EditorInterface.get_base_control().add_child(_validation_result_dialog)
 	add_tool_menu_item("Validate DialogueQuest Dialogue", _show_validation_dialog)
@@ -62,7 +62,7 @@ func _on_main_screen_changed(screen_name: String) -> void:
 func _show_validation_dialog() -> void:
 	_validation_file_dialog.popup_centered_ratio()
 
-func _validate_dialogue(path: String) -> void:
+func _on_validation_file_selected(path: String) -> void:
 	var result := DQDqdParser.validate_from_file(path)
 	var messages: PackedStringArray = []
 	for error in result.errors:

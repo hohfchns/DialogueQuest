@@ -43,12 +43,15 @@ func _ready() -> void:
 	_cdb_import_button.pressed.connect(_on_import)
 	_cdb_select_all_button.pressed.connect(_on_select_all)
 	_cdb_deselect_all_button.pressed.connect(_on_deselect_all)
-	_cdb_refresh_button.pressed.connect(DialogueQuest.CharacterDB.refresh)
+	_cdb_refresh_button.pressed.connect(_on_refresh_character_db)
 	
 	_refresh_character_db_entries()
 
 func _refresh_character_db_entries() -> void:
 	DialogueQuest.CharacterDB.refresh()
+
+func _on_refresh_character_db() -> void:
+	_refresh_character_db_entries()
 
 func _on_character_registry_changed() -> void:
 	_selected.clear()
