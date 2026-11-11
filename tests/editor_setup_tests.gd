@@ -29,6 +29,7 @@ func _run() -> void:
 	if not plugin or not edited:
 		quit(1)
 		return
+	_test_validation()
 	plugin.call(&"add_default_dialogue")
 	_check(edited.get_child_count() == 1, "The helper must add one CanvasLayer")
 	var layer := edited.get_child(0) as CanvasLayer
@@ -61,6 +62,36 @@ func _run() -> void:
 	history.undo()
 	print("DialogueQuest editor tests: %d failure(s)" % _failures)
 	quit(_failures)
+
+func _test_validation() -> void:
+	EditorInterface.get_base_control().get_window().size = Vector2i(1280, 720)
+	var file_dialog: EditorFileDialog = null
+	for node in EditorInterface.get_base_control().find_children("*", "EditorFileDialog", true, false):
+		var dialog := node as EditorFileDialog
+		if dialog.title == "Validate Dialogue":
+			file_dialog = dialog
+	_check(file_dialog != null, "The editor validation file dialog must exist")
+	if not file_dialog:
+		return
+	file_dialog.file_selected.emit("res://dialogue_quest/dialogues/basic_example.dqd")
+	var result_dialog: AcceptDialog = null
+	for node in EditorInterface.get_base_control().find_children("*", "AcceptDialog", true, false):
+		var dialog := node as AcceptDialog
+		if dialog.title == "Dialogue Validation":
+			result_dialog = dialog
+	_check(result_dialog != null, "Validation must open its result dialog")
+	if not result_dialog:
+		return
+	_check(result_dialog.dialog_text.begins_with("No errors found"), "The editor must accept basic_example.dqd")
+	result_dialog.hide()
+	var path := "res://.godot/editor_invalid.dqd"
+	var file := FileAccess.open(path, FileAccess.WRITE)
+	file.store_string("say | Valid\nunknown | Invalid\nbranch | end")
+	file.close()
+	file_dialog.file_selected.emit(path)
+	_check(result_dialog.dialog_text.contains(path + ":2") and result_dialog.dialog_text.contains("unknown"), "The editor must report invalid statements with their source line")
+	_check(result_dialog.dialog_text.contains(path + ":3") and result_dialog.dialog_text.contains("Unmatched branch end"), "The editor must validate branch structure")
+	result_dialog.hide()
 
 func _check(condition: bool, message: String) -> void:
 	if not condition:

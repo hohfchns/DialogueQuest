@@ -10,8 +10,10 @@ The runner imports the project, tests the editor setup helper, runs the regressi
 script errors, engine errors, failed checks, and missing completion output. Logs
 and temporary test files are written under `.godot/`. It needs no testing addon.
 
-The editor stage checks component creation, ownership, settings isolation, undo/redo,
-and saving. The runtime stage also plays dialogue in that saved scene. Godot 4.6
+The editor stage checks component creation, preview visibility, ownership, settings
+isolation, undo/redo, and saving. It also validates the basic dialogue example and
+malformed input through the editor file dialog. The runtime stage checks startup
+visibility and plays dialogue in the saved scene. Godot 4.6
 reports native RID leaks at shutdown even with an empty `--editor --script`
 SceneTree; the runner excludes only those editor shutdown messages from failure
 detection. Runtime engine errors still fail the run.

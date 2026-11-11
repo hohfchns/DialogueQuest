@@ -1,3 +1,4 @@
+@tool
 extends Node
 ## This is a class for parsing .dqd (Dialogue Quest Dialogue) files
 class_name DQDqdParser
