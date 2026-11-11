@@ -67,8 +67,13 @@ func _on_validation_file_selected(path: String) -> void:
 	var messages: PackedStringArray = []
 	for error in result.errors:
 		messages.append(error.formatted())
-	_validation_result_dialog.title = "Dialogue Validation"
-	_validation_result_dialog.dialog_text = "No errors found in %s" % path if result.is_valid() else "\n".join(messages)
+	if result.is_valid():
+		_validation_result_dialog.title = "Dialogue Validation Succeeded"
+		_validation_result_dialog.dialog_text = "Validation successful.\n\nNo errors found in:\n%s" % path
+		print("DialogueQuest | Validation | Successfully validated %s" % path)
+	else:
+		_validation_result_dialog.title = "Dialogue Validation Failed"
+		_validation_result_dialog.dialog_text = "\n".join(messages)
 	_validation_result_dialog.popup_centered(Vector2i(800, 400))
 
 ## Adds the default components to the current scene as one undoable editor action.

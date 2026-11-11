@@ -29,7 +29,7 @@ func _run() -> void:
 	if not plugin or not edited:
 		quit(1)
 		return
-	_test_validation()
+	await _test_validation()
 	plugin.call(&"add_default_dialogue")
 	_check(edited.get_child_count() == 1, "The helper must add one CanvasLayer")
 	var layer := edited.get_child(0) as CanvasLayer
@@ -73,22 +73,28 @@ func _test_validation() -> void:
 	_check(file_dialog != null, "The editor validation file dialog must exist")
 	if not file_dialog:
 		return
-	file_dialog.file_selected.emit("res://dialogue_quest/dialogues/basic_example.dqd")
+	file_dialog.current_path = "res://dialogue_quest/dialogues/basic_example.dqd"
+	file_dialog.popup_centered(Vector2i(800, 400))
+	file_dialog.get_ok_button().pressed.emit()
+	await process_frame
+	await process_frame
 	var result_dialog: AcceptDialog = null
 	for node in EditorInterface.get_base_control().find_children("*", "AcceptDialog", true, false):
 		var dialog := node as AcceptDialog
-		if dialog.title == "Dialogue Validation":
+		if dialog.title == "Dialogue Validation Succeeded":
 			result_dialog = dialog
 	_check(result_dialog != null, "Validation must open its result dialog")
 	if not result_dialog:
 		return
-	_check(result_dialog.dialog_text.begins_with("No errors found"), "The editor must accept basic_example.dqd")
+	_check(not file_dialog.visible and result_dialog.visible, "The success message must remain visible after the file dialog closes")
+	_check(result_dialog.dialog_text.begins_with("Validation successful.") and result_dialog.dialog_text.contains("res://dialogue_quest/dialogues/basic_example.dqd"), "The success message must identify the validated file")
 	result_dialog.hide()
 	var path := "res://.godot/editor_invalid.dqd"
 	var file := FileAccess.open(path, FileAccess.WRITE)
 	file.store_string("say | Valid\nunknown | Invalid\nbranch | end")
 	file.close()
 	file_dialog.file_selected.emit(path)
+	_check(result_dialog.title == "Dialogue Validation Failed", "Invalid dialogue must replace the success result")
 	_check(result_dialog.dialog_text.contains(path + ":2") and result_dialog.dialog_text.contains("unknown"), "The editor must report invalid statements with their source line")
 	_check(result_dialog.dialog_text.contains(path + ":3") and result_dialog.dialog_text.contains("Unmatched branch end"), "The editor must validate branch structure")
 	result_dialog.hide()
