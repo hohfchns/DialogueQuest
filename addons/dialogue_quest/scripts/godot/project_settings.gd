@@ -12,9 +12,9 @@ static func prepare() -> void:
 	var say_by_name_setting := get_say_by_name_setting()
 	
 	if not ProjectSettings.has_setting(data_dir_setting):
-		ProjectSettings.set_setting(data_dir_setting, DialogueQuest.Settings.DEFAULT_PROJECT_LOCAL_DIR)
+		ProjectSettings.set_setting(data_dir_setting, DialogueQuest.Settings.data_directory)
 	if not ProjectSettings.has_setting(say_by_name_setting):
-		ProjectSettings.set_setting(say_by_name_setting, true)
+		ProjectSettings.set_setting(say_by_name_setting, DialogueQuest.Settings.say_by_name)
 	
 	var property_info_data_dir = {
 		"name": data_dir_setting,
@@ -43,10 +43,10 @@ static func get_data_dir_setting() -> StringName:
 	return PROJECT_PROPERTIES_CATEGORY.path_join(PROJECT_PROPERTY_ID_DATA_DIR)
 
 static func get_data_dir() -> StringName:
-	return ProjectSettings.get_setting(get_data_dir_setting())
+	return ProjectSettings.get_setting(get_data_dir_setting(), DQMainSettings.DEFAULT_PROJECT_LOCAL_DIR)
 
 static func get_say_by_name_setting() -> StringName:
 	return PROJECT_PROPERTIES_CATEGORY.path_join(PROJECT_PROPERTY_ID_SAY_BY_NAME)
 
 static func get_say_by_name() -> bool:
-	return ProjectSettings.get_setting(get_say_by_name_setting())
+	return ProjectSettings.get_setting(get_say_by_name_setting(), true)

@@ -2,7 +2,7 @@ extends Node
 class_name DQSounds
 
 func play_sound(sound_name: String, bus: StringName = &"Master", volume: float = 0.0) -> void:
-	var sound_file: String = DQFilesystemHelper.find_sound_file(sound_name, DQProjectSettings.get_data_dir())
+	var sound_file: String = DQFilesystemHelper.find_sound_file(sound_name, DialogueQuest.Settings.data_directory)
 	
 	if AudioServer.get_bus_index(bus) == -1:
 		var s := "DialogueQuest | Sounds | Audio channel `%s` does not exist." % bus

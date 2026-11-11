@@ -31,6 +31,7 @@ func _run() -> void:
 	_check(await _test_lifecycle(), "Lifecycle tests must complete")
 	_check(_test_validation(), "Validation tests must complete")
 	_check(_test_replay(), "Replay tests must complete")
+	_check(_test_settings(), "Settings tests must complete")
 	print("DialogueQuest regression tests: %s failure(s)" % _failures)
 	get_tree().quit(1 if _failures else 0)
 
@@ -117,4 +118,18 @@ func _test_replay() -> bool:
 	custom_copy.solve_flags()
 	_check(custom_copy.values[0][0] == "Second", "Custom solve_flags hooks must still work")
 	_check(custom.values[0][0] == "${name}", "Nested custom section arrays must remain unchanged")
+	return true
+
+func _test_settings() -> bool:
+	var setting_name := DQProjectSettings.get_say_by_name_setting()
+	var original := DQProjectSettings.get_say_by_name()
+	ProjectSettings.set_setting(setting_name, not original)
+	var settings := DQMainSettings.new()
+	add_child(settings)
+	_check(settings.data_directory == DQProjectSettings.get_data_dir(), "Settings must use the configured directory")
+	_check(settings.say_by_name == DQProjectSettings.get_say_by_name(), "Settings must use the configured shorthand option")
+	ProjectSettings.set_setting(setting_name, original)
+	settings.data_directory = "res://examples"
+	_check(settings.get_settings().get_value("files", "data_dir") == "res://examples", "Settings snapshots must include runtime overrides")
+	settings.queue_free()
 	return true
