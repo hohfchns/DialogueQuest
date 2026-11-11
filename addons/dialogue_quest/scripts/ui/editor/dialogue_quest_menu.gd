@@ -54,7 +54,7 @@ func _on_character_registry_changed() -> void:
 		_cdb_entries_container.remove_child(c)
 		c.queue_free()
 	
-	var registry := DialogueQuest.CharacterDB.get_character_registry()
+	var registry: Dictionary = DialogueQuest.CharacterDB.get_character_registry()
 	var i := 0
 	for character in registry.values():
 		var entry := CHARACTER_ENTRY_SCENE.instantiate() as DQEditorCharacterEntry
