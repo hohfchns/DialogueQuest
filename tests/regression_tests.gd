@@ -13,9 +13,11 @@ const CHOICE_MENU: PackedScene = preload("res://addons/dialogue_quest/prefabs/ui
 var _player: DQDialoguePlayer
 var _ended: Array[String] = []
 var _failures: int = 0
+var _checks: int = 0
 var _test_directory: String = "res://.godot/dialogue_quest_tests"
 
 func _ready() -> void:
+	get_tree().create_timer(20.0).timeout.connect(_on_timeout)
 	_run.call_deferred()
 
 func _run() -> void:
@@ -38,13 +40,19 @@ func _run() -> void:
 	_check(await _test_text_effects(), "Text effect tests must complete")
 	_check(_test_zero_increment(), "Zero increment tests must complete")
 	_check(await _test_examples(), "Example playback tests must complete")
-	print("DialogueQuest regression tests: %s failure(s)" % _failures)
+	_check(_test_documentation(), "Documentation examples must complete")
+	print("DialogueQuest regression tests: %d failure(s), %d checks" % [_failures, _checks])
 	get_tree().quit(1 if _failures else 0)
 
 func _check(condition: bool, message: String) -> void:
+	_checks += 1
 	if not condition:
 		_failures += 1
 		push_error(message)
+
+func _on_timeout() -> void:
+	push_error("DialogueQuest regression tests timed out")
+	get_tree().quit(1)
 
 func _test_lifecycle() -> bool:
 	_player.play_sections(DQDqdParser.parse_from_text("say || Waiting | More"), "stop_text")
@@ -96,6 +104,8 @@ func _test_validation() -> bool:
 	_check(not DQDqdParser.validate_from_text("flag | raise | score | extra").is_valid(), "Extra flag arguments must be rejected")
 	_check(not DQDqdParser.validate_from_text("exit | extra").is_valid(), "Extra exit arguments must be rejected")
 	_check(DQDqdParser.validate_from_text("branch | flag | score\nsay | Hello\nbranch | end").is_valid(), "Balanced branches must validate")
+	for text in ["say", "say | missing_character | Hello", "flag | set | 1", "choice | Only one", "sound | missing | Master | loud", "branch | flag > | score", "branch | end | extra"]:
+		_check(not DQDqdParser.validate_from_text(text).is_valid(), "Invalid syntax must be rejected: %s" % text)
 	for path in DQFilesystemHelper.get_all_files("res://dialogue_quest/dialogues", true, ["dqd"]):
 		_check(DQDqdParser.validate_from_file(path).is_valid(), "Existing dialogue must validate: %s" % path)
 	return true
@@ -255,4 +265,17 @@ func _test_examples() -> bool:
 			_check(DialogueQuest.Flags.get_flag("dec_negative") == -5, "Flag examples must produce the expected result")
 		_player.stop()
 	_player.settings.run_expressions_as_script = false
+	return true
+
+func _test_documentation() -> bool:
+	var guide := FileAccess.get_file_as_string("res://docs/developer/systems/flags.md")
+	var example := guide.split("``` gdscript")[1].split("```")[0].strip_edges()
+	var script := GDScript.new()
+	script.source_code = "extends RefCounted\nfunc run() -> void:\n\t" + example.replace("\n", "\n\t")
+	_check(script.reload() == OK, "The documented flags example must compile")
+	var instance := RefCounted.new()
+	instance.set_script(script)
+	instance.call("run")
+	_check(DialogueQuest.Flags.is_raised("flag1"), "The documented raise method must work")
+	_check(DialogueQuest.Flags.get_flag("flag2") == 2, "The documented flag values must be available")
 	return true

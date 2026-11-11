@@ -8,17 +8,17 @@ An example:
 
 ``` gdscript
 
-DialogueQuest.Flags.raise("flag1")
+DialogueQuest.Flags.raise_flag("flag1")
 
 DialogueQuest.Flags.set_flag("flag2", 2)
 
 DialogueQuest.Flags.set_flag("flag3", "a third flag")
 
 # Outputs 2
-print(DialogueQuest.Flags.get("flag2"))
+print(DialogueQuest.Flags.get_flag("flag2"))
 
-# Outputs 'A third flag'
-print(DialogueQuest.Flags.get("flag3"))
+# Outputs 'a third flag'
+print(DialogueQuest.Flags.get_flag("flag3"))
 ```
 
 ## Also see

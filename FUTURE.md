@@ -8,8 +8,8 @@
 - [x] Say by Name feature
 - [ ] Convert scenes to classes
 - [ ] History + Rollback
-- [ ] Fail Tests (wrong syntax or usage being allowed)
-- [ ] (Automatic) Unit tests
+- [x] Fail Tests (wrong syntax or usage being allowed)
+- [x] (Automatic) Unit tests
 
 ## Future Version
 
