@@ -13,6 +13,7 @@ const CHOICE_MENU: PackedScene = preload("res://addons/dialogue_quest/prefabs/ui
 var _player: DQDialoguePlayer
 var _ended: Array[String] = []
 var _failures: int = 0
+var _test_directory: String = "res://.godot/dialogue_quest_tests"
 
 func _ready() -> void:
 	_run.call_deferred()
@@ -32,6 +33,7 @@ func _run() -> void:
 	_check(_test_validation(), "Validation tests must complete")
 	_check(_test_replay(), "Replay tests must complete")
 	_check(_test_settings(), "Settings tests must complete")
+	_check(_test_character_exchange(), "Character exchange tests must complete")
 	print("DialogueQuest regression tests: %s failure(s)" % _failures)
 	get_tree().quit(1 if _failures else 0)
 
@@ -132,4 +134,43 @@ func _test_settings() -> bool:
 	settings.data_directory = "res://examples"
 	_check(settings.get_settings().get_value("files", "data_dir") == "res://examples", "Settings snapshots must include runtime overrides")
 	settings.queue_free()
+	return true
+
+func _test_character_exchange() -> bool:
+	DirAccess.make_dir_recursive_absolute(_test_directory)
+	var character := DQCharacter.new()
+	character.character_id = "test_character"
+	character.character_name = "Original"
+	character.color = Color.CORNFLOWER_BLUE
+	var path := _test_directory.path_join("test_character.dqc")
+	var resource_path := _test_directory.path_join("test_character.tres")
+	_check(character.serialize_to_file(path) == OK, "Character export must succeed")
+	var imported := DQCharacter.new()
+	_check(imported.deserialize_from_file(path, resource_path) == OK, "Character import must succeed")
+	_check(imported.character_name == "Original", "Character metadata must round-trip")
+	var cached := load(resource_path) as DQCharacter
+	character.character_name = "Updated"
+	_check(character.serialize_to_file(path) == OK, "Export must replace an existing file")
+	_check(imported.deserialize_from_file(path, resource_path) == OK, "Import must replace an existing resource")
+	_check(cached.character_name == "Updated", "Reimporting must refresh cached characters")
+	var saved := ResourceLoader.load(resource_path, "", ResourceLoader.CACHE_MODE_IGNORE) as DQCharacter
+	_check(saved.character_name == "Updated", "The saved resource must contain the update")
+	var original_file := FileAccess.get_file_as_string(resource_path)
+	var invalid := FileAccess.open(path, FileAccess.WRITE)
+	invalid.store_string(var_to_str({"name": "Invalid"}))
+	invalid.close()
+	_check(imported.deserialize_from_file(path, resource_path) == ERR_INVALID_DATA, "Malformed imports must fail")
+	_check(imported.character_name == "Updated", "Malformed imports must not change existing data")
+	_check(FileAccess.get_file_as_string(resource_path) == original_file, "Malformed imports must preserve the destination")
+	_check(DQCharacterDBMigrator.import_characters([path], _test_directory) == 0, "Failed imports must not count an existing destination as success")
+	character.character_id = "../outside"
+	_check(character.serialize_to_file(path) == ERR_INVALID_DATA, "Character IDs must not contain paths")
+	character.character_id = "test_character"
+	_check(character.serialize_to_file(path) == OK, "Valid exports must recover after failure")
+	_check(character.serialize_to_file(_test_directory.path_join("missing/character.dqc")) != OK, "Unwritable destinations must report failure")
+	var invalid_character := DQCharacter.new()
+	invalid_character.character_id = "../invalid"
+	_check(DQCharacterDBMigrator.export_characters([character, invalid_character], _test_directory) == 1, "Exports must count only successful writes")
+	DirAccess.remove_absolute(path)
+	DirAccess.remove_absolute(resource_path)
 	return true

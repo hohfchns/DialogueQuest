@@ -44,16 +44,22 @@ static func export_characters(characters: Array[DQCharacter], save_dir: String) 
 	
 	var access := DirAccess.open(save_dir)
 	if not access:
-		_error("DialogueQuest | CharacterDBMigrator | export_characters | Could not open directory at '%s' | Error code: %s" % [save_dir, access.get_open_error()])
+		_error("DialogueQuest | CharacterDBMigrator | export_characters | Could not open directory at '%s' | Error code: %s" % [save_dir, DirAccess.get_open_error()])
 		return -1
 	
 	var export_count := 0
+	var exported_paths: PackedStringArray = []
 	for chara in characters:
 		if not chara:
 			_error("DialogueQuest | CharacterDBMigrator | export_characters | Internal error: Character resource not found")
 			continue
 		var path := "%s/%s.dqc" % [save_dir, chara.character_id]
-		chara.serialize_to_file(path)
+		if path in exported_paths:
+			_error("DialogueQuest | CharacterDBMigrator | Duplicate export path `%s`" % path)
+			continue
+		if chara.serialize_to_file(path) != OK:
+			continue
+		exported_paths.append(path)
 		export_count += 1
 	
 	var total_requested: int = characters.size()
@@ -87,19 +93,16 @@ static func import_characters(character_files: PackedStringArray, save_dir: Stri
 		_error("DialogueQuest | Editor | CharacterDB | Import | Could not find %s files: '%s'" % [missing_files.size(), missing_files])
 		return -1
 	
+	var imported_paths: PackedStringArray = []
 	for f in character_files:
-		var access := FileAccess.open(f, FileAccess.READ)
-		if not access:
-			_error("DialogueQuest | Editor | CharacterDB | Import | Could not open file for reading at '%s' | Error code: %s" % [f, access.get_open_error()])
-			continue
-		
 		var character := DQCharacter.new()
 		var save_path := "%s/%s.tres" % [save_dir, f.get_basename().get_file()]
-		character.deserialize_from_file(f, save_path)
-		
-		if not FileAccess.file_exists(save_path):
-			_error("DialogueQuest | Editor | CharacterDB | Import | Internal Error: Saving resource file went wrong." % [f, access.get_open_error()])
-		
+		if save_path in imported_paths:
+			_error("DialogueQuest | CharacterDBMigrator | Duplicate import path `%s`" % save_path)
+			continue
+		if character.deserialize_from_file(f, save_path) != OK:
+			continue
+		imported_paths.append(save_path)
 		import_count += 1
 	
 	var s := "DialogueQuest | Editor | CharacterDB | Import | Import finished successfully. Imported %s character" % import_count
@@ -109,6 +112,9 @@ static func import_characters(character_files: PackedStringArray, save_dir: Stri
 	
 	if import_count > 0:
 		DialogueQuest.CharacterDB._find_characters_in_project()
+	if import_count != character_files.size():
+		_error("DialogueQuest | CharacterDBMigrator | Import finished with partial success. Imported %d out of %d characters." % [import_count, character_files.size()])
+		return import_count
 	
 	_info(s)
 	
