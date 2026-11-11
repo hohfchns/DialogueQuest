@@ -4,18 +4,38 @@ class_name DQDqdParser
 
 class DqdError:
 	var text: String
-	func formatted(line: int) -> String:
+	var source_path: String = ""
+	var source_line: int = 0
+	func formatted(line: int = -1) -> String:
+		if line < 0:
+			line = source_line
 		var t := text
 		if "line" in text:
 			t = text.format({"line": line})
+		if not source_path.is_empty():
+			t = "%s:%d | %s" % [source_path, line, t]
 		return t
 	
 	func _init(from_text: String) -> void:
 		text = from_text
 
+class ParseResult:
+	var sections: Array[DqdSection] = []
+	var errors: Array[DqdError] = []
+
+	func is_valid() -> bool:
+		return errors.is_empty()
+
+	func add_error(error: DqdError, source_path: String, source_line: int) -> void:
+		error.source_path = source_path
+		error.source_line = source_line
+		errors.append(error)
+
 ## Defines a section of the parsed text
 ## This class is an abstract class, and is to be inherited
 class DqdSection extends Resource:
+	var source_path: String = ""
+	var source_line: int = 0
 	## Handler for the ${flag} syntax, should be implemented by the section
 	func solve_flags() -> void:
 		pass
@@ -168,6 +188,21 @@ static var statements: Array[Statement] = [
 ]
 
 static func parse_from_file(filepath: String) -> Array[DqdSection]:
+	return _checked_sections(validate_from_file(filepath))
+
+static func parse_from_text(text: String) -> Array[DqdSection]:
+	return _checked_sections(validate_from_text(text))
+
+static func _checked_sections(result: ParseResult) -> Array[DqdSection]:
+	if not result.is_valid():
+		for error in result.errors:
+			DialogueQuest.error.emit(error.formatted())
+		assert(false, result.errors[0].formatted())
+		return []
+	return result.sections
+
+## Validates without executing dialogue or emitting errors. Inspect [ParseResult.errors].
+static func validate_from_file(filepath: String) -> ParseResult:
 	if not FileAccess.file_exists(filepath):
 		var dq_dir: String = DialogueQuest.Settings.data_directory
 		var all_dqd := DQFilesystemHelper.get_all_files(dq_dir, true, ["dqd"])
@@ -182,13 +217,16 @@ static func parse_from_file(filepath: String) -> Array[DqdSection]:
 	if f == null:
 		var err := FileAccess.get_open_error()
 		var s := "DialogueQuest | Dqd | File at path `%s` was not found or could not be opened | Error code %d" % [filepath, err]
-		DialogueQuest.error.emit(s)
-		assert(false, s)
+		var result := ParseResult.new()
+		result.add_error(DqdError.new(s), filepath, 0)
+		return result
 
-	return parse_from_text(f.get_as_text())
+	return validate_from_text(f.get_as_text(), filepath)
 
-static func parse_from_text(text: String) -> Array[DqdSection]:
-	var ret: Array[DqdSection]
+## Validates without executing dialogue or emitting errors. Invalid results must not be played.
+static func validate_from_text(text: String, source_path: String = "") -> ParseResult:
+	var result := ParseResult.new()
+	var branch_lines: Array[int] = []
 	
 	var line_num: int = 0
 	for line in text.split("\n"):
@@ -201,34 +239,47 @@ static func parse_from_text(text: String) -> Array[DqdSection]:
 		var has_statements := pipeline.size() and "|" in no_whitespace
 		if not has_statements:
 			var s := "DialogQuest | Dqd | Parser | Parse error at line %d | No statements" % line_num
-			DialogueQuest.error.emit(s)
-			assert(false, s)
+			result.add_error(DqdError.new(s), source_path, line_num)
+			continue
 		
-		var parsed = null
+		var parsed: Variant = null
+		var keyword := DQScriptingHelper.remove_whitespace(pipeline[0])
 
 		for statement in statements:
-			if statement.keyword == DQScriptingHelper.remove_whitespace(pipeline[0]):
+			if statement.keyword == keyword:
 				parsed = statement.parse_function.call(pipeline)
-			elif DialogueQuest.Settings.say_by_name:
-				var character_id: String = DQScriptingHelper.remove_whitespace(pipeline[0])
-				if not character_id.is_empty():
-					if DQCharacter.find_by_id(character_id):
-						pipeline = PackedStringArray(["say"]) + pipeline
-						parsed = _parse_say(pipeline)
+				break
+		if parsed == null and DialogueQuest.Settings.say_by_name and not keyword.is_empty():
+			if DQCharacter.find_by_id(keyword):
+				parsed = _parse_say(PackedStringArray(["say"]) + pipeline)
 		
 		if parsed == null:
 			var s := "DialogQuest | Dqd | Parser | Parse error at line %d | Statement `%s` not recognized" % [line_num, pipeline[0]]
-			DialogueQuest.error.emit(s)
-			assert(false, s)
+			result.add_error(DqdError.new(s), source_path, line_num)
+			continue
 		
 		if parsed is DqdError:
-			var s: String = parsed.formatted(line_num)
-			DialogueQuest.error.emit(s)
-			assert(false, s)
-		else:
-			ret.append(parsed)
+			result.add_error(parsed, source_path, line_num)
+			continue
+		if not parsed is DqdSection:
+			result.add_error(DqdError.new("DialogueQuest | Parser | Invalid section returned at line {line}"), source_path, line_num)
+			continue
+		var section := parsed as DqdSection
+		section.source_path = source_path
+		section.source_line = line_num
+		if section is DqdSection.SectionBranch:
+			if section.type == DqdSection.SectionBranch.Type.END:
+				if branch_lines.is_empty():
+					result.add_error(DqdError.new("DialogueQuest | Parser | Unmatched branch end at line {line}"), source_path, line_num)
+				else:
+					branch_lines.pop_back()
+			else:
+				branch_lines.append(line_num)
+		result.sections.append(section)
 	
-	return ret
+	for line in branch_lines:
+		result.add_error(DqdError.new("DialogueQuest | Parser | Branch at line {line} has no end"), source_path, line)
+	return result
 
 static func solve_flags(in_string: String, add_quotes_for_string: bool = false) -> String:
 	var regex := RegEx.create_from_string(r"\${(.*?)}") # Looks for the ${flag} pattern 
@@ -343,6 +394,12 @@ static func _parse_flag(pipeline: PackedStringArray):
 		return DqdError.new("DialogQuest | Dqd | Parser | Parse error at line {line} | Cannot parse flag statement | Wrong number of arguments (correct -> 2+, found 0)")
 	
 	var section := DqdSection.SectionFlag.new()
+	var operation := DQScriptingHelper.remove_whitespace(pipeline[1])
+	var argument_count := pipeline.size()
+	if (operation in ["raise", "delete"] and argument_count != 3
+		or operation in ["inc", "dec"] and argument_count not in [3, 4]
+		or operation == "set" and argument_count != 4):
+		return DqdError.new("DialogueQuest | Parser | Wrong number of flag arguments at line {line}")
 	match DQScriptingHelper.remove_whitespace(pipeline[1]):
 		"raise":
 			section.type = DqdSection.SectionFlag.Type.RAISE
@@ -385,6 +442,10 @@ static func _parse_flag(pipeline: PackedStringArray):
 		"delete":
 			section.type = DqdSection.SectionFlag.Type.DELETE
 			section.flag = DQScriptingHelper.remove_whitespace(pipeline[2])
+		_:
+			return DqdError.new("DialogueQuest | Parser | Unknown flag operation `%s` at line {line}" % operation)
+	if section.flag.is_empty():
+		return DqdError.new("DialogueQuest | Parser | Empty flag name at line {line}")
 	
 	return section
 
@@ -506,11 +567,15 @@ static func _parse_branch(pipeline: PackedStringArray):
 			section.stringify = false
 			section.expression = DQScriptingHelper.trim_whitespace(pipeline[2])
 
-	assert(section.type != DqdSection.SectionBranch.Type.INVALID, "DialogQuest | Dqd | Parser | Parse error at line {line} | Cannot parse branch statement | `%s` is not a valid branch statement" % pipeline[1])
+	if section.type == DqdSection.SectionBranch.Type.INVALID:
+		return DqdError.new("DialogQuest | Dqd | Parser | Parse error at line {line} | Cannot parse branch statement | `%s` is not a valid branch statement" % pipeline[1])
 	
 	return section
 
-static func _parse_exit(pipeline: PackedStringArray) -> DqdSection.SectionExit:
+## Returns [DqdSection.SectionExit] on success, or [DqdError] on failure.
+static func _parse_exit(pipeline: PackedStringArray) -> Variant:
+	if pipeline.size() != 2 or not pipeline[1].strip_edges().is_empty():
+		return DqdError.new("DialogueQuest | Parser | Exit takes no arguments at line {line}")
 	return DqdSection.SectionExit.new()
 
 static func _parse_sound(pipeline: PackedStringArray):

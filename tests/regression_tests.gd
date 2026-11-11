@@ -23,6 +23,7 @@ func _run() -> void:
 	add_child(_player)
 	DialogueQuest.Signals.dialogue_ended.connect(_on_dialogue_ended)
 	_check(await _test_lifecycle(), "Lifecycle tests must complete")
+	_check(_test_validation(), "Validation tests must complete")
 	print("DialogueQuest regression tests: %s failure(s)" % _failures)
 	get_tree().quit(1 if _failures else 0)
 
@@ -71,3 +72,16 @@ func _on_dialogue_ended(dialogue_id: String) -> void:
 	_ended.append(dialogue_id)
 	if dialogue_id == "chain_first":
 		_player.play_sections(DQDqdParser.parse_from_text("say | Next"), "chain_second")
+
+func _test_validation() -> bool:
+	var result := DQDqdParser.validate_from_text("flag | typo | score\nbranch | end\nbranch | flag | score\nunknown | value", "example.dqd")
+	_check(result.errors.size() == 4, "Validation must collect independent syntax and branch errors")
+	_check(result.errors[0].source_line == 1 and result.errors[0].source_path == "example.dqd", "Diagnostics must retain their source")
+	_check(not DQDqdParser.validate_from_file("res://missing_dialogue.dqd").is_valid(), "Missing files must return diagnostics")
+	_check(not DQDqdParser.validate_from_text("branch | typo | score").is_valid(), "Unknown branches must return diagnostics")
+	_check(not DQDqdParser.validate_from_text("flag | raise | score | extra").is_valid(), "Extra flag arguments must be rejected")
+	_check(not DQDqdParser.validate_from_text("exit | extra").is_valid(), "Extra exit arguments must be rejected")
+	_check(DQDqdParser.validate_from_text("branch | flag | score\nsay | Hello\nbranch | end").is_valid(), "Balanced branches must validate")
+	for path in DQFilesystemHelper.get_all_files("res://dialogue_quest/dialogues", true, ["dqd"]):
+		_check(DQDqdParser.validate_from_file(path).is_valid(), "Existing dialogue must validate: %s" % path)
+	return true

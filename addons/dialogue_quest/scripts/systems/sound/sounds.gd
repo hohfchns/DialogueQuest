@@ -8,17 +8,20 @@ func play_sound(sound_name: String, bus: StringName = &"Master", volume: float =
 		var s := "DialogueQuest | Sounds | Audio channel `%s` does not exist." % bus
 		DialogueQuest.error.emit(s)
 		assert(false, s)
+		return
 	
 	if sound_file.is_empty():
 		var s := "DialogueQuest | Sounds | Sound `%s` was not found." % sound_name
 		DialogueQuest.error.emit(s)
 		assert(false, s)
+		return
 	
 	var sfx := load(sound_file) as AudioStream
 	if sfx == null:
 		var s := "DialogueQuest | Sounds | Sound `%s` at path `%s` is not a valid sound file." % [sound_name, sound_file]
 		DialogueQuest.error.emit(s)
 		assert(false, s)
+		return
 	
 	var player := AudioStreamPlayer.new()
 	add_child(player)

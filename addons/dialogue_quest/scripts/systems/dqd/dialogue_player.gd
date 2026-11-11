@@ -264,6 +264,7 @@ func _extract_bbcode(text: String, tag: String, is_numeral: bool = true) -> Arra
 				var s := "DialogueQuest | DialoguePlayer | %s tag provided bad value (non-number)" % tag
 				DialogueQuest.error.emit(s)
 				assert(false, s)
+				return []
 			d[tag] = value.to_float()
 		else:
 			d[tag] = value
@@ -343,6 +344,8 @@ func _handle_branch(section: DQDqdParser.DqdSection.SectionBranch) -> void:
 				var s := "DialogueQuest | DialoguePlayer | flag comparison operator provided bad value (non-number) %s" % value_str
 				DialogueQuest.error.emit(s)
 				assert(false, s)
+				stop()
+				return
 			var value := float(value_str)
 			var flag_value = DialogueQuest.Flags.get_flag(flag_name)
 			if flag_value == null:
@@ -356,6 +359,8 @@ func _handle_branch(section: DQDqdParser.DqdSection.SectionBranch) -> void:
 				var s := "DialogueQuest | DialoguePlayer | flag comparison operator provided bad value (non-number) %s" % value_str
 				DialogueQuest.error.emit(s)
 				assert(false, s)
+				stop()
+				return
 			var value := float(value_str)
 			var flag_value = DialogueQuest.Flags.get_flag(flag_name)
 			if flag_value == null:
@@ -369,6 +374,8 @@ func _handle_branch(section: DQDqdParser.DqdSection.SectionBranch) -> void:
 				var s := "DialogueQuest | DialoguePlayer | flag comparison operator provided bad value (non-number) %s" % value_str
 				DialogueQuest.error.emit(s)
 				assert(false, s)
+				stop()
+				return
 			var value := float(value_str)
 			var flag_value = DialogueQuest.Flags.get_flag(flag_name)
 			if flag_value == null:
@@ -382,6 +389,8 @@ func _handle_branch(section: DQDqdParser.DqdSection.SectionBranch) -> void:
 				var s := "DialogueQuest | DialoguePlayer | flag comparison operator provided bad value (non-number) %s" % value_str
 				DialogueQuest.error.emit(s)
 				assert(false, s)
+				stop()
+				return
 			var value := float(value_str)
 			var flag_value = DialogueQuest.Flags.get_flag(flag_name)
 			if flag_value == null:
@@ -397,6 +406,8 @@ func _handle_branch(section: DQDqdParser.DqdSection.SectionBranch) -> void:
 				var s := "DialogueQuest | DialoguePlayer | flag comparison operator provided bad value (can't convert to an expression) `%s`" % value_str
 				DialogueQuest.error.emit(s)
 				assert(false, s)
+				stop()
+				return
 			
 			var flag_value = DialogueQuest.Flags.get_flag(flag_name)
 			if flag_value == null:
@@ -412,6 +423,8 @@ func _handle_branch(section: DQDqdParser.DqdSection.SectionBranch) -> void:
 				var s := "DialogueQuest | DialoguePlayer | flag comparison operator provided bad value (can't convert to an expression) `%s`" % value_str
 				DialogueQuest.error.emit(s)
 				assert(false, s)
+				stop()
+				return
 			
 			var flag_value = DialogueQuest.Flags.get_flag(flag_name)
 			if flag_value == null:
