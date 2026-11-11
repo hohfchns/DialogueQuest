@@ -36,6 +36,7 @@ func _run() -> void:
 	_check(_test_character_exchange(), "Character exchange tests must complete")
 	_check(_test_first_found(), "Lookup tests must complete")
 	_check(await _test_text_effects(), "Text effect tests must complete")
+	_check(_test_zero_increment(), "Zero increment tests must complete")
 	print("DialogueQuest regression tests: %s failure(s)" % _failures)
 	get_tree().quit(1 if _failures else 0)
 
@@ -223,4 +224,11 @@ func _test_text_effects() -> bool:
 	_player.accept()
 	_check(_player.dialogue_box.paused, "Split text must resume at the displayed character offset")
 	_player.stop()
+	return true
+
+func _test_zero_increment() -> bool:
+	_player.play_sections(DQDqdParser.parse_from_text("flag | set | 10 | score\nflag | inc | 0 | score"), "zero_increment")
+	_check(DialogueQuest.Flags.get_flag("score") == 10, "An explicit zero increment must not change the flag")
+	_player.play_sections(DQDqdParser.parse_from_text("flag | set | 10 | score\nflag | dec | 0 | score"), "zero_decrement")
+	_check(DialogueQuest.Flags.get_flag("score") == 10, "An explicit zero decrement must not change the flag")
 	return true

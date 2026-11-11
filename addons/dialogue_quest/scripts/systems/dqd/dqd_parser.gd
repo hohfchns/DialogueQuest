@@ -114,12 +114,12 @@ class DqdSection extends Resource:
 				Type.RAISE:
 					DialogueQuest.Flags.raise_flag(flag)
 				Type.INCREMENT:
-					if value:
+					if value != null:
 						DialogueQuest.Flags.increment_flag(flag, value)
 					else:
 						DialogueQuest.Flags.increment_flag(flag)
 				Type.DECREMENT:
-					if value:
+					if value != null:
 						DialogueQuest.Flags.decrement_flag(flag, value)
 					else:
 						DialogueQuest.Flags.decrement_flag(flag)
