@@ -41,6 +41,7 @@ func _run() -> void:
 	_check(_test_zero_increment(), "Zero increment tests must complete")
 	_check(await _test_examples(), "Example playback tests must complete")
 	_check(_test_documentation(), "Documentation examples must complete")
+	_check(_test_generated_setup(), "Generated setup playback must complete")
 	print("DialogueQuest regression tests: %d failure(s), %d checks" % [_failures, _checks])
 	get_tree().quit(1 if _failures else 0)
 
@@ -278,4 +279,23 @@ func _test_documentation() -> bool:
 	instance.call("run")
 	_check(DialogueQuest.Flags.is_raised("flag1"), "The documented raise method must work")
 	_check(DialogueQuest.Flags.get_flag("flag2") == 2, "The documented flag values must be available")
+	return true
+
+func _test_generated_setup() -> bool:
+	var path := "res://.godot/editor_setup_saved.tscn"
+	if not FileAccess.file_exists(path):
+		return true
+	var scene := load(path) as PackedScene
+	var setup := scene.instantiate()
+	add_child(setup)
+	var player: DQDialoguePlayer = null
+	for child in setup.get_child(0).get_children():
+		if child is DQDialoguePlayer:
+			player = child
+	_check(player != null, "Saved setup must include its player")
+	_check(player.dialogue_box != null and player.choice_menu != null, "Saved setup must retain its references")
+	player.play_sections(DQDqdParser.parse_from_text("say | Ready"), "generated_setup")
+	_check(player.dialogue_box.text == "Ready", "Generated setup must play without manual wiring")
+	player.stop()
+	setup.queue_free()
 	return true
