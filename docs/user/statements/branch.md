@@ -125,7 +125,7 @@ branch | evaluate | ${number_of_corners} == 3
 	say | This is my hat
 branch | end
 
-// You can also use the 'or', 'and', '&&', '||' statements to check multiple conditions.
+// Use 'or' and 'and' to check multiple conditions. Pipes separate DQD arguments.
 branch | evaluate | ${number_of_corners} > 3 or ${number_of_corners} < 3
 	say | This is not my hat
 branch | end

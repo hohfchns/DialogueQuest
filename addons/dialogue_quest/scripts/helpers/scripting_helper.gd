@@ -107,15 +107,17 @@ static func run_pure_gdscript(code: String, evaluate: bool = false) -> Variant:
 		script.set_source_code("func eval():\n    return " + code)
 	else:
 		script.set_source_code("func eval():\n    " + code)
-	script.reload()
+	if script.reload() != OK:
+		return Error.new()
 	var ref = RefCounted.new()
 	ref.set_script(script)
 	return ref.eval()
 
 static func evaluate_expression(expression: String, base_instance: Object = null) -> Variant:
 	var exp := Expression.new()
-	exp.parse(expression)
-	var res: Variant = exp.execute([], base_instance)
+	if exp.parse(expression) != OK:
+		return Error.new()
+	var res: Variant = exp.execute([], base_instance, false)
 	if exp.has_execute_failed():
 		return Error.new()
 	return res

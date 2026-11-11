@@ -2,6 +2,18 @@
 
 ## Scene setup
 
+Open your scene and choose **Project > Tools > Add DialogueQuest UI**. The helper
+adds a `DialogueQuestUI` CanvasLayer containing a player, dialogue box, and choice
+menu. Their references are already connected and settings are copied from the
+addon defaults. The components and their preview content remain visible in the
+editor. At runtime, the player hides the box until dialogue begins, and the choice
+menu hides itself until choices are shown. The action supports the editor's Undo
+and Redo commands.
+
+Each component is an ordinary scene instance with its own exported properties.
+You can customize or replace it without enabling Editable Children. Save your scene
+normally to keep the setup. The manual setup below remains supported.
+
 To play dialogue, you should set up your scene as follows:
 ```
 ...
@@ -41,7 +53,19 @@ dialogue_player.play("my_dialogue_name")
 
 **Take note -** If your `.dqd` file is not in your [data directory](#the-data-directory), you will have to provide the full filepath.
 
+Short names use the first matching file found while scanning the data directory.
+If several files share a name, use a full path to select one explicitly. Full paths
+are used as given; a missing full path does not fall back to another file's name.
+
 ## Stopping the dialogue
 
 If you want to stop the dialogue early, you can call the `DQDialoguePlayer.stop()` method which will end the dialogue early.
+
+Stopping immediately hides the dialogue and choice menu, cancels automatic advancement,
+and releases the built-in input and choice waits. `dialogue_ended` is emitted once,
+after the player has cleared its state. You can start another dialogue from that signal.
+
+Custom asynchronous handlers should listen to the player's `playback_cancelled` signal
+to release their own waits. The player ignores their completion after a dialogue ends,
+but a custom handler remains responsible for cancelling its own external effects.
 

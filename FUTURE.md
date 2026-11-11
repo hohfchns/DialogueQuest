@@ -6,10 +6,10 @@
 
 - [x] Upgrade to Godot 4.6
 - [x] Say by Name feature
-- [ ] Convert scenes to classes
+- [x] Editor helper for instantiating and connecting default dialogue components
 - [ ] History + Rollback
-- [ ] Fail Tests (wrong syntax or usage being allowed)
-- [ ] (Automatic) Unit tests
+- [x] Fail Tests (wrong syntax or usage being allowed)
+- [x] (Automatic) Unit tests
 
 ## Future Version
 

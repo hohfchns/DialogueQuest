@@ -6,8 +6,8 @@ class_name DQDialogueBoxSettings
 var text_finished_marker_enabled: bool = true
 
 @export_group("Text")
-@export
-var letters_per_second: float
+@export_range(0.01, 1000.0, 0.01, "or_greater")
+var letters_per_second: float = 20.0
 
 @export_group("Layout Direction", "layout_direction_")
 @export
