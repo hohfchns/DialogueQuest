@@ -1,5 +1,6 @@
 @tool
 extends Control
+class_name DQEditorMenu
 
 const CHARACTER_ENTRY_SCENE: PackedScene = preload("res://addons/dialogue_quest/prefabs/ui/editor/character_entry.tscn")
 
@@ -42,14 +43,15 @@ func _ready() -> void:
 	_cdb_import_button.pressed.connect(_on_import)
 	_cdb_select_all_button.pressed.connect(_on_select_all)
 	_cdb_deselect_all_button.pressed.connect(_on_deselect_all)
-	_cdb_refresh_button.pressed.connect(_on_refresh_character_db)
+	_cdb_refresh_button.pressed.connect(DialogueQuest.CharacterDB.refresh)
 	
 	_refresh_character_db_entries()
 
 func _refresh_character_db_entries() -> void:
-	DialogueQuest.CharacterDB._find_characters_in_project()
+	DialogueQuest.CharacterDB.refresh()
 
 func _on_character_registry_changed() -> void:
+	_selected.clear()
 	for c in _cdb_entries_container.get_children():
 		_cdb_entries_container.remove_child(c)
 		c.queue_free()
@@ -98,9 +100,6 @@ func _on_deselect_all() -> void:
 		if not entry:
 			continue
 		entry.checkbox.set_pressed_no_signal(false)
-
-func _on_refresh_character_db() -> void:
-	_refresh_character_db_entries()
 
 func _on_toggle(on: bool, idx: int) -> void:
 	if on:

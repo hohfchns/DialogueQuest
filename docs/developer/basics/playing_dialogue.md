@@ -41,6 +41,10 @@ dialogue_player.play("my_dialogue_name")
 
 **Take note -** If your `.dqd` file is not in your [data directory](#the-data-directory), you will have to provide the full filepath.
 
+Short names use the first matching file found while scanning the data directory.
+If several files share a name, use a full path to select one explicitly. Full paths
+are used as given; a missing full path does not fall back to another file's name.
+
 ## Stopping the dialogue
 
 If you want to stop the dialogue early, you can call the `DQDialoguePlayer.stop()` method which will end the dialogue early.

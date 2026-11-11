@@ -34,6 +34,7 @@ func _run() -> void:
 	_check(_test_replay(), "Replay tests must complete")
 	_check(_test_settings(), "Settings tests must complete")
 	_check(_test_character_exchange(), "Character exchange tests must complete")
+	_check(_test_first_found(), "Lookup tests must complete")
 	print("DialogueQuest regression tests: %s failure(s)" % _failures)
 	get_tree().quit(1 if _failures else 0)
 
@@ -173,4 +174,28 @@ func _test_character_exchange() -> bool:
 	_check(DQCharacterDBMigrator.export_characters([character, invalid_character], _test_directory) == 1, "Exports must count only successful writes")
 	DirAccess.remove_absolute(path)
 	DirAccess.remove_absolute(resource_path)
+	return true
+
+func _test_first_found() -> bool:
+	var original_directory: String = DialogueQuest.Settings.data_directory
+	var directory := _test_directory.path_join("lookup")
+	for folder in ["a", "b"]:
+		DirAccess.make_dir_recursive_absolute(directory.path_join(folder))
+		var file := FileAccess.open(directory.path_join(folder).path_join("duplicate.dqd"), FileAccess.WRITE)
+		file.store_string("say | %s" % folder)
+		file.close()
+		var character := DQCharacter.new()
+		character.character_id = "duplicate"
+		character.character_name = folder
+		ResourceSaver.save(character, directory.path_join(folder).path_join("character.tres"))
+	DialogueQuest.Settings.data_directory = directory
+	var files := DQFilesystemHelper.get_all_files(directory, true, ["dqd"])
+	var result := DQDqdParser.validate_from_file("duplicate")
+	_check(result.is_valid() and result.sections[0].source_path == files[0], "Short names must select the first discovered dialogue")
+	var characters := DQFilesystemHelper.get_all_files(directory, true, ["tres"])
+	_check(DialogueQuest.CharacterDB.get_character_from_id("duplicate").resource_path == characters[0], "Duplicate character IDs must keep the first discovered resource")
+	_check(not DQDqdParser.validate_from_file(directory.path_join("missing/duplicate.dqd")).is_valid(), "Explicit missing paths must not select unrelated files")
+	DialogueQuest.Settings.data_directory = original_directory
+	for path in files + characters:
+		DirAccess.remove_absolute(path)
 	return true

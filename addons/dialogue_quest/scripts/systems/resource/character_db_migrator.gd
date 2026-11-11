@@ -111,7 +111,7 @@ static func import_characters(character_files: PackedStringArray, save_dir: Stri
 	s += "."
 	
 	if import_count > 0:
-		DialogueQuest.CharacterDB._find_characters_in_project()
+		DialogueQuest.CharacterDB.refresh()
 	if import_count != character_files.size():
 		_error("DialogueQuest | CharacterDBMigrator | Import finished with partial success. Imported %d out of %d characters." % [import_count, character_files.size()])
 		return import_count

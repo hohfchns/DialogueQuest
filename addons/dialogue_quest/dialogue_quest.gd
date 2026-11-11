@@ -50,14 +50,9 @@ func _get_plugin_name() -> String:
 
 func _on_main_screen_changed(screen_name: String) -> void:
 	if screen_name == _get_plugin_name():
-		var dq = Engine.get_singleton(&"DialogueQuest")
-		if not dq:
-			return
-		
-		if not dq.is_node_ready():
-			await dq.ready
-		
-		main_panel_instance._refresh_character_db_entries()
+		if not DialogueQuest.is_node_ready():
+			await DialogueQuest.ready
+		DialogueQuest.CharacterDB.refresh()
 
 func _show_validation_dialog() -> void:
 	_validation_file_dialog.popup_centered_ratio()

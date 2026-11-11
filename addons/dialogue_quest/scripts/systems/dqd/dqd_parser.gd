@@ -224,7 +224,7 @@ static func _checked_sections(result: ParseResult) -> Array[DqdSection]:
 
 ## Validates without executing dialogue or emitting errors. Inspect [ParseResult.errors].
 static func validate_from_file(filepath: String) -> ParseResult:
-	if not FileAccess.file_exists(filepath):
+	if not FileAccess.file_exists(filepath) and not filepath.contains("/") and not filepath.contains("\\"):
 		var dq_dir: String = DialogueQuest.Settings.data_directory
 		var all_dqd := DQFilesystemHelper.get_all_files(dq_dir, true, ["dqd"])
 		for f in all_dqd:
@@ -233,6 +233,7 @@ static func validate_from_file(filepath: String) -> ParseResult:
 			
 			if req_name == f_name:
 				filepath = f
+				break
 	
 	var f := FileAccess.open(filepath, FileAccess.READ)
 	if f == null:
